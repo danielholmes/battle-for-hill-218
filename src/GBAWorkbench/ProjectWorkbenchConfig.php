@@ -64,10 +64,10 @@ class ProjectWorkbenchConfig
      */
     public static function loadFrom(Project $project)
     {
-        $filepath = $project->getDirectory() . DIRECTORY_SEPARATOR . 'gbaproject.json';
+        $filepath = $project->getDirectory()->getPathname() . DIRECTORY_SEPARATOR . 'gbaproject.json';
         $rawContent = @file_get_contents($filepath);
         if ($rawContent === false) {
-            throw new \InvalidArgumentException(sprintf('Couldn\'t read project config %s', $filepath));
+            throw new \InvalidArgumentException("Couldn't read project config {$filepath}");
         }
 
         $rawConfig = @json_decode($rawContent, true);

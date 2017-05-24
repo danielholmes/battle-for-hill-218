@@ -9,7 +9,7 @@ use Symfony\Component\Finder\SplFileInfo;
 class Project
 {
     /**
-     * @var string
+     * @var \SplFileInfo
      */
     private $directory;
 
@@ -19,16 +19,16 @@ class Project
     private $name;
 
     /**
-     * @param string $directory
+     * @param \SplFileInfo $directory
      * @param string $name
      */
-    private function __construct($directory, $name) {
+    private function __construct(\SplFileInfo $directory, $name) {
         $this->directory = $directory;
         $this->name = $name;
     }
 
     /**
-     * @return string
+     * @return \SplFileInfo
      */
     public function getDirectory()
     {
@@ -49,7 +49,7 @@ class Project
     public function getAllFiles()
     {
         $finder = new Finder();
-        $finder->in($this->directory)
+        $finder->in($this->directory->getPathname())
             ->files()
             ->name('*.php')
             ->name('*.css')
@@ -65,13 +65,26 @@ class Project
     }
 
     /**
-     * @param $directory
+     * @param string $path
+     * @return SplFileInfo
+     */
+    public function getFile($path)
+    {
+        if (strpos($path, $this->directory->getPathname()) !== 0) {
+            throw new \RuntimeException("File {$path} not within project");
+        }
+        $relativePathname = str_replace_first($this->directory->getPathname(), '', $path);
+        return new SplFileInfo($path, dirname($relativePathname), $relativePathname);
+    }
+
+    /**
+     * @param \SplFileInfo $directory
      * @return Project
      */
-    public static function loadFrom($directory) {
-        $versionFilepath = $directory . DIRECTORY_SEPARATOR . 'version.php';
+    public static function loadFrom(\SplFileInfo $directory) {
+        $versionFilepath = $directory->getPathname() . DIRECTORY_SEPARATOR . 'version.php';
         if (!is_readable($versionFilepath)) {
-            throw new \InvalidArgumentException(sprintf('Couldn\'t find version.php in directory %s', $directory));
+            throw new \InvalidArgumentException("Couldn't find version.php in directory {$directory->getPathname()}");
         }
 
         $GAME_VERSION_PREFIX = 'game_version_';
@@ -87,11 +100,9 @@ class Project
         null
         );
         if ($projectName === null) {
-            throw new \InvalidArgumentException(sprintf(
-                'File %s doesn\'t have expected version variable $%s_%%project_name%%',
-                $versionFilepath,
-                $GAME_VERSION_PREFIX
-            ));
+            throw new \InvalidArgumentException(
+                "File {$versionFilepath} doesn't have expected version variable ${$GAME_VERSION_PREFIX}_%%project_name%%"
+            );
         }
 
         return new Project($directory, $projectName);
