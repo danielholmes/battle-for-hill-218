@@ -7,7 +7,7 @@
  * This code has been produced on the BGA studio platform for use on http://boardgamearena.com.
  * See http://en.boardgamearena.com/#!doc/Studio for more information.
  * -----
- * 
+ *
  * states.inc.php
  *
  * BattleForHillDhau game states description
@@ -49,7 +49,7 @@
 
 //    !! It is not a good idea to modify this file when a game is running !!
 
- 
+
 $machinestates = array(
 
     // The initial state. Please do not modify.
@@ -58,18 +58,36 @@ $machinestates = array(
         "description" => "",
         "type" => "manager",
         "action" => "stGameSetup",
-        "transitions" => array( "" => 2 )
+        "transitions" => array("" => 2)
     ),
-    
+
     // Note: ID=2 => your first state
 
     2 => array(
-    		"name" => "playerTurn",
-    		"description" => clienttranslate('${actplayer} must play a card or pass'),
-    		"descriptionmyturn" => clienttranslate('${you} must play a card or pass'),
-    		"type" => "activeplayer",
-    		"possibleactions" => array( "playCard", "pass" ),
-    		"transitions" => array( "playCard" => 2, "pass" => 2 )
+        "name" => "returnToDeck",
+        //"description" => clienttranslate('${actplayer} must play a card or pass'),
+        "descriptionmyturn" => clienttranslate('${you} must choose 2 cards to return to the bottom of your deck'),
+        "type" => "multipleactiveplayer",
+        "possibleactions" => array("returnToDeck"),
+        "transitions" => array("waitForNextReturn" => 2, "allReturned" => 3)
+    ),
+
+    3 => array(
+        "name" => "playCard",
+        "description" => clienttranslate('${actplayer} must place a card'),
+        "descriptionmyturn" => clienttranslate('${you} must place a card'),
+        "type" => "activeplayer",
+        "possibleactions" => array("playCard"),
+        "transitions" => array("waitForNextPlacement" => 3, "allPlayed" => 4)
+    ),
+
+    4 => array(
+        "name" => "drawCards",
+        "description" => "",
+        "type" => "game",
+        "action" => "stDrawCards",
+        "transitions" => array("cardsDrawn" => 3),
+        "updateGameProgression" => true
     ),
     
 /*
@@ -98,12 +116,12 @@ $machinestates = array(
     // Final state.
     // Please do not modify.
     99 => array(
-        "name" => "gameEnd",
-        "description" => clienttranslate("End of game"),
-        "type" => "manager",
-        "action" => "stGameEnd",
-        "args" => "argGameEnd"
-    )
+    "name" => "gameEnd",
+    "description" => clienttranslate("End of game"),
+    "type" => "manager",
+    "action" => "stGameEnd",
+    "args" => "argGameEnd"
+)
 
 );
 

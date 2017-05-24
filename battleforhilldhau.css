@@ -50,13 +50,13 @@
 }
 
 #players-panel {
-    width: 300px;
-    float: left;
+    width: 400px;
+    float: right;
 }
 
 #cards-panel {
     float: none; /* not needed, just for clarification */
     width: auto;
     overflow: hidden;
-    margin-left: 340px;
+    margin-right: 410px;
 }​

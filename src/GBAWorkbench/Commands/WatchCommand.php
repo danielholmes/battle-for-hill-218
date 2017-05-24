@@ -44,10 +44,10 @@ class WatchCommand extends Command
 
         $output->writeln('Watching for changes');
         $handler = function($resource, $path) use ($project, $deployment, $output) {
-            $file = $project->getFile($path);
+            $file = $project->absoluteToProjectRelativeFile(new \SplFileInfo($path));
             $output->write("-> {$file->getRelativePathname()}");
             $deployment->deployFile($file, $file->getRelativePathname());
-            $output->writeln(' ✓');
+            $output->writeln(' <info>✓</info>');
         };
         $files = new Filesystem();
         $tracker = new Tracker();

@@ -15,10 +15,11 @@
   },
   "bin": ["bin/gbawb"],
   "require-dev": {
-    "jasonlewis/resource-watcher": "1.2.*",
-    "symfony/console": "3.2.*",
-    "symfony/config": "3.2.*",
-    "symfony/finder": "3.2.*",
-    "phpseclib/phpseclib": "2.0.*"
+    "jasonlewis/resource-watcher": "1.2.0",
+    "symfony/console": "3.2.8",
+    "symfony/config": "3.2.8",
+    "symfony/finder": "3.2.8",
+    "phpseclib/phpseclib": "2.0.5",
+    "phpoption/phpoption": "1.5.0"
   }
 }
