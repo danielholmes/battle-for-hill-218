@@ -1,10 +1,9 @@
 <?php
 
-namespace GBAWorkbench\Commands;
+namespace BGAWorkbench\Commands;
 
-use GBAWorkbench\ProductionDeployment;
-use GBAWorkbench\Project;
-use GBAWorkbench\ProjectWorkbenchConfig;
+use BGAWorkbench\ProductionDeployment;
+use BGAWorkbench\ProjectWorkbenchConfig;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -27,8 +26,9 @@ class DeployCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $project = Project::loadFrom(new \SplFileInfo(getcwd()));
-        $config = ProjectWorkbenchConfig::loadFrom($project);
+        $cwd = new \SplFileInfo(getcwd());
+        $config = ProjectWorkbenchConfig::loadFrom($cwd);
+        $project = $config->loadProject();
 
         $deployment = new ProductionDeployment(
             $config->getSftpHost(),

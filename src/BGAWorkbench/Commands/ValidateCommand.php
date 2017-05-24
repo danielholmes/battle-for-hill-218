@@ -1,9 +1,10 @@
 <?php
 
-namespace GBAWorkbench\Commands;
+namespace BGAWorkbench\Commands;
 
-use GBAWorkbench\Project;
-use GBAWorkbench\StateConfiguration;
+use BGAWorkbench\Project;
+use BGAWorkbench\ProjectWorkbenchConfig;
+use BGAWorkbench\StateConfiguration;
 use Symfony\Component\Config\Definition\Processor;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -27,7 +28,8 @@ class ValidateCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $project = Project::loadFrom(new \SplFileInfo(getcwd()));
+        $config = ProjectWorkbenchConfig::loadFrom(new \SplFileInfo(getcwd()));
+        $project = $config->loadProject();
 
         // TODO: ensure all req files exist
         // TODO: Lint all php files

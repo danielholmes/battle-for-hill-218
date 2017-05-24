@@ -1,10 +1,9 @@
 <?php
 
-namespace GBAWorkbench\Commands;
+namespace BGAWorkbench\Commands;
 
-use GBAWorkbench\ProductionDeployment;
-use GBAWorkbench\Project;
-use GBAWorkbench\ProjectWorkbenchConfig;
+use BGAWorkbench\ProductionDeployment;
+use BGAWorkbench\ProjectWorkbenchConfig;
 use Illuminate\Filesystem\Filesystem;
 use JasonLewis\ResourceWatcher\Tracker;
 use JasonLewis\ResourceWatcher\Watcher;
@@ -30,8 +29,8 @@ class WatchCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $project = Project::loadFrom(new \SplFileInfo(getcwd()));
-        $config = ProjectWorkbenchConfig::loadFrom($project);
+        $config = ProjectWorkbenchConfig::loadFrom(new \SplFileInfo(getcwd()));
+        $project = $config->loadProject();
         $deployment = new ProductionDeployment(
             $config->getSftpHost(),
             $config->getSftpUsername(),
@@ -42,11 +41,19 @@ class WatchCommand extends Command
         $output->writeln('Connecting');
         $deployment->connect();
 
+        $output->writeln('Deploying changed files');
+        $deployment->deployChangedFiles(
+            $project->getAllFiles(),
+            function ($num, $total, $file) use ($output) {
+                $output->writeln("{$num}/{$total} -> {$file->getRelativePathname()} <info>✓</info>");
+            }
+        );
+
         $output->writeln('Watching for changes');
         $handler = function($resource, $path) use ($project, $deployment, $output) {
             $file = $project->absoluteToProjectRelativeFile(new \SplFileInfo($path));
             $output->write("-> {$file->getRelativePathname()}");
-            $deployment->deployFile($file, $file->getRelativePathname());
+            $deployment->deployFile($file);
             $output->writeln(' <info>✓</info>');
         };
         $files = new Filesystem();
@@ -57,6 +64,6 @@ class WatchCommand extends Command
             $listener->onCreate($handler);
             $listener->onModify($handler);
         }
-        $watcher->start();
+        $watcher->start(500000);
     }
 }

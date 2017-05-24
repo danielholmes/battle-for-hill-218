@@ -1,7 +1,7 @@
 <?php
 
 
-namespace GBAWorkbench;
+namespace BGAWorkbench;
 
 
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
@@ -23,6 +23,13 @@ class ConfigFileConfiguration implements ConfigurationInterface
                         ->scalarNode('user')->end()
                         ->scalarNode('pass')->end()
                     ->end()
+                ->end()
+                ->booleanNode('useComposer')
+                    ->defaultFalse()
+                ->end()
+                ->arrayNode('extraSrc')
+                    ->defaultValue(array())
+                    ->prototype('scalar')->end()
                 ->end()
             ->end()
         ;

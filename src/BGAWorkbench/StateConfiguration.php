@@ -1,7 +1,7 @@
 <?php
 
 
-namespace GBAWorkbench;
+namespace BGAWorkbench;
 
 
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;

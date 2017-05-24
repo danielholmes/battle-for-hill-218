@@ -2,9 +2,9 @@
 
 require __DIR__ . '/../vendor/autoload.php';
 
-use GBAWorkbench\Commands\WatchCommand;
-use GBAWorkbench\Commands\DeployCommand;
-use GBAWorkbench\Commands\ValidateCommand;
+use BGAWorkbench\Commands\WatchCommand;
+use BGAWorkbench\Commands\DeployCommand;
+use BGAWorkbench\Commands\ValidateCommand;
 use Symfony\Component\Console\Application;
 
 $application = new Application();

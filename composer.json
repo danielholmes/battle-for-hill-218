@@ -11,13 +11,17 @@
     }
   ],
   "autoload": {
-    "psr-4": {"GBAWorkbench\\": "src/GBAWorkbench"}
+    "psr-4": {"BGAWorkbench\\": "src/BGAWorkbench"}
   },
-  "bin": ["bin/gbawb"],
+  "bin": ["bin/bgawb"],
+  "require": {
+    "doctrine/dbal": "2.5.12"
+  },
   "require-dev": {
     "jasonlewis/resource-watcher": "1.2.0",
     "symfony/console": "3.2.8",
     "symfony/config": "3.2.8",
+    "symfony/process": "3.2.8",
     "symfony/finder": "3.2.8",
     "phpseclib/phpseclib": "2.0.5",
     "phpoption/phpoption": "1.5.0"

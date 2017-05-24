@@ -17,35 +17,44 @@
   */
 
 
-require_once( APP_GAMEMODULE_PATH.'module/table/table.game.php' );
+
+require_once(APP_GAMEMODULE_PATH.'module/table/table.game.php');
+require_once(__DIR__ . '/vendor/autoload.php');
+
+use Doctrine\DBAL\Configuration;
+use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\DriverManager;
 
 
 class BattleForHillDhau extends Table
 {
-	function BattleForHillDhau( )
+    /**
+     * @var Connection
+     */
+    private $conn;
+
+	public function __construct()
 	{
-        	
- 
-        // Your global variables labels:
-        //  Here, you can assign labels to global variables you are using for this game.
-        //  You can use any number of global variables with IDs between 10 and 99.
-        //  If your game has options (variants), you also have to associate here a label to
-        //  the corresponding ID in gameoptions.inc.php.
-        // Note: afterwards, you can get/set the global variables with getGameStateValue/setGameStateInitialValue/setGameStateValue
-        parent::__construct();self::initGameStateLabels( array( 
-            //    "my_first_global_variable" => 10,
-            //    "my_second_global_variable" => 11,
-            //      ...
-            //    "my_first_game_variant" => 100,
-            //    "my_second_game_variant" => 101,
-            //      ...
-        ) );
-        
+        parent::__construct();
+
+        self::initGameStateLabels(array());
+
+        $config = new Configuration();
+        $connectionParams = array(
+            'dbname' => 'mysql',
+            'user' => '',
+            'password' => '',
+            'host' => 'localhost',
+            'driver' => 'pdo_mysql'
+        );
+        $this->conn = DriverManager::getConnection($connectionParams, $config);
 	}
-	
+
+    /**
+     * @return string
+     */
     protected function getGameName( )
     {
-		// Used for translations and stuff. Please do not modify.
         return "battleforhilldhau";
     }	
 
@@ -56,44 +65,36 @@ class BattleForHillDhau extends Table
         In this method, you must setup the game according to the game rules, so that
         the game is ready to be played.
     */
-    protected function setupNewGame( $players, $options = array() )
-    {    
-        // Set the colors of the players with HTML color code
-        // The default below is red/green/blue/orange/brown
-        // The number of colors defined here must correspond to the maximum number of players allowed for the gams
-        $default_colors = array( "ff0000", "008000", "0000ff", "ffa500", "773300" );
- 
-        // Create players
-        // Note: if you added some extra field on "player" table in the database (dbmodel.sql), you can initialize it there.
+    protected function setupNewGame($players, $options = array())
+    {
+        $this->setupPlayers($players);
+        // Setup stats here
+        // TODO: setup the initial game situation here
+
+        $this->gamestate->setAllPlayersMultiactive();
+    }
+
+    /**
+     * @param array $players
+     */
+    private function setupPlayers(array $players)
+    {
+        $infos = self::getGameInfosForGame($this->gamename);
+        $colors = $infos['player_colors'];
+
         $sql = "INSERT INTO player (player_id, player_color, player_canal, player_name, player_avatar) VALUES ";
         $values = array();
-        foreach( $players as $player_id => $player )
+        $i = 0;
+        foreach ($players as $player_id => $player)
         {
-            $color = array_shift( $default_colors );
+            $color = $colors[$i];
             $values[] = "('".$player_id."','$color','".$player['player_canal']."','".addslashes( $player['player_name'] )."','".addslashes( $player['player_avatar'] )."')";
+            $i++;
         }
         $sql .= implode( $values, ',' );
         self::DbQuery( $sql );
-        self::reattributeColorsBasedOnPreferences( $players, array(  "ff0000", "008000", "0000ff", "ffa500", "773300" ) );
+        self::reattributeColorsBasedOnPreferences($players, $colors);
         self::reloadPlayersBasicInfos();
-        
-        /************ Start the game initialization *****/
-
-        // Init global values with their initial values
-        //self::setGameStateInitialValue( 'my_first_global_variable', 0 );
-        
-        // Init game statistics
-        // (note: statistics used in this file must be defined in your stats.inc.php file)
-        //self::initStat( 'table', 'table_teststat1', 0 );    // Init a table statistics
-        //self::initStat( 'player', 'player_teststat1', 0 );  // Init a player statistics (for all players)
-
-        // TODO: setup the initial game situation here
-       
-
-        // Activate first player (which is in general a good idea :) )
-        $this->activeNextPlayer();
-
-        /************ End of the game initialization *****/
     }
 
     /*
@@ -107,6 +108,8 @@ class BattleForHillDhau extends Table
     */
     protected function getAllDatas()
     {
+        echo 'QUERY: ' . $this->conn->createQueryBuilder()->select('*')->from('player')->where('player_score = player_id')->getSQL();
+
         $result = array( 'players' => array() );
     
         $current_player_id = self::getCurrentPlayerId();    // !! We must only return informations visible by this player !!
