@@ -27,8 +27,13 @@
 
 
 <div id="game-container">
-    <div id="player-panel" class="whiteblock">
-        Player Panel
+    <div id="players-panel">
+        <div id="opponent-hand" class="whiteblock">
+            <h3>Opponent Hand</h3>
+        </div>
+        <div id="my-hand" class="whiteblock">
+            <h3>My Hand</h3>
+        </div>
     </div>
     <div id="cards-panel" class="whiteblock">
         Cards Panel<br />

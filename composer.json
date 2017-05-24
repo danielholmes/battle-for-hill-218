@@ -1,0 +1,24 @@
+{
+  "name": "dhau/thebattlefor",
+  "type": "project",
+  "description": "The Battle for Hill 218 - BoardGameArena implementation",
+  "minimum-stability": "stable",
+  "license": "proprietary",
+  "authors": [
+    {
+      "name": "Daniel Holmes",
+      "email": "daniel@danielholmes.org"
+    }
+  ],
+  "autoload": {
+    "psr-4": {"GBAWorkbench\\": "src/GBAWorkbench"}
+  },
+  "bin": ["bin/gbawb"],
+  "require-dev": {
+    "jasonlewis/resource-watcher": "1.2.*",
+    "symfony/console": "3.2.*",
+    "symfony/config": "3.2.*",
+    "symfony/finder": "3.2.*",
+    "phpseclib/phpseclib": "2.0.*"
+  }
+}
