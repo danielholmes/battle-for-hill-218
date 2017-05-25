@@ -9,12 +9,13 @@
 ## Development Requirements
 
  - PHP 5.6+
+ - [Composer](https://getcomposer.org/)
 
 
 ## Setting up Developer Machine
 
 ```
-php composer.phar install
+composer install
 ```
 
 

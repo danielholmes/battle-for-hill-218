@@ -53,8 +53,7 @@ class ComposerProject extends Project
         }
 
         $builder = new ProcessBuilder(array(
-            'php',
-            $this->getDirectory()->getPathname() . DIRECTORY_SEPARATOR . 'composer.phar',
+            'composer',
             'install',
             '--no-dev',
             '-o',
