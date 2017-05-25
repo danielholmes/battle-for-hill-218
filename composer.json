@@ -18,6 +18,7 @@
   },
   "bin": ["bin/bgawb"],
   "require": {
+    "lstrojny/functional-php": "1.0.0"
   },
   "require-dev": {
     "jasonlewis/resource-watcher": "1.2.0",

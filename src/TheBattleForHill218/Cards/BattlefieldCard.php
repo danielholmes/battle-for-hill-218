@@ -2,13 +2,7 @@
 
 namespace TheBattleForHill218\Cards;
 
-abstract class BattlefieldCard implements Card
+interface BattlefieldCard extends Card
 {
-    /**
-     * @inheritdoc
-     */
-    public function alwaysStartsInHand()
-    {
-        return false;
-    }
+
 }

@@ -24,8 +24,9 @@ foreach ($prevAutoloads as $prevAutoload) {
     spl_autoload_register($prevAutoload, true, false);
 }
 
-use TheBattleForHill218\Cards\Card;
-use TheBattleForHill218\Deck;
+use Functional as F;
+use TheBattleForHill218\Cards\PlayerCard;
+use TheBattleForHill218\Hill218Setup;
 use TheBattleForHill218\SQLHelper;
 
 
@@ -59,8 +60,7 @@ class BattleForHillDhau extends Table
         // TODO: Setup stats here
         $this->setupBattlefield();
         foreach (array_keys($players) as $playerId) {
-            $remainingCards = $this->setupHand($playerId);
-            $this->setupDeck($playerId, $remainingCards);
+            $this->setupPlayerCards($playerId);
         }
         $this->gamestate->setAllPlayersMultiactive();
     }
@@ -111,23 +111,35 @@ class BattleForHillDhau extends Table
 
     /**
      * @param int $playerId
-     * @return Card[]
      */
-    private function setupHand($playerId)
+    private function setupPlayerCards($playerId)
     {
-        $allCards = Deck::getStartingCards();
-        $required = array_values(array_filter($allCards, function(Card $card) { return $card->alwaysStartsInHand(); }));
-        $remaining = array_diff($allCards, $required);
-        return $remaining;
+        list($hand, $deck) = Hill218Setup::getPlayerStartingCards($playerId);
+        $this->saveCards('hand_card', $hand);
+        $this->saveCards('deck_card', $deck);
     }
 
     /**
-     * @param int $playerId
-     * @param Card[] $cards
+     * @param string $table
+     * @param PlayerCard[] $cards
      */
-    private function setupDeck($playerId, array $cards)
+    private function saveCards($table, array $cards)
     {
-        // 2 air strikes
+        self::DBQuery(
+            SQLHelper::insertAll(
+                $table,
+                F\map(
+                    $cards,
+                    function(PlayerCard $card, $i) {
+                        return array(
+                            'player_id' => $card->getPlayerId(),
+                            'type' => $card->getTypeKey(),
+                            'order' => $i
+                        );
+                    }
+                )
+            )
+        );
     }
 
     /*

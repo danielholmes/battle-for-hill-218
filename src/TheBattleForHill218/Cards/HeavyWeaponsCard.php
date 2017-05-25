@@ -2,7 +2,7 @@
 
 namespace TheBattleForHill218\Cards;
 
-class HeavyWeaponsCard extends BattlefieldCard
+class HeavyWeaponsCard extends BasePlayerCard implements BattlefieldCard
 {
     /**
      * @return string

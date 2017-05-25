@@ -8,9 +8,4 @@ interface Card
      * @return string
      */
     function getTypeKey();
-
-    /**
-     * @return boolean
-     */
-    function alwaysStartsInHand();
 }

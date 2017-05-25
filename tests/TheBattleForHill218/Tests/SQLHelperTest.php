@@ -38,4 +38,31 @@ class SQLHelperTest extends TestCase
         $this->expectException('RuntimeException');
         SQLHelper::insert('person', array('name' => $this));
     }
+
+    public function testBasicInsertAll()
+    {
+        assertThat(
+            SQLHelper::insertAll(
+                'person',
+                array(
+                    array('name' => 'Daniel Holmes', 'age' => 32),
+                    array('name' => 'Lava Raman', 'age' => 31)
+                )
+            ),
+            equalTo("INSERT INTO `person` (`name`, `age`) VALUES ('Daniel Holmes', 32), ('Lava Raman', 31)")
+        );
+    }
+
+    public function testInsertAllWithDifferingKeys()
+    {
+        $this->expectException('InvalidArgumentException');
+
+        SQLHelper::insertAll(
+            'person',
+            array(
+                array('name' => 'Daniel Holmes'),
+                array('label' => 'Lava Raman')
+            )
+        );
+    }
 }

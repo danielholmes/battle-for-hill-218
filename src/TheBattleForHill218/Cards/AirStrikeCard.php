@@ -2,7 +2,7 @@
 
 namespace TheBattleForHill218\Cards;
 
-class AirStrikeCard implements Card
+class AirStrikeCard extends BasePlayerCard
 {
     /**
      * @inheritdoc

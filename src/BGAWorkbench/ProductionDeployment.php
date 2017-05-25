@@ -98,6 +98,17 @@ class ProductionDeployment
     /**
      * @param SplFileInfo $file
      */
+    public function remove(SplFileInfo $file)
+    {
+        $remoteName = $file->getRelativePathname();
+        if (!$this->sftp->delete($remoteName)) {
+            throw new \RuntimeException("Error deleting {$remoteName}");
+        }
+    }
+
+    /**
+     * @param SplFileInfo $file
+     */
     public function deployFile(SplFileInfo $file)
     {
         $remoteName = $file->getRelativePathname();
