@@ -24,6 +24,8 @@ foreach ($prevAutoloads as $prevAutoload) {
     spl_autoload_register($prevAutoload, true, false);
 }
 
+use TheBattleForHill218\Cards\Card;
+use TheBattleForHill218\Deck;
 use TheBattleForHill218\SQLHelper;
 
 
@@ -54,9 +56,12 @@ class BattleForHillDhau extends Table
     protected function setupNewGame($players, $options = array())
     {
         $this->setupPlayers($players);
-        // Setup stats here
-        // TODO: setup the initial game situation here
-
+        // TODO: Setup stats here
+        $this->setupBattlefield();
+        foreach (array_keys($players) as $playerId) {
+            $remainingCards = $this->setupHand($playerId);
+            $this->setupDeck($playerId, $remainingCards);
+        }
         $this->gamestate->setAllPlayersMultiactive();
     }
 
@@ -69,7 +74,7 @@ class BattleForHillDhau extends Table
             throw new InvalidArgumentException('Can only work with 2 players');
         }
 
-        $infos = self::getGameInfosForGame($this->gamename);
+        $infos = self::getGameInfosForGame($this->getGameName());
         $colors = $infos['player_colors'];
         $directions = array('-1', '1');
 
@@ -89,6 +94,40 @@ class BattleForHillDhau extends Table
 
         self::reattributeColorsBasedOnPreferences($players, $colors);
         self::reloadPlayersBasicInfos();
+    }
+
+    /**
+     *
+     */
+    private function setupBattlefield()
+    {
+        self::DBQuery(SQLHelper::insert('battlefield_card', array(
+            'type' => 'hill',
+            'player_id' => null,
+            'x' => 0,
+            'y' => 0
+        )));
+    }
+
+    /**
+     * @param int $playerId
+     * @return Card[]
+     */
+    private function setupHand($playerId)
+    {
+        $allCards = Deck::getStartingCards();
+        $required = array_values(array_filter($allCards, function(Card $card) { return $card->alwaysStartsInHand(); }));
+        $remaining = array_diff($allCards, $required);
+        return $remaining;
+    }
+
+    /**
+     * @param int $playerId
+     * @param Card[] $cards
+     */
+    private function setupDeck($playerId, array $cards)
+    {
+        // 2 air strikes
     }
 
     /*
