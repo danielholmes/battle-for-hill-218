@@ -38,6 +38,8 @@ class DeployCommand extends Command
             $project->getName()
         );
 
+        // TODO: Run tests and validate first?
+
         $output->writeln('Connecting');
         $deployment->connect();
 

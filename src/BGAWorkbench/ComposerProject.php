@@ -40,16 +40,15 @@ class ComposerProject extends Project
      */
     private function createVendorFiles()
     {
-        $distDir = new \SplFileInfo($this->getDirectory()->getPathname() . DIRECTORY_SEPARATOR . 'dist');
+        $tempDir = new \SplFileInfo(sys_get_temp_dir() . DIRECTORY_SEPARATOR . $this->getName() . '-vendors');
         $fileSystem = new Filesystem();
-        if ($fileSystem->exists($distDir->getPathname())) {
-            $fileSystem->remove($distDir->getPathname());
-        }
-        $fileSystem->mkdir($distDir->getPathname());
+        // TODO: Persist vendor/autoload.php and vendor/composer
+        $fileSystem->remove($tempDir->getPathname());
+        $fileSystem->mkdir($tempDir->getPathname());
         foreach (array('composer.json', 'composer.lock') as $composerFileName) {
             $fileSystem->copy(
                 $this->getDirectory()->getPathname() . DIRECTORY_SEPARATOR . $composerFileName,
-                $distDir->getPathname() . DIRECTORY_SEPARATOR . $composerFileName
+                $tempDir->getPathname() . DIRECTORY_SEPARATOR . $composerFileName
             );
         }
 
@@ -60,7 +59,7 @@ class ComposerProject extends Project
             '--no-dev',
             '-o',
             '-d',
-            $distDir->getPathname()
+            $tempDir->getPathname()
         ));
         $process = $builder->getProcess();
         $process->run();
@@ -69,7 +68,7 @@ class ComposerProject extends Project
         }
 
         $finder = Finder::create()
-            ->in($distDir->getPathname())
+            ->in($tempDir->getPathname())
             ->files()
             ->notName('composer.lock')
             ->notName('composer.json')

@@ -3,7 +3,6 @@
 
 namespace BGAWorkbench;
 
-
 use PhpOption\None;
 use PhpOption\Option;
 use PhpOption\Some;

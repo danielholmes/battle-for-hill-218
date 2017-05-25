@@ -79,20 +79,17 @@ class Project
     }
 
     /**
-     * @param string $path
+     * @param SplFileInfo $file
      * @param ImmArray $exclude
      * @return ImmArray
      */
-    private function getPathFiles($path, ImmArray $exclude = null)
+    private function getPathFiles(SplFileInfo $file, ImmArray $exclude)
     {
-        if ($exclude === null) {
-            $exclude = ImmArray::fromArray(array());
-        }
         $finder = Finder::create()
-            ->in($this->directory . DIRECTORY_SEPARATOR . $path)
+            ->in($file->getPathname())
             ->files();
         foreach ($exclude as $excludeFile) {
-            if ($excludeFile->getRelativePath() === $path) {
+            if ($excludeFile->getRelativePath() === $file->getRelativePathname()) {
                 $finder = $finder->notName($excludeFile->getBasename());
             }
         }
@@ -110,18 +107,30 @@ class Project
      */
     public function getAllFiles()
     {
-        $required = $this->getRequiredFiles();
+        return $this->getDevelopmentLocations()
+            ->reduce(
+                function(ImmArray $current, SplFileInfo $file) {
+                    if ($file->isFile()) {
+                        return $current->concat(ImmArray::fromArray(array($file)));
+                    }
 
+                    return $current->concat($this->getPathFiles($file, $this->getRequiredFiles()));
+                },
+                ImmArray::fromArray(array())
+            );
+    }
+
+    /**
+     * @return ImmArray
+     */
+    public function getDevelopmentLocations()
+    {
+        $required = $this->getRequiredFiles();
         return $required
             ->concat(
                 $this->extraSrcPaths
                     ->concat(ImmArray::fromArray(array('img')))
-                    ->reduce(
-                        function(ImmArray $current, $path) use ($required) {
-                            return $current->concat($this->getPathFiles($path, $required));
-                        },
-                        ImmArray::fromArray(array())
-                    )
+                    ->map(function($path) { return $this->getProjectFile($path); })
             );
     }
 

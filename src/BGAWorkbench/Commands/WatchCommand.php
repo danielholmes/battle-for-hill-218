@@ -52,6 +52,7 @@ class WatchCommand extends Command
 
         $output->writeln('Watching for changes');
         $handler = function($resource, $path) use ($project, $deployment, $output) {
+            // TODO: Run tests and validate before transfer?
             $file = $project->absoluteToProjectRelativeFile(new \SplFileInfo($path));
             $output->write("-> {$file->getRelativePathname()}");
             $deployment->deployFile($file);
@@ -60,11 +61,11 @@ class WatchCommand extends Command
         $files = new Filesystem();
         $tracker = new Tracker();
         $watcher = new Watcher($tracker, $files);
-        foreach ($project->getAllFiles() as $file) {
+        $project->getDevelopmentLocations()->walk(function(SplFileInfo $file) use ($watcher, $handler) {
             $listener = $watcher->watch($file->getPathname());
             $listener->onCreate($handler);
             $listener->onModify($handler);
-        }
+        });
         $watcher->start(500000);
     }
 }
