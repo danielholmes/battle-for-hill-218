@@ -1,35 +1,43 @@
+CREATE TABLE IF NOT EXISTS `hand_card` (
+  `id` tinyint(3) unsigned NOT NULL AUTO_INCREMENT,
+  `player_id` int(10) unsigned NOT NULL,
+  `type` enum('air-strike','artillery','heavy-weapons','infantry','paratroopers','special-forces','tank') NOT NULL,
+  `order` tinyint(3) unsigned NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `player_id_order` (`player_id`,`order`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
 
--- ------
--- BGA framework: © Gregory Isabelli <gisabelli@boardgamearena.com> & Emmanuel Colin <ecolin@boardgamearena.com>
--- BattleForHillDhau implementation : © <Your name here> <Your email address here>
--- 
--- This code has been produced on the BGA studio platform for use on http://boardgamearena.com.
--- See http://en.boardgamearena.com/#!doc/Studio for more information.
--- -----
-
--- dbmodel.sql
-
--- This is the file where you are describing the database schema of your game
--- Basically, you just have to export from PhpMyAdmin your table structure and copy/paste
--- this export here.
--- Note that the database itself and the standard tables ("global", "stats", "gamelog" and "player") are
--- already created and must not be created here
-
--- Note: The database schema is created from this file when the game starts. If you modify this file,
---       you have to restart a game to see your changes in database.
-
--- Example 1: create a standard "card" table to be used with the "Deck" tools (see example game "hearts"):
-
--- CREATE TABLE IF NOT EXISTS `card` (
---   `card_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
---   `card_type` varchar(16) NOT NULL,
---   `card_type_arg` int(11) NOT NULL,
---   `card_location` varchar(16) NOT NULL,
---   `card_location_arg` int(11) NOT NULL,
---   PRIMARY KEY (`card_id`)
--- ) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+ALTER TABLE `hand_card`
+  ADD CONSTRAINT `hand_card_ibfk_1` FOREIGN KEY (`player_id`) REFERENCES `player` (`player_id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 
--- Example 2: add a custom field to the standard "player" table
--- ALTER TABLE `player` ADD `player_my_custom_field` INT UNSIGNED NOT NULL DEFAULT '0';
+CREATE TABLE IF NOT EXISTS `deck_card` (
+  `id` tinyint(3) unsigned NOT NULL AUTO_INCREMENT,
+  `player_id` int(10) unsigned NOT NULL,
+  `type` enum('artillery','heavy-weapons','infantry','paratroopers','special-forces','tank') NOT NULL,
+  `order` tinyint(3) unsigned NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `player_id_order` (`player_id`,`order`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
 
+ALTER TABLE `deck_card`
+  ADD CONSTRAINT `deck_card_ibfk_1` FOREIGN KEY (`player_id`) REFERENCES `player` (`player_id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+
+CREATE TABLE IF NOT EXISTS `battlefield_card` (
+  `id` tinyint(3) unsigned NOT NULL AUTO_INCREMENT,
+  `player_id` int(10) unsigned DEFAULT NULL,
+  `type` enum('artillery','heavy-weapons','infantry','paratroopers','special-forces','tank','hill') NOT NULL,
+  `x` tinyint(4) NOT NULL,
+  `y` tinyint(4) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `x_y` (`x`,`y`),
+  KEY `player_id` (`player_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+
+ALTER TABLE `battlefield_card`
+  ADD CONSTRAINT `battlefield_card_ibfk_1` FOREIGN KEY (`player_id`) REFERENCES `player` (`player_id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+
+ALTER TABLE player ADD COLUMN `base_side` enum('1','-1') NOT NULL;
+ALTER TABLE player ADD UNIQUE KEY `base_side` (`base_side`);

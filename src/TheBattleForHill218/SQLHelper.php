@@ -47,6 +47,10 @@ class SQLHelper
         if (is_float($value)) {
             return strval($value);
         }
-        return "'" . addslashes($value) . "'";
+        if (is_string($value)) {
+            return "'" . addslashes($value) . "'";
+        }
+        $valueType = gettype($value);
+        throw new \RuntimeException("Unknown value type {$valueType}");
     }
 }

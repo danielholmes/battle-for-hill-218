@@ -65,8 +65,13 @@ class BattleForHillDhau extends Table
      */
     private function setupPlayers(array $players)
     {
+        if (count($players) !== 2) {
+            throw new InvalidArgumentException('Can only work with 2 players');
+        }
+
         $infos = self::getGameInfosForGame($this->gamename);
         $colors = $infos['player_colors'];
+        $directions = array('-1', '1');
 
         $i = 0;
         foreach ($players as $player_id => $player)
@@ -76,7 +81,8 @@ class BattleForHillDhau extends Table
                 'player_color' => $colors[$i],
                 'player_canal' => $player['player_canal'],
                 'player_name' => $player['player_name'],
-                'player_avatar' => $player['player_avatar']
+                'player_avatar' => $player['player_avatar'],
+                'base_side' => $directions[$i]
             )));
             $i++;
         }

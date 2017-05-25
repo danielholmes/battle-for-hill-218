@@ -32,4 +32,10 @@ class SQLHelperTest extends TestCase
             equalTo("INSERT INTO `game` (`name`, `category`, `fun`, `hard`, `year`, `weight`) VALUES ('Johnny\\'s Quest', NULL, 1, 0, 2017, 1.65)")
         );
     }
+
+    public function testInsertInvalidValue()
+    {
+        $this->expectException('RuntimeException');
+        SQLHelper::insert('person', array('name' => $this));
+    }
 }
