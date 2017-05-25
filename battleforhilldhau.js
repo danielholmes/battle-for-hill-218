@@ -1,26 +1,15 @@
-/**
- *------
- * BGA framework: © Gregory Isabelli <gisabelli@boardgamearena.com> & Emmanuel Colin <ecolin@boardgamearena.com>
- * BattleForHillDhau implementation : © <Your name here> <Your email address here>
- *
- * This code has been produced on the BGA studio platform for use on http://boardgamearena.com.
- * See http://en.boardgamearena.com/#!doc/Studio for more information.
- * -----
- *
- * battleforhilldhau.js
- *
- * BattleForHillDhau user interface script
- * 
- * In this file, you are describing the logic of your user interface, in Javascript language.
- *
- */
+"use strict";
 
 define([
-    "dojo","dojo/_base/declare",
+    "dojo",
+    "dojo/_base/declare",
+    "dojo/query",
+    "dojo/_base/array",
+    "dojo/dom-construct",
     "ebg/core/gamegui",
     "ebg/counter"
 ],
-function (dojo, declare) {
+function (dojo, declare, query, array, domConstruct) {
     return declare("bgagame.battleforhilldhau", ebg.core.gamegui, {
         constructor: function(){
             console.log('battleforhilldhau constructor');
@@ -43,26 +32,22 @@ function (dojo, declare) {
             
             "gamedatas" argument contains all datas retrieved by your "getAllDatas" PHP method.
         */
-        
-        setup: function( gamedatas )
+        setup: function(datas)
         {
-            console.log( "Starting game setup" );
-            
-            // Setting up player boards
-            for( var player_id in gamedatas.players )
-            {
-                var player = gamedatas.players[player_id];
-                         
-                // TODO: Setting up players boards if needed
-            }
-            
-            // TODO: Set up your game interface here, according to "gamedatas"
-            
- 
-            // Setup game notifications to handle (see "setupNotifications" method below)
-            this.setupNotifications();
+            // My Hand
+            query("#my-hand").addClass('player-color-' + datas.me.color);
+            var _this = this;
+            array.forEach(datas.me.hand, function(card) {
+                dojo.place(domConstruct.toDom(_this.format_block('jstpl_card', card)), 'my-hand');
+            });
 
-            console.log( "Ending game setup" );
+            // Opponent Hand
+            query("#opponent-hand").addClass('player-color-' + datas.opponent.color);
+            //array.forEach(datas.opponent.hand, function(card) {
+            //    dojo.place(domConstruct.toDom(_this.format_block('jstpl_card', card)), 'my-hand');
+            //});
+ 
+            this.setupNotifications();
         },
        
 

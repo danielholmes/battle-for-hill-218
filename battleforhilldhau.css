@@ -1,62 +1,67 @@
-/**
- *------
- * BGA framework: © Gregory Isabelli <gisabelli@boardgamearena.com> & Emmanuel Colin <ecolin@boardgamearena.com>
- * BattleForHillDhau implementation : © <Your name here> <Your email address here>
- *
- * This code has been produced on the BGA studio platform for use on http://boardgamearena.com.
- * See http://en.boardgamearena.com/#!doc/Studio for more information.
- * -----
- *
- * battleforhilldhau.css
- *
- * BattleForHillDhau stylesheet
- *
- */
-
-/*
-    This is the CSS stylesheet of your game User Interface.
-    
-    Styles defined on this file will be applied to the HTML elements you define in your
-    HTML template (battleforhilldhau_battleforhilldhau.tpl), and to HTML elements you create dynamically
-    (in battleforhilldhau.js).
-    
-    Usually, you are using CSS to:
-    
-    1°) define the overall layout of your game
-        (ex: place the board on the top left, place player's hand beside, place the deck on the right, ...).
-
-    2°) create your CSS-sprites:
-        All images of your games should be gathered into a small number of image files. Then, using
-        background-image and background-position CSS properties, you create HTML blocks that can 
-        display these images correctly (see example below).
-    
-    3°) ... anything else:
-        It is really easy to add and remove CSS classes dynamically from your Javascript with
-        dojo.addClass and dojo.removeClass. It is also easy to check if an element has a class
-        (dojo.hasClass) or to get all elements with a specific class (dojo.query). This is why,
-        very often, using CSS classes for the logic of your user interface allow you to do complex
-        thing easily.
-        
-        
-     Note: on the production platform, this file will be compressed and comments will be removed.
-           Consequently, don't hesitate to put as many comments as necessary.
-*/
-
 @import url(../../../css/csslayer.css); /* Note: you must not use any @import directive other than this one */
 
+/* Layout */
 #game-container {
     height: auto;
     overflow: hidden;
 }
-
 #players-panel {
     width: 400px;
     float: right;
 }
-
 #cards-panel {
-    float: none; /* not needed, just for clarification */
     width: auto;
     overflow: hidden;
     margin-right: 410px;
-}​
+}
+
+/* Cards */
+.card {
+    width: 80px;
+    height: 112px;
+    background-image: url(img/cards.png);
+    background-position-x: -80px;
+    background-position-y: -112px;
+}
+.card.air-strike {
+    background-position-x: 0;
+}
+.card.artillery {
+    background-position-x: -80px;
+}
+.card.heavy-weapons {
+    background-position-x: -160px;
+}
+.card.infantry {
+    background-position-x: -240px;
+}
+.card.paratroopers {
+    background-position-x: -320px;
+}
+.card.special-forces {
+    background-position-x: -400px;
+}
+.card.tank {
+    background-position-x: -480px;
+}
+.card.hill {
+    background-position-x: -560px;
+    background-position-y: 0;
+}
+.card.back {
+    background-position-x: -560px;
+    background-position-y: 112px;
+}
+.player-color-04237b .card {
+    background-position-y: 0;
+}
+.player-color-6f0f11 .card {
+    background-position-y: -112px;
+}
+
+/* My Hand */
+#my-hand .card {
+    display: inline-block;
+    margin-right: 4px;
+    margin-bottom: 4px;
+}

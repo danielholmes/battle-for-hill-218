@@ -153,18 +153,69 @@ class BattleForHillDhau extends Table
     */
     protected function getAllDatas()
     {
-        $result = array( 'players' => array() );
-    
-        $current_player_id = self::getCurrentPlayerId();    // !! We must only return informations visible by this player !!
-    
-        // Get information about players
-        // Note: you can retrieve some extra field you added for "player" table in "dbmodel.sql" if you need it.
-        $sql = "SELECT player_id id, player_score score FROM player ";
-        $result['players'] = self::getCollectionFromDb( $sql );
-  
-        // TODO: Gather all information about current game situation (visible by player $current_player_id).
-  
-        return $result;
+        // Players
+        $myPlayerId = (int) self::getCurrentPlayerId();
+        $players = self::getCollectionFromDb('SELECT player_id id, player_score score, player_color color FROM player');
+        $opponentPlayerId = F\first(
+            F\map(array_keys($players), function($id) { return (int) $id; }),
+            function($playerId) use ($myPlayerId) { return $playerId !== $myPlayerId; }
+        );
+
+        // Hands
+        $handCardsByPlayerId = F\group(
+            self::getObjectListFromDB('SELECT id, player_id, type FROM hand_card ORDER BY `order` ASC'),
+            function(array $card) { return (int) $card['player_id']; }
+        );
+        $myHand = $handCardsByPlayerId[$myPlayerId];
+        $opponentHand = $handCardsByPlayerId[$opponentPlayerId];
+        $opponentNumAirStrikes = count(
+            F\filter(
+                F\pluck($opponentHand, 'type'),
+                function($type) { return $type === 'air-strike'; }
+            )
+        );
+
+        // Decks
+        $rawDeckCounts = self::getObjectListFromDB('SELECT COUNT(id) as size, player_id FROM deck_card GROUP BY player_id');
+        $deckSizes = F\map(
+            F\map(
+                F\group($rawDeckCounts, function(array $count) { return (int) $count['player_id']; }),
+                function(array $counts) { return F\head($counts); }
+            ),
+            function(array $count) { return (int) $count['size']; }
+        );
+
+        // Battlefield
+        $battlefield = F\map(
+            self::getObjectListFromDB('SELECT player_id, type, x, y FROM battlefield_card'),
+            function(array $card) {
+                return array(
+                    'player_id' => (int) $card['player_id'],
+                    'type' => $card['type'],
+                    'x' => (int) $card['x'],
+                    'y' => (int) $card['y']
+                );
+            }
+        );
+
+        return array(
+            'players' => $players,
+            'me' => array(
+                'color' => $players[$myPlayerId]['color'],
+                'hand' => F\map(
+                    array_values($myHand),
+                    function(array $card) { return array('id' => (int) $card['id'], 'type' => $card['type']); }
+                ),
+                'deck_size' => $deckSizes[$myPlayerId]
+            ),
+            'opponent' => array(
+                'color' => $players[$opponentPlayerId]['color'],
+                'num_air_strikes' => $opponentNumAirStrikes,
+                'hand_size' => count($opponentHand),
+                'deck_size' => $deckSizes[$opponentPlayerId]
+            ),
+            'battlefield' => $battlefield
+        );
     }
 
     /*
