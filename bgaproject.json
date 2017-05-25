@@ -4,5 +4,8 @@
     "user": "dhau",
     "pass": "d0c9cf5360889c8485d6359a7854ad8b"
   },
-  "useComposer": true
+  "useComposer": true,
+  "extraSrc": [
+    "src/TheBattleForHill218"
+  ]
 }

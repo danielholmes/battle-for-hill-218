@@ -7,6 +7,7 @@ use BGAWorkbench\ProjectWorkbenchConfig;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Finder\SplFileInfo;
 
 class DeployCommand extends Command
 {
@@ -43,7 +44,7 @@ class DeployCommand extends Command
         $output->writeln('Determining changed files');
         $total = $deployment->deployChangedFiles(
             $project->getAllFiles(),
-            function ($num, $total, $file) use ($output) {
+            function ($num, $total, SplFileInfo $file) use ($output) {
                 $output->writeln("{$num}/{$total} -> {$file->getRelativePathname()}");
             }
         );

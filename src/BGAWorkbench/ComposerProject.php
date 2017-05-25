@@ -2,32 +2,50 @@
 
 namespace BGAWorkbench;
 
+use Qaribou\Collection\ImmArray;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
+use Symfony\Component\Finder\SplFileInfo;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\ProcessBuilder;
 
 class ComposerProject extends Project
 {
     /**
+     * @var SplFileInfo
+     */
+    private $vendorFiles;
+
+    /**
      * @inheritdoc
      */
     public function getAllFiles()
     {
-        $vendorFiles = $this->createVendorFiles();
-        return array_merge(parent::getAllFiles(), $vendorFiles);
+        return parent::getAllFiles()->concat($this->getVendorFiles());
     }
 
     /**
-     * @return array
+     * @return ImmArray
+     */
+    private function getVendorFiles()
+    {
+        if ($this->vendorFiles === null) {
+            $this->vendorFiles = $this->createVendorFiles();
+        }
+        return $this->vendorFiles;
+    }
+
+    /**
+     * @return ImmArray
      */
     private function createVendorFiles()
     {
         $distDir = new \SplFileInfo($this->getDirectory()->getPathname() . DIRECTORY_SEPARATOR . 'dist');
         $fileSystem = new Filesystem();
-        if (!$fileSystem->exists($distDir->getPathname())) {
-            $fileSystem->mkdir($distDir->getPathname());
+        if ($fileSystem->exists($distDir->getPathname())) {
+            $fileSystem->remove($distDir->getPathname());
         }
+        $fileSystem->mkdir($distDir->getPathname());
         foreach (array('composer.json', 'composer.lock') as $composerFileName) {
             $fileSystem->copy(
                 $this->getDirectory()->getPathname() . DIRECTORY_SEPARATOR . $composerFileName,
@@ -50,12 +68,13 @@ class ComposerProject extends Project
             throw new ProcessFailedException($process);
         }
 
-        $finder = new Finder();
-        $finder->in($distDir->getPathname())
+        $finder = Finder::create()
+            ->in($distDir->getPathname())
             ->files()
             ->notName('composer.lock')
             ->notName('composer.json')
-            ->notPath('bin');
-        return array_values(iterator_to_array($finder));
+            ->notPath('/tests/')
+            ->notPath('/bin/');
+        return ImmArray::fromArray(array_values(iterator_to_array($finder)));
     }
 }

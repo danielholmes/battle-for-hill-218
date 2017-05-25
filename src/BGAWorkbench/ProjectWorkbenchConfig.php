@@ -2,6 +2,7 @@
 
 namespace BGAWorkbench;
 
+use Qaribou\Collection\ImmArray;
 use Symfony\Component\Config\Definition\Processor;
 
 class ProjectWorkbenchConfig
@@ -32,7 +33,7 @@ class ProjectWorkbenchConfig
     private $useComposer;
 
     /**
-     * @var string[]
+     * @var ImmArray
      */
     private $extraSrcPaths;
 
@@ -42,7 +43,7 @@ class ProjectWorkbenchConfig
      * @param string $sftpUsername
      * @param string $sftpPassword
      * @param boolean $useComposer
-     * @param string[] $extraSrcPaths
+     * @param ImmArray $extraSrcPaths
      */
     public function __construct(
         \SplFileInfo $directory,
@@ -50,7 +51,8 @@ class ProjectWorkbenchConfig
         $sftpUsername,
         $sftpPassword,
         $useComposer,
-        array $extraSrcPaths)
+        ImmArray $extraSrcPaths
+    )
     {
         $this->directory = $directory;
         $this->sftpHost = $sftpHost;
@@ -129,7 +131,7 @@ class ProjectWorkbenchConfig
             $processed['sftp']['user'],
             $processed['sftp']['pass'],
             $processed['useComposer'],
-            $processed['extraSrc']
+            ImmArray::fromArray($processed['extraSrc'])
         );
     }
 }

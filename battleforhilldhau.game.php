@@ -16,38 +16,24 @@
   *
   */
 
-
-
 require_once(APP_GAMEMODULE_PATH.'module/table/table.game.php');
-require_once(__DIR__ . '/vendor/autoload.php');
 
-use Doctrine\DBAL\Configuration;
-use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\DriverManager;
+$prevAutoloads = spl_autoload_functions();
+require_once(__DIR__ . '/vendor/autoload.php');
+foreach ($prevAutoloads as $prevAutoload) {
+    spl_autoload_register($prevAutoload, true, false);
+}
+
+use TheBattleForHill218\SQLHelper;
 
 
 class BattleForHillDhau extends Table
 {
-    /**
-     * @var Connection
-     */
-    private $conn;
-
 	public function __construct()
 	{
         parent::__construct();
 
         self::initGameStateLabels(array());
-
-        $config = new Configuration();
-        $connectionParams = array(
-            'dbname' => 'mysql',
-            'user' => '',
-            'password' => '',
-            'host' => 'localhost',
-            'driver' => 'pdo_mysql'
-        );
-        $this->conn = DriverManager::getConnection($connectionParams, $config);
 	}
 
     /**
@@ -82,17 +68,19 @@ class BattleForHillDhau extends Table
         $infos = self::getGameInfosForGame($this->gamename);
         $colors = $infos['player_colors'];
 
-        $sql = "INSERT INTO player (player_id, player_color, player_canal, player_name, player_avatar) VALUES ";
-        $values = array();
         $i = 0;
         foreach ($players as $player_id => $player)
         {
-            $color = $colors[$i];
-            $values[] = "('".$player_id."','$color','".$player['player_canal']."','".addslashes( $player['player_name'] )."','".addslashes( $player['player_avatar'] )."')";
+            self::DbQuery(SQLHelper::insert('player', array(
+                'player_id' => $player_id,
+                'player_color' => $colors[$i],
+                'player_canal' => $player['player_canal'],
+                'player_name' => $player['player_name'],
+                'player_avatar' => $player['player_avatar']
+            )));
             $i++;
         }
-        $sql .= implode( $values, ',' );
-        self::DbQuery( $sql );
+
         self::reattributeColorsBasedOnPreferences($players, $colors);
         self::reloadPlayersBasicInfos();
     }
@@ -108,8 +96,6 @@ class BattleForHillDhau extends Table
     */
     protected function getAllDatas()
     {
-        echo 'QUERY: ' . $this->conn->createQueryBuilder()->select('*')->from('player')->where('player_score = player_id')->getSQL();
-
         $result = array( 'players' => array() );
     
         $current_player_id = self::getCurrentPlayerId();    // !! We must only return informations visible by this player !!

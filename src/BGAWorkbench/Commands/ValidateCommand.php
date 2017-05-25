@@ -9,6 +9,7 @@ use Symfony\Component\Config\Definition\Processor;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Finder\SplFileInfo;
 
 class ValidateCommand extends Command
 {
@@ -31,9 +32,24 @@ class ValidateCommand extends Command
         $config = ProjectWorkbenchConfig::loadFrom(new \SplFileInfo(getcwd()));
         $project = $config->loadProject();
 
-        // TODO: ensure all req files exist
+        $this->validateRequiredFilesExist($project);
         // TODO: Lint all php files
         $this->validateStates($project);
+    }
+
+    /**
+     * @param Project $project
+     */
+    private function validateRequiredFilesExist(Project $project)
+    {
+        $notFoundList = $project->getRequiredFiles()
+            ->filter(function (SplFileInfo $file) { return !$file->isFile(); })
+            ->sort()
+            ->map(function(SplFileInfo $file) { return $file->getRelativePathname(); })
+            ->join(', ');
+        if (!empty($notFoundList)) {
+            throw new \RuntimeException("Missing required files: {$notFoundList}");
+        }
     }
 
     /**

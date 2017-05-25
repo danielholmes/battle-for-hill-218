@@ -10,6 +10,7 @@ use JasonLewis\ResourceWatcher\Watcher;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Finder\SplFileInfo;
 
 class WatchCommand extends Command
 {
@@ -44,7 +45,7 @@ class WatchCommand extends Command
         $output->writeln('Deploying changed files');
         $deployment->deployChangedFiles(
             $project->getAllFiles(),
-            function ($num, $total, $file) use ($output) {
+            function ($num, $total, SplFileInfo $file) use ($output) {
                 $output->writeln("{$num}/{$total} -> {$file->getRelativePathname()} <info>✓</info>");
             }
         );

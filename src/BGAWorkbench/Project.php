@@ -2,7 +2,8 @@
 
 namespace BGAWorkbench;
 
-use Symfony\Component\Finder\Iterator\RecursiveDirectoryIterator;
+use Qaribou\Collection\ImmArray;
+use Symfony\Component\Finder\Finder;
 use Symfony\Component\Finder\SplFileInfo;
 use PhpOption\Option;
 
@@ -19,16 +20,16 @@ class Project
     private $name;
 
     /**
-     * @var string[]
+     * @var ImmArray
      */
     private $extraSrcPaths;
 
     /**
      * @param \SplFileInfo $directory
      * @param string $name
-     * @param string[] $extraSrcPaths
+     * @param ImmArray $extraSrcPaths
      */
-    public function __construct(\SplFileInfo $directory, $name, array $extraSrcPaths) {
+    public function __construct(\SplFileInfo $directory, $name, ImmArray $extraSrcPaths) {
         $this->directory = $directory;
         $this->name = $name;
         $this->extraSrcPaths = $extraSrcPaths;
@@ -50,75 +51,78 @@ class Project
         return $this->name;
     }
 
-    public function getDeveloperFiles()
+    /**
+     * @return ImmArray
+     */
+    public function getRequiredFiles()
     {
-
+        return ImmArray::fromArray(array(
+            "{$this->name}.action.php",
+            "{$this->name}.game.php",
+            "{$this->name}.view.php",
+            "{$this->name}.css",
+            "{$this->name}.js",
+            "{$this->name}_{$this->name}.tpl",
+            "dbmodel.sql",
+            "gameinfos.inc.php",
+            "gameoptions.inc.php",
+            "material.inc.php",
+            "states.inc.php",
+            "stats.inc.php",
+            "version.php",
+            "img" . DIRECTORY_SEPARATOR . "game_box.png",
+            "img" . DIRECTORY_SEPARATOR . "game_box75.png",
+            "img" . DIRECTORY_SEPARATOR . "game_box180.png",
+            "img" . DIRECTORY_SEPARATOR . "game_icon.png",
+            "img" . DIRECTORY_SEPARATOR . "publisher.png"
+        ))->map(function($name) { return $this->getProjectFile($name); });
     }
 
     /**
-     * @return SplFileInfo[]
+     * @param string $path
+     * @param ImmArray $exclude
+     * @return ImmArray
+     */
+    private function getPathFiles($path, ImmArray $exclude = null)
+    {
+        if ($exclude === null) {
+            $exclude = ImmArray::fromArray(array());
+        }
+        $finder = Finder::create()
+            ->in($this->directory . DIRECTORY_SEPARATOR . $path)
+            ->files();
+        foreach ($exclude as $excludeFile) {
+            if ($excludeFile->getRelativePath() === $path) {
+                $finder = $finder->notName($excludeFile->getBasename());
+            }
+        }
+
+        return ImmArray::fromArray(array_values(iterator_to_array($finder)))
+            ->map(
+                function(SplFileInfo $file) {
+                    return $this->absoluteToProjectRelativeFile($file);
+                }
+            );
+    }
+
+    /**
+     * @return ImmArray
      */
     public function getAllFiles()
     {
-        $directory = $this->directory;
-        return array_reduce(
-            array(
-                "{$this->name}.action.php",
-                "{$this->name}.game.php",
-                "{$this->name}.view.php",
-                "{$this->name}.css",
-                "{$this->name}.js",
-                "{$this->name}_{$this->name}.tpl",
-                "dbmodel.sql",
-                "gameinfos.inc.php",
-                "gameoptions.inc.php",
-                "material.inc.php",
-                "states.inc.php",
-                "stats.inc.php",
-                "version.php",
-                "img"
-            ),
-            function(array $current, $name) use ($directory) {
-                $path = $directory->getPathname() . DIRECTORY_SEPARATOR . $name;
-                if (is_dir($path)) {
-                    $iterator = new RecursiveDirectoryIterator($path, RecursiveDirectoryIterator::CURRENT_AS_FILEINFO);
-                    $files = array_map(
-                        function(SplFileInfo $file) use ($name) {
-                            $relativePath = $name;
-                            $relativePathname = $name . DIRECTORY_SEPARATOR . $file->getRelativePathname();
-                            return new SplFileInfo($file->getPathname(), $relativePath, $relativePathname);
-                        },
-                        array_values(
-                            array_filter(
-                                iterator_to_array($iterator),
-                                function(SplFileInfo $file) {
-                                    return !in_array($file->getRelativePathname(), array('.', '..'), true);
-                                }
-                            )
-                        )
-                    );
-                    return array_merge($current, $files);
-                }
-                return array_merge($current, array(new SplFileInfo($path, '', $name)));
-            },
-            array()
-        );
+        $required = $this->getRequiredFiles();
 
-        /*$finder = new Finder();
-        foreach ($this->extraSrcPaths as $path) {
-            $fullPath = $this->directory->getPathname() . DIRECTORY_SEPARATOR . $path;
-            if (is_file($fullPath)) {
-                $finder = $finder->append(new \ArrayIterator(array($this->createProjectFile($fullPath))));
-                continue;
-            }
-            $pathFinder = new Finder();
-            $finder = $finder->append(
-                $pathFinder->in($this->directory->getPathname())
-                    ->files()
-                    ->path($path)
+        return $required
+            ->concat(
+                $this->extraSrcPaths
+                    ->concat(ImmArray::fromArray(array('img')))
+                    ->reduce(
+                        function(ImmArray $current, $path) use ($required) {
+                            return $current->concat($this->getPathFiles($path, $required));
+                        },
+                        ImmArray::fromArray(array())
+                    )
             );
-        }
-        return array_values(iterator_to_array($finder));*/
     }
 
     /**

@@ -4,6 +4,7 @@
 namespace BGAWorkbench;
 
 use phpseclib\Net\SFTP;
+use Qaribou\Collection\ImmArray;
 use Symfony\Component\Finder\SplFileInfo;
 
 class ProductionDeployment
@@ -29,7 +30,7 @@ class ProductionDeployment
     private $directory;
 
     /**
-     * @var string[]
+     * @var ImmArray
      */
     private $remoteDirectories;
 
@@ -59,32 +60,30 @@ class ProductionDeployment
     }
 
     /**
-     * @param SplFileInfo[] $files
+     * @param ImmArray $files
      * @param callable $callable
      * @return int
      */
-    public function deployChangedFiles(array $files, $callable)
+    public function deployChangedFiles(ImmArray $files, $callable)
     {
         $remoteMTimes = $this->getMTimesByFilepath();
-        $newerFiles = array_values(
-            array_filter(
-                $files,
-                function(SplFileInfo $file) use ($remoteMTimes) {
-                    return !isset($remoteMTimes[$file->getRelativePathname()]) ||
-                        $remoteMTimes[$file->getRelativePathname()] < $file->getMTime();
-                }
-            )
+        $newerFiles = $files->filter(
+            function(SplFileInfo $file) use ($remoteMTimes) {
+                return !isset($remoteMTimes[$file->getRelativePathname()]) ||
+                    $remoteMTimes[$file->getRelativePathname()] < $file->getMTime();
+            }
         );
-        foreach ($newerFiles as $i => $file) {
+        $total = $newerFiles->count();
+        $newerFiles->walk(function(SplFileInfo $file, $i) use ($callable, $total) {
             $num = $i + 1;
-            call_user_func($callable, $num, count($newerFiles), $file);
+            call_user_func($callable, $num, $total, $file);
             $this->deployFile($file);
-        }
-        return count($newerFiles);
+        });
+        return $total;
     }
 
     /**
-     * @return string[]
+     * @return ImmArray
      */
     private function getRemoteDirectories()
     {
@@ -104,12 +103,12 @@ class ProductionDeployment
         $remoteName = $file->getRelativePathname();
         $remoteDirectories = $this->getRemoteDirectories();
         $remoteDirpath = dirname($remoteName);
-        if ($remoteDirpath !== '.' && !in_array($remoteDirpath, $remoteDirectories, true)) {
+        if ($remoteDirpath !== '.' && !in_array($remoteDirpath, $remoteDirectories->toArray(), true)) {
             $fullRemoteDirpath = "{$this->directory}/{$remoteDirpath}";
             if (!$this->sftp->mkdir($fullRemoteDirpath, -1, true)) {
                 throw new \RuntimeException("Error creating directory {$fullRemoteDirpath}");
             }
-            $this->remoteDirectories = array_merge($this->remoteDirectories, $this->pathToAllSubPaths($remoteDirpath));
+            $this->remoteDirectories = $this->remoteDirectories->concat($this->pathToAllSubPaths($remoteDirpath));
         }
 
         $fullRemotePathname = "{$this->directory}/{$remoteName}";
@@ -120,15 +119,13 @@ class ProductionDeployment
 
     /**
      * @param string $remoteDirpath
-     * @return string[]
+     * @return ImmArray
      */
     private function pathToAllSubPaths($remoteDirpath)
     {
         $parts = explode('/', $remoteDirpath);
-        return array_map(
-            function($i) use ($parts) { return join('/', array_slice($parts, 0, $i)); },
-            range(1, count($parts))
-        );
+        return ImmArray::fromArray(range(1, count($parts)))
+            ->map(function($i) use ($parts) { return join('/', array_slice($parts, 0, $i)); });
     }
 
     /**
@@ -168,11 +165,11 @@ class ProductionDeployment
 
     /**
      * @param array $rawRemoteList
-     * @return string[]
+     * @return ImmArray
      */
     private function rawListToDirectories(array $rawRemoteList)
     {
-        $directories = array();
+        $directories = ImmArray::fromArray(array());
         foreach ($rawRemoteList as $key => $value) {
             if ($key === '.' || $key === '..') {
                 continue;
@@ -183,11 +180,8 @@ class ProductionDeployment
             }
 
             $subDirectories = $this->rawListToDirectories($value);
-            $directories = array_merge(
-                $directories,
-                array($key),
-                array_map(function($subDirectory) use ($key) { return $key . '/' . $subDirectory; }, $subDirectories)
-            );
+            $directories = $directories->concat(ImmArray::fromArray(array($key)))
+                ->concat($subDirectories->map(function($subDir) use ($key) { return $key . '/' . $subDir; }));
         }
         return $directories;
     }
