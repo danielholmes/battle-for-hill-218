@@ -69,7 +69,7 @@ $machinestates = array(
         "descriptionmyturn" => clienttranslate('${you} must choose 2 cards to return to the bottom of your deck'),
         "type" => "multipleactiveplayer",
         "possibleactions" => array("returnToDeck"),
-        "transitions" => array("waitForNextReturn" => 2, "allReturned" => 3)
+        "transitions" => array("allReturned" => 3)
     ),
 
     3 => array(

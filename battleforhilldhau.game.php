@@ -286,32 +286,30 @@ class BattleForHillDhau extends Table
         Each time a player is doing some game action, one of the methods below is called.
         (note: each method below must match an input method in battleforhilldhau.action.php)
     */
-
-    /*
-    
-    Example:
-
-    function playCard( $card_id )
+    public function returnToDeck(array $cardIds)
     {
-        // Check that this is the player's turn and that it is a "possible action" at this game state (see states.inc.php)
-        self::checkAction( 'playCard' ); 
+        self::checkAction('returnToDeck');
         
-        $player_id = self::getActivePlayerId();
+        $playerId = self::getCurrentPlayerId();
+        // TODO: Remove both from hand
+        // TODO: Find highest order in deck
+        // TODO: Add both to bottom of deck with next highest orders
         
-        // Add your game logic to play a card there 
-        ...
+        //die('returnToDeck ' . var_export($playerId, true) . ' :: ' . var_export($cardIds, true));
+
+        // TODO: Notify me that 2 cards with those ids are gone
+        // TODO: Notify other players that my hand count has decreased
+
+        // TODO: Tell framework that my part of multiplayer state is done
         
         // Notify all players about the card played
-        self::notifyAllPlayers( "cardPlayed", clienttranslate( '${player_name} played ${card_name}' ), array(
+        /*self::notifyAllPlayers( "cardPlayed", clienttranslate( '${player_name} played ${card_name}' ), array(
             'player_id' => $player_id,
             'player_name' => self::getActivePlayerName(),
             'card_name' => $card_name,
             'card_id' => $card_id
-        ) );
-          
+        ) );*/
     }
-    
-    */
 
     
 //////////////////////////////////////////////////////////////////////////////

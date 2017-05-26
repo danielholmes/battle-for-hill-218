@@ -208,9 +208,22 @@ function (dojo, declare, lang, query, array, domConstruct) {
             }
         },
 
-        onSubmitReturnCards: function(e) {
-            var ids = this.getSelectedHandCards().attr('data-id');
-            //ids
+        onSubmitReturnCards: function() {
+            if (!this.checkAction('returnToDeck')) {
+                return;
+            }
+
+            this.ajaxcall(
+                "/battleforhilldhau/battleforhilldhau/returnToDeck.html",
+                {
+                    lock: true,
+                    ids: this.getSelectedHandCards().attr('data-id').join(',')
+                },
+                function(result) { },
+                function(isError) {
+                    // TODO: Re-enable button if error
+                }
+            );
         },
         
         /* Example:
