@@ -78,10 +78,19 @@ $machinestates = array(
         "descriptionmyturn" => clienttranslate('${you} must place a card'),
         "type" => "activeplayer",
         "possibleactions" => array("playCard"),
-        "transitions" => array("waitForNextPlacement" => 3, "allPlayed" => 4)
+        "transitions" => array("playedWithAttackOption" => 4, "playNext" => 3, "playsComplete" => 5)
     ),
 
     4 => array(
+        "name" => "chooseAttack",
+        "description" => clienttranslate('${actplayer} must choose an attack'),
+        "descriptionmyturn" => clienttranslate('${you} must choose an attack'),
+        "type" => "activeplayer",
+        "possibleactions" => array("chooseAttack"),
+        "transitions" => array("playNextCard" => 3, "drawCards" => 4)
+    ),
+
+    5 => array(
         "name" => "drawCards",
         "description" => "",
         "type" => "game",
@@ -89,29 +98,6 @@ $machinestates = array(
         "transitions" => array("cardsDrawn" => 3),
         "updateGameProgression" => true
     ),
-    
-/*
-    Examples:
-    
-    2 => array(
-        "name" => "nextPlayer",
-        "description" => '',
-        "type" => "game",
-        "action" => "stNextPlayer",
-        "updateGameProgression" => true,   
-        "transitions" => array( "endGame" => 99, "nextPlayer" => 10 )
-    ),
-    
-    10 => array(
-        "name" => "playerTurn",
-        "description" => clienttranslate('${actplayer} must play a card or pass'),
-        "descriptionmyturn" => clienttranslate('${you} must play a card or pass'),
-        "type" => "activeplayer",
-        "possibleactions" => array( "playCard", "pass" ),
-        "transitions" => array( "playCard" => 2, "pass" => 2 )
-    ), 
-
-*/    
    
     // Final state.
     // Please do not modify.

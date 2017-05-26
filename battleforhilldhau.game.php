@@ -289,26 +289,60 @@ class BattleForHillDhau extends Table
     public function returnToDeck(array $cardIds)
     {
         self::checkAction('returnToDeck');
-        
-        $playerId = self::getCurrentPlayerId();
-        // TODO: Remove both from hand
-        // TODO: Find highest order in deck
-        // TODO: Add both to bottom of deck with next highest orders
-        
-        //die('returnToDeck ' . var_export($playerId, true) . ' :: ' . var_export($cardIds, true));
 
-        // TODO: Notify me that 2 cards with those ids are gone
+        $playerId = self::getCurrentPlayerId();
+
+        // Remove cards from hand
+        $idList = join(', ', $cardIds);
+        $returnCards = self::getObjectListFromDB("SELECT id, type FROM hand_card WHERE player_id = {$playerId} AND id IN ({$idList})");
+        $returnIds = F\pluck($returnCards, 'id');
+        $returnIdsList = join(', ', $returnIds);
+        self::DBQuery("DELETE FROM hand_card WHERE id IN ({$returnIdsList})");
+        $numCards = count($returnIds);
+
+        // Remove replacements from the deck
+        $replacements = self::getObjectListFromDB("SELECT id, type FROM deck_card WHERE player_id = {$playerId} ORDER BY `order` DESC LIMIT {$numCards}");
+        $replacementIds = F\pluck($replacements, 'id');
+        $replacementIdsList = join(', ', $replacementIds);
+        self::DBQuery("DELETE FROM deck_card WHERE id IN ({$replacementIdsList})");
+
+        // Put removed cards into deck
+        self::DBQuery("UPDATE deck_card SET `order` = `order` + {$numCards} WHERE player_id = {$playerId} ORDER BY `order` DESC");
+        self::DBQuery(SQLHelper::insertAll(
+            'deck_card',
+            F\map($returnCards, function(array $handCard, $i) use ($playerId) {
+                return array(
+                    'type' => $handCard['type'],
+                    'order' => $i,
+                    'player_id' => $playerId
+                );
+            })
+        ));
+
+        // Put replacement cards into hand
+        // Leaves holes in `order`, but is more efficient this way
+        $maxOrder = (int) self::getUniqueValueFromDB("SELECT MAX(`order`) FROM hand_card WHERE player_id = {$playerId}");
+        self::DBQuery(SQLHelper::insertAll(
+            'hand_card',
+            F\map($replacements, function(array $replacement, $i) use ($playerId, $maxOrder) {
+                return array(
+                    'type' => $replacement['type'],
+                    'order' => $maxOrder + $i + 1,
+                    'player_id' => $playerId
+                );
+            })
+        ));
+
         // TODO: Notify other players that my hand count has decreased
+        self::notifyPlayer(
+            $playerId,
+            'returnedToDeck',
+            clienttranslate("You returned {$numCards} to your deck"),
+            array('oldIds' => $cardIds, 'replacements' => $replacements)
+        );
 
         // TODO: Tell framework that my part of multiplayer state is done
-        
-        // Notify all players about the card played
-        /*self::notifyAllPlayers( "cardPlayed", clienttranslate( '${player_name} played ${card_name}' ), array(
-            'player_id' => $player_id,
-            'player_name' => self::getActivePlayerName(),
-            'card_name' => $card_name,
-            'card_id' => $card_id
-        ) );*/
+        $this->gamestate->setPlayerNonMultiactive($playerId, 'allReturned');
     }
 
     
