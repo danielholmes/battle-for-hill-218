@@ -190,7 +190,7 @@ class BattleForHillDhau extends Table
             self::getObjectListFromDB('SELECT player_id, type, x, y FROM battlefield_card'),
             function(array $card) {
                 return array(
-                    'player_id' => (int) $card['player_id'],
+                    'playerId' => (int) $card['player_id'],
                     'type' => $card['type'],
                     'x' => (int) $card['x'],
                     'y' => (int) $card['y']
@@ -206,13 +206,13 @@ class BattleForHillDhau extends Table
                     array_values($myHand),
                     function(array $card) { return array('id' => (int) $card['id'], 'type' => $card['type']); }
                 ),
-                'deck_size' => $deckSizes[$myPlayerId]
+                'deckSize' => $deckSizes[$myPlayerId]
             ),
             'opponent' => array(
                 'color' => $players[$opponentPlayerId]['color'],
-                'num_air_strikes' => $opponentNumAirStrikes,
-                'hand_size' => count($opponentHand),
-                'deck_size' => $deckSizes[$opponentPlayerId]
+                'numAirStrikes' => $opponentNumAirStrikes,
+                'handSize' => count($opponentHand),
+                'deckSize' => $deckSizes[$opponentPlayerId]
             ),
             'battlefield' => $battlefield
         );

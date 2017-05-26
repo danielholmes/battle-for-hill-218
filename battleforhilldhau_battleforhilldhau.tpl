@@ -31,6 +31,7 @@
         <div id="opponent-hand" class="whiteblock player-hand">
             <h3>Opponent Hand</h3>
             <div class="air-strikes"></div>
+            <div class="hand-cards"></div>
         </div>
         <div id="my-hand" class="whiteblock player-hand">
             <h3>My Hand</h3>

@@ -46,18 +46,18 @@
 .card.tank {
     background-position-x: -400px;
 }
-.card.hill {
-    background-position-x: -610px;
-    background-position-y: 0;
-}
-.card.back {
-    background-position-x: -610px;
-    background-position-y: 112px;
-}
 .player-color-04237b .card {
     background-position-y: 0;
 }
 .player-color-6f0f11 .card {
+    background-position-y: -112px;
+}
+.card.hill {
+    background-position-x: -592px;
+    background-position-y: 0;
+}
+.card.back {
+    background-position-x: -592px;
     background-position-y: -112px;
 }
 
