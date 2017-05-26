@@ -21,6 +21,7 @@
     height: 112px;
     background-image: url(img/cards.png);
     background-position: 80px 112px;
+    background-repeat: no-repeat;
 }
 .card.air-strike {
     width: 112px;
@@ -89,6 +90,20 @@
     margin-left: 4px;
     margin-bottom: 4px;
 }
+#opponent-hand.player-hand .hand-cards .hand-card {
+    margin-right: -44px;
+}
+.player-hand .hand-card.clickable {
+    cursor: pointer;
+}
+.player-hand .hand-card .selected-border {
+    display: none;
+    background-position: -672px -112px;
+    position: absolute;
+}
+.player-hand .hand-card.clickable.selected .selected-border {
+    display: inline-block;
+}
 
 /* Battlefield */
 .viewing-player-color-6f0f11 .card.hill {
@@ -96,4 +111,12 @@
 }
 .viewing-player-color-04237b .card.hill {
     transform: rotate(180deg);
+}
+
+/* Return */
+#return-cards {
+    display: none;
+}
+.state-returnToDeck #return-cards {
+    display: inline;
 }

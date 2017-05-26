@@ -7,6 +7,7 @@ define([
     "dojo/query",
     "dojo/_base/array",
     "dojo/dom-construct",
+    "dojo/NodeList-data",
     "ebg/core/gamegui",
     "ebg/counter"
 ],
@@ -43,34 +44,36 @@ function (dojo, declare, lang, query, array, domConstruct) {
 
         setupMyHand: function(data) {
             var coloredHand = array.map(data.hand, function(card) { return lang.mixin({}, card, {color: data.color}); });
+
             var airStrikeCards = array.filter(coloredHand, function(card) { return card.type === 'air-strike'; });
-            var handCards = array.filter(coloredHand, function(card) { return card.type !== 'air-strike'; });
-            var _this = this;
-            array.forEach(airStrikeCards, function(card) {
+            array.forEach(airStrikeCards, lang.hitch(this, function(card) {
                 dojo.place(
-                    domConstruct.toDom(_this.format_block('jstpl_hand_card', card)),
+                    domConstruct.toDom(this.format_block('jstpl_hand_card', card)),
                     query('#my-hand .air-strikes')[0]
                 );
-            });
-            array.forEach(handCards, function(card) {
+            }));
+
+            var handCards = array.filter(coloredHand, function(card) { return card.type !== 'air-strike'; });
+            array.forEach(handCards, lang.hitch(this, function(card) {
                 dojo.place(
-                    domConstruct.toDom(_this.format_block('jstpl_hand_card', card)),
+                    domConstruct.toDom(this.format_block('jstpl_hand_card', card)),
                     query('#my-hand .hand-cards')[0]
                 );
-            });
+            }));
+
+            query('.player-hand .hand-card.clickable').connect('onclick', this, 'onHandCardClick');
         },
 
         setupOpponentHand: function(data) {
-            var _this = this;
             for (var i = 0; i < data.numAirStrikes; i++) {
                 dojo.place(
-                    domConstruct.toDom(_this.format_block('jstpl_hand_card', {type: 'air-strike', color: data.color})),
+                    domConstruct.toDom(this.format_block('jstpl_opponent_hand_card', {type: 'air-strike', color: data.color})),
                     query('#opponent-hand .air-strikes')[0]
                 );
             }
             for (var j = 0; j < data.handSize - data.numAirStrikes; j++) {
                 dojo.place(
-                    domConstruct.toDom(_this.format_block('jstpl_hand_card', {type: 'back', color: ''})),
+                    domConstruct.toDom(this.format_block('jstpl_opponent_hand_card', {type: 'back', color: ''})),
                     query('#opponent-hand .hand-cards')[0]
                 );
             }
@@ -78,13 +81,12 @@ function (dojo, declare, lang, query, array, domConstruct) {
 
         setupBattlefield: function(data, viewingPlayerColor) {
             query('#battlefield-panel').addClass('viewing-player-color-' + viewingPlayerColor);
-            var _this = this;
-            array.forEach(data, function(card) {
+            array.forEach(data, lang.hitch(this, function(card) {
                 dojo.place(
-                    domConstruct.toDom(_this.format_block('jstpl_battlefield_card', lang.mixin({}, card, {color: ''}))),
+                    domConstruct.toDom(this.format_block('jstpl_battlefield_card', lang.mixin({}, card, {color: ''}))),
                     'battlefield-panel'
                 );
-            });
+            }));
         },
 
         ///////////////////////////////////////////////////
@@ -93,27 +95,25 @@ function (dojo, declare, lang, query, array, domConstruct) {
         // onEnteringState: this method is called each time we are entering into a new game state.
         //                  You can use this method to perform some user interface changes at this moment.
         //
-        onEnteringState: function( stateName, args )
+        onEnteringState: function(stateName, args)
         {
-            console.log( 'Entering state: '+stateName );
-            
-            switch( stateName )
-            {
-            
-            /* Example:
-            
-            case 'myGameState':
-            
-                // Show some HTML block at this game state
-                dojo.style( 'my_html_block_id', 'display', 'block' );
-                
-                break;
-           */
-           
-           
-            case 'dummmy':
-                break;
+            console.log('Entering state', stateName);
+            query('#game-container').addClass('state-' + stateName);
+            switch (stateName) {
+                case 'returnToDeck':
+                    this.onEnterReturnToDeck();
+                    break;
             }
+        },
+
+        onEnterReturnToDeck: function() {
+            var handCards = query('#my-hand .hand-cards .hand-card');
+            handCards.addClass('clickable');
+            // TODO: Find the proper way to do this and pass hand-card through the even
+            var _this = this;
+            handCards.on('click', function() { _this.onHandCardReturnClick({target: this}); });
+
+            query('#return-cards').on('click', lang.hitch(this, this.onSubmitReturnCards));
         },
 
         // onLeavingState: this method is called each time we are leaving a game state.
@@ -179,6 +179,10 @@ function (dojo, declare, lang, query, array, domConstruct) {
         
         */
 
+        getSelectedHandCards: function() {
+            return query('#my-hand .hand-card.selected');
+        },
+
 
         ///////////////////////////////////////////////////
         //// Player's action
@@ -193,6 +197,21 @@ function (dojo, declare, lang, query, array, domConstruct) {
             _ make a call to the game server
         
         */
+
+        onHandCardReturnClick: function(e) {
+            query(e.target).toggleClass('selected');
+            // TODO: Where should this business logic go?
+            if (this.getSelectedHandCards().length === 2) {
+                query('#return-cards').removeAttr('disabled');
+            } else {
+                query('#return-cards').attr('disabled', 'disabled');
+            }
+        },
+
+        onSubmitReturnCards: function(e) {
+            var ids = this.getSelectedHandCards().attr('data-id');
+            //ids
+        },
         
         /* Example:
         

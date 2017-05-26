@@ -11,14 +11,15 @@
             <h3>My Hand</h3>
             <div class="air-strikes"></div>
             <div class="hand-cards"></div>
+            <button type="button" id="return-cards" disabled="disabled">Return</button>
         </div>
     </div>
-    <div id="battlefield-panel" class="whiteblock">
-    </div>
+    <div id="battlefield-panel" class="whiteblock"></div>
 </div>
 
 <script type="text/javascript">
-var jstpl_hand_card = '<div class="hand-card"><div class="card ${type} color-${color}"></div></div>';
+var jstpl_hand_card = '<div class="hand-card" data-id="${id}"><div class="selected-border card"></div><div class="card ${type} color-${color}"></div></div>';
+var jstpl_opponent_hand_card = '<div class="hand-card"><div class="card ${type} color-${color}"></div></div>';
 var jstpl_battlefield_card = '<div class="battlefield-card"><div class="card ${type} color-${color}"></div></div>';
 </script>
 
