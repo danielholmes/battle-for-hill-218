@@ -29,7 +29,6 @@ use TheBattleForHill218\Cards\PlayerCard;
 use TheBattleForHill218\Hill218Setup;
 use TheBattleForHill218\SQLHelper;
 
-
 class BattleForHillDhau extends Table
 {
 	public function __construct()
@@ -166,14 +165,6 @@ class BattleForHillDhau extends Table
             self::getObjectListFromDB('SELECT id, player_id, type FROM hand_card ORDER BY `order` ASC'),
             function(array $card) { return (int) $card['player_id']; }
         );
-        $myHand = $handCardsByPlayerId[$myPlayerId];
-        $opponentHand = $handCardsByPlayerId[$opponentPlayerId];
-        $opponentNumAirStrikes = count(
-            F\filter(
-                F\pluck($opponentHand, 'type'),
-                function($type) { return $type === 'air-strike'; }
-            )
-        );
 
         // Decks
         $rawDeckCounts = self::getObjectListFromDB('SELECT COUNT(id) as size, player_id FROM deck_card GROUP BY player_id');
@@ -185,36 +176,77 @@ class BattleForHillDhau extends Table
             function(array $count) { return (int) $count['size']; }
         );
 
-        // Battlefield
-        $battlefield = F\map(
-            self::getObjectListFromDB('SELECT player_id, type, x, y FROM battlefield_card'),
+        return array(
+            'players' => $players,
+            'me' => $this->getMeDatas(
+                $players[$myPlayerId],
+                $handCardsByPlayerId[$myPlayerId],
+                $deckSizes[$myPlayerId]
+            ),
+            'opponent' => $this->getOpponentDatas(
+                $players[$opponentPlayerId],
+                $handCardsByPlayerId[$opponentPlayerId],
+                $deckSizes[$opponentPlayerId]
+            ),
+            'battlefield' => $this->getBattlefieldDatas()
+        );
+    }
+
+    /**
+     * @param array $player
+     * @param array $hand
+     * @param int $deckSize
+     * @return array
+     */
+    private function getMeDatas(array $player, array $hand, $deckSize)
+    {
+        return array(
+            'color' => $player['color'],
+            'hand' => F\map(
+                array_values($hand),
+                function(array $card) { return array('id' => (int) $card['id'], 'type' => $card['type']); }
+            ),
+            'deckSize' => $deckSize
+        );
+    }
+
+    /**
+     * @param array $player
+     * @param array $hand
+     * @param int $deckSize
+     * @return array
+     */
+    private function getOpponentDatas(array $player, array $hand, $deckSize)
+    {
+        $numAirStrikes = count(
+            F\filter(
+                F\pluck($hand, 'type'),
+                function($type) { return $type === 'air-strike'; }
+            )
+        );
+        return array(
+            'color' => $player['color'],
+            'numAirStrikes' => $numAirStrikes,
+            'handSize' => count($hand),
+            'deckSize' => $deckSize
+        );
+    }
+
+    /**
+     * @return array
+     */
+    private function getBattlefieldDatas()
+    {
+        return F\map(
+            self::getObjectListFromDB('SELECT player_id AS playerId, type, x, y FROM battlefield_card'),
             function(array $card) {
                 return array(
-                    'playerId' => (int) $card['player_id'],
+                    'playerId' => (int) $card['playerId'],
                     'type' => $card['type'],
                     'x' => (int) $card['x'],
                     'y' => (int) $card['y']
                 );
             }
-        );
-
-        return array(
-            'players' => $players,
-            'me' => array(
-                'color' => $players[$myPlayerId]['color'],
-                'hand' => F\map(
-                    array_values($myHand),
-                    function(array $card) { return array('id' => (int) $card['id'], 'type' => $card['type']); }
-                ),
-                'deckSize' => $deckSizes[$myPlayerId]
-            ),
-            'opponent' => array(
-                'color' => $players[$opponentPlayerId]['color'],
-                'numAirStrikes' => $opponentNumAirStrikes,
-                'handSize' => count($opponentHand),
-                'deckSize' => $deckSizes[$opponentPlayerId]
-            ),
-            'battlefield' => $battlefield
         );
     }
 

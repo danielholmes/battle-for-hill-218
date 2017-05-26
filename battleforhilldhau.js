@@ -3,13 +3,14 @@
 define([
     "dojo",
     "dojo/_base/declare",
+    "dojo/_base/lang",
     "dojo/query",
     "dojo/_base/array",
     "dojo/dom-construct",
     "ebg/core/gamegui",
     "ebg/counter"
 ],
-function (dojo, declare, query, array, domConstruct) {
+function (dojo, declare, lang, query, array, domConstruct) {
     return declare("bgagame.battleforhilldhau", ebg.core.gamegui, {
         constructor: function(){
             console.log('battleforhilldhau constructor');
@@ -34,11 +35,17 @@ function (dojo, declare, query, array, domConstruct) {
         */
         setup: function(datas)
         {
-            // My Hand
-            query("#my-hand").addClass('player-color-' + datas.me.color);
+            this.setupMyHand(datas.me);
+            this.setupOpponentHand(datas.opponent);
+            this.setupBattlefield(datas.battlefield, datas.me.color);
+            this.setupNotifications();
+        },
+
+        setupMyHand: function(data) {
+            var coloredHand = array.map(data.hand, function(card) { return lang.mixin({}, card, {color: data.color}); });
+            var airStrikeCards = array.filter(coloredHand, function(card) { return card.type === 'air-strike'; });
+            var handCards = array.filter(coloredHand, function(card) { return card.type !== 'air-strike'; });
             var _this = this;
-            var airStrikeCards = array.filter(datas.me.hand, function(card) { return card.type === 'air-strike'; });
-            var handCards = array.filter(datas.me.hand, function(card) { return card.type !== 'air-strike'; });
             array.forEach(airStrikeCards, function(card) {
                 dojo.place(
                     domConstruct.toDom(_this.format_block('jstpl_hand_card', card)),
@@ -51,25 +58,34 @@ function (dojo, declare, query, array, domConstruct) {
                     query('#my-hand .hand-cards')[0]
                 );
             });
+        },
 
-            // Opponent Hand
-            query("#opponent-hand").addClass('player-color-' + datas.opponent.color);
-            for (var i = 0; i < datas.opponent.numAirStrikes; i++) {
+        setupOpponentHand: function(data) {
+            var _this = this;
+            for (var i = 0; i < data.numAirStrikes; i++) {
                 dojo.place(
-                    domConstruct.toDom(_this.format_block('jstpl_hand_card', {type: 'air-strike'})),
+                    domConstruct.toDom(_this.format_block('jstpl_hand_card', {type: 'air-strike', color: data.color})),
                     query('#opponent-hand .air-strikes')[0]
                 );
             }
-            for (var j = 0; j < datas.opponent.handSize - datas.opponent.numAirStrikes; j++) {
+            for (var j = 0; j < data.handSize - data.numAirStrikes; j++) {
                 dojo.place(
-                    domConstruct.toDom(_this.format_block('jstpl_hand_card', {type: 'back'})),
+                    domConstruct.toDom(_this.format_block('jstpl_hand_card', {type: 'back', color: ''})),
                     query('#opponent-hand .hand-cards')[0]
                 );
             }
- 
-            this.setupNotifications();
         },
-       
+
+        setupBattlefield: function(data, viewingPlayerColor) {
+            query('#battlefield-panel').addClass('viewing-player-color-' + viewingPlayerColor);
+            var _this = this;
+            array.forEach(data, function(card) {
+                dojo.place(
+                    domConstruct.toDom(_this.format_block('jstpl_battlefield_card', lang.mixin({}, card, {color: ''}))),
+                    'battlefield-panel'
+                );
+            });
+        },
 
         ///////////////////////////////////////////////////
         //// Game & client states

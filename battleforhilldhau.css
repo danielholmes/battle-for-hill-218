@@ -9,7 +9,7 @@
     width: 352px;
     float: right;
 }
-#cards-panel {
+#battlefield-panel {
     width: auto;
     overflow: hidden;
     margin-right: 362px;
@@ -20,48 +20,64 @@
     width: 80px;
     height: 112px;
     background-image: url(img/cards.png);
-    background-position-x: -80px;
-    background-position-y: -112px;
+    background-position: 80px 112px;
 }
 .card.air-strike {
-    background-position-x: -480px;
     width: 112px;
     height: 80px;
 }
-.card.artillery {
-    background-position-x: 0;
+
+.card.artillery.color-04237b {
+    background-position: 0 0;
 }
-.card.heavy-weapons {
-    background-position-x: -80px;
+.card.heavy-weapons.color-04237b {
+    background-position: -80px 0;
 }
-.card.infantry {
-    background-position-x: -160px;
+.card.infantry.color-04237b {
+    background-position: -160px 0;
 }
-.card.paratroopers {
-    background-position-x: -240px;
+.card.paratroopers.color-04237b {
+    background-position: -240px 0;
 }
-.card.special-forces {
-    background-position-x: -320px;
+.card.special-forces.color-04237b {
+    background-position: -320px 0;
 }
-.card.tank {
-    background-position-x: -400px;
+.card.tank.color-04237b {
+    background-position: -400px 0;
 }
-.player-color-04237b .card {
-    background-position-y: 0;
+.card.air-strike.color-04237b {
+    background-position: -480px 0;
 }
-.player-color-6f0f11 .card {
-    background-position-y: -112px;
+.card.artillery.color-6f0f11 {
+    background-position: 0 -112px;
 }
-.card.hill {
-    background-position-x: -592px;
-    background-position-y: 0;
+.card.heavy-weapons.color-6f0f11 {
+    background-position: -80px -112px;
 }
-.card.back {
-    background-position-x: -592px;
-    background-position-y: -112px;
+.card.infantry.color-6f0f11 {
+    background-position: -160px -112px;
+}
+.card.paratroopers.color-6f0f11 {
+    background-position: -240px -112px;
+}
+.card.special-forces.color-6f0f11 {
+    background-position: -320px -112px;
+}
+.card.tank.color-6f0f11 {
+    background-position: -400px -112px;
+}
+.card.air-strike.color-6f0f11 {
+    background-position: -480px -112px;
 }
 
-/* My Hand */
+.card.hill {
+    background-position: -592px 0;
+}
+.card.back {
+    background-position: -592px -112px;
+}
+
+/* Hands */
 .player-hand {
     margin-left: -4px;
 }
@@ -72,4 +88,12 @@
     display: inline-block;
     margin-left: 4px;
     margin-bottom: 4px;
+}
+
+/* Battlefield */
+.viewing-player-color-6f0f11 .card.hill {
+    transform: rotate(0);
+}
+.viewing-player-color-04237b .card.hill {
+    transform: rotate(180deg);
 }
