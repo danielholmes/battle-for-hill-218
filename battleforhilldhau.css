@@ -6,13 +6,13 @@
     overflow: hidden;
 }
 #players-panel {
-    width: 400px;
+    width: 352px;
     float: right;
 }
 #cards-panel {
     width: auto;
     overflow: hidden;
-    margin-right: 410px;
+    margin-right: 362px;
 }
 
 /* Cards */
@@ -24,32 +24,34 @@
     background-position-y: -112px;
 }
 .card.air-strike {
-    background-position-x: 0;
+    background-position-x: -480px;
+    width: 112px;
+    height: 80px;
 }
 .card.artillery {
-    background-position-x: -80px;
+    background-position-x: 0;
 }
 .card.heavy-weapons {
-    background-position-x: -160px;
+    background-position-x: -80px;
 }
 .card.infantry {
-    background-position-x: -240px;
+    background-position-x: -160px;
 }
 .card.paratroopers {
-    background-position-x: -320px;
+    background-position-x: -240px;
 }
 .card.special-forces {
-    background-position-x: -400px;
+    background-position-x: -320px;
 }
 .card.tank {
-    background-position-x: -480px;
+    background-position-x: -400px;
 }
 .card.hill {
-    background-position-x: -560px;
+    background-position-x: -610px;
     background-position-y: 0;
 }
 .card.back {
-    background-position-x: -560px;
+    background-position-x: -610px;
     background-position-y: 112px;
 }
 .player-color-04237b .card {
@@ -60,8 +62,14 @@
 }
 
 /* My Hand */
-#my-hand .card {
+.player-hand {
+    margin-left: -4px;
+}
+.player-hand .air-strikes {
+    text-align: center;
+}
+.player-hand .hand-card {
     display: inline-block;
-    margin-right: 4px;
+    margin-left: 4px;
     margin-bottom: 4px;
 }

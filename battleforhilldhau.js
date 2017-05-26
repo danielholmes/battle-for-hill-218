@@ -37,8 +37,19 @@ function (dojo, declare, query, array, domConstruct) {
             // My Hand
             query("#my-hand").addClass('player-color-' + datas.me.color);
             var _this = this;
-            array.forEach(datas.me.hand, function(card) {
-                dojo.place(domConstruct.toDom(_this.format_block('jstpl_card', card)), 'my-hand');
+            var airStrikeCards = array.filter(datas.me.hand, function(card) { return card.type === 'air-strike'; });
+            var handCards = array.filter(datas.me.hand, function(card) { return card.type !== 'air-strike'; });
+            array.forEach(airStrikeCards, function(card) {
+                dojo.place(
+                    domConstruct.toDom(_this.format_block('jstpl_hand_card', card)),
+                    query('#my-hand .air-strikes')[0]
+                );
+            });
+            array.forEach(handCards, function(card) {
+                dojo.place(
+                    domConstruct.toDom(_this.format_block('jstpl_hand_card', card)),
+                    query('#my-hand .hand-cards')[0]
+                );
             });
 
             // Opponent Hand
