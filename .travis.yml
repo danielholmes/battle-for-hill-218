@@ -1,5 +1,8 @@
 language: php
 
+services:
+  - mysql
+
 php:
   - '5.6'
   - '7.0'
@@ -7,3 +10,4 @@ php:
 
 before_script:
   - composer install
+  - cp bgaproject.travis.json bgaproject.json
