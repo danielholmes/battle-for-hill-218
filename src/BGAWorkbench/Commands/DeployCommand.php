@@ -27,8 +27,7 @@ class DeployCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $cwd = new \SplFileInfo(getcwd());
-        $config = ProjectWorkbenchConfig::loadFrom($cwd);
+        $config = ProjectWorkbenchConfig::loadFromCwd();
         $project = $config->loadProject();
 
         $deployment = new ProductionDeployment(

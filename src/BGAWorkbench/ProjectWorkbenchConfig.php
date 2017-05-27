@@ -111,6 +111,14 @@ class ProjectWorkbenchConfig
     }
 
     /**
+     * @return ProjectWorkbenchConfig
+     */
+    public static function loadFromCwd()
+    {
+        return self::loadFrom(new \SplFileInfo(getcwd()));
+    }
+
+    /**
      * @param \SplFileInfo $directory
      * @return ProjectWorkbenchConfig
      */

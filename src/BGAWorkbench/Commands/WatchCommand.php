@@ -30,7 +30,7 @@ class WatchCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $config = ProjectWorkbenchConfig::loadFrom(new \SplFileInfo(getcwd()));
+        $config = ProjectWorkbenchConfig::loadFromCwd();
         $project = $config->loadProject();
         $deployment = new ProductionDeployment(
             $config->getSftpHost(),

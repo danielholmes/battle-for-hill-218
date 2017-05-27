@@ -35,7 +35,7 @@ class BattleForHillDhau extends Table
 	{
         parent::__construct();
 
-        self::initGameStateLabels(array());
+        $this->initGameStateLabels(array());
 	}
 
     /**
@@ -91,8 +91,8 @@ class BattleForHillDhau extends Table
             $i++;
         }
 
-        self::reattributeColorsBasedOnPreferences($players, $colors);
-        self::reloadPlayersBasicInfos();
+        $this->reattributeColorsBasedOnPreferences($players, $colors);
+        $this->reloadPlayersBasicInfos();
     }
 
     /**

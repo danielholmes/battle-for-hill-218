@@ -2,6 +2,7 @@
 
 namespace BGAWorkbench;
 
+use Nette\Reflection\AnnotationsParser;
 use Qaribou\Collection\ImmArray;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Finder\SplFileInfo;
@@ -52,19 +53,35 @@ class Project
     }
 
     /**
+     * @return string
+     */
+    public function getGameProjectFileRelativePathname()
+    {
+        return "{$this->name}.game.php";
+    }
+
+    /**
+     * @return string
+     */
+    public function getGameinfosProjectFileRelativePathname()
+    {
+        return "gameinfos.inc.php";
+    }
+
+    /**
      * @return ImmArray
      */
     public function getRequiredFiles()
     {
         return ImmArray::fromArray(array(
             "{$this->name}.action.php",
-            "{$this->name}.game.php",
+            $this->getGameProjectFileRelativePathname(),
             "{$this->name}.view.php",
             "{$this->name}.css",
             "{$this->name}.js",
             "{$this->name}_{$this->name}.tpl",
             "dbmodel.sql",
-            "gameinfos.inc.php",
+            $this->getGameinfosProjectFileRelativePathname(),
             "gameoptions.inc.php",
             "material.inc.php",
             "states.inc.php",
@@ -173,5 +190,38 @@ class Project
     {
         $relativePathname = str_replace_first($this->directory->getPathname() . DIRECTORY_SEPARATOR, '', $pathname);
         return new SplFileInfo($pathname, dirname($relativePathname), $relativePathname);
+    }
+
+    /**
+     * @return array
+     */
+    public function getGameInfos()
+    {
+        return Utils::getVariableValueFromFile(
+            $this->getProjectFile($this->getGameinfosProjectFileRelativePathname()),
+            'gameinfos'
+        )->get();
+    }
+
+    /**
+     * @return \Table
+     */
+    public function createGameInstance()
+    {
+        $gameFilepath = $this->getProjectFile($this->getGameProjectFileRelativePathname())->getPathname();
+        require_once($gameFilepath);
+        $tableClasses = ImmArray::fromArray(array_keys(AnnotationsParser::parsePhp(file_get_contents($gameFilepath))))
+            ->map(function($className) { return new \ReflectionClass($className); })
+            ->filter(function($refClass) {
+                return $refClass->getParentClass()->getName() === 'Table';
+            });
+        $numTableClasses = $tableClasses->count();
+        if ($numTableClasses !== 1) {
+            throw new \RuntimeException(
+                "Expected exactly one Table classes in game file {$gameFilepath}, found exactly {$numTableClasses}"
+            );
+        }
+        $tableClass = $tableClasses->current();
+        return $tableClass->newInstance();
     }
 }
