@@ -38,12 +38,24 @@ class ProjectWorkbenchConfig
     private $extraSrcPaths;
 
     /**
+     * @var string
+     */
+    private $testDbUsername;
+
+    /**
+     * @var string
+     */
+    private $testDbPassword;
+
+    /**
      * @param \SplFileInfo $directory
      * @param string $sftpHost
      * @param string $sftpUsername
      * @param string $sftpPassword
      * @param boolean $useComposer
      * @param ImmArray $extraSrcPaths
+     * @param string $testDbUsername
+     * @param string $testDbPassword
      */
     public function __construct(
         \SplFileInfo $directory,
@@ -51,7 +63,9 @@ class ProjectWorkbenchConfig
         $sftpUsername,
         $sftpPassword,
         $useComposer,
-        ImmArray $extraSrcPaths
+        ImmArray $extraSrcPaths,
+        $testDbUsername,
+        $testDbPassword
     )
     {
         $this->directory = $directory;
@@ -60,6 +74,8 @@ class ProjectWorkbenchConfig
         $this->sftpPassword = $sftpPassword;
         $this->useComposer = $useComposer;
         $this->extraSrcPaths = $extraSrcPaths;
+        $this->testDbUsername = $testDbUsername;
+        $this->testDbPassword = $testDbPassword;
     }
 
     /**
@@ -84,6 +100,22 @@ class ProjectWorkbenchConfig
     public function getSftpPassword()
     {
         return $this->sftpPassword;
+    }
+
+    /**
+     * @return string
+     */
+    public function getTestDbUsername()
+    {
+        return $this->testDbUsername;
+    }
+
+    /**
+     * @return string
+     */
+    public function getTestDbPassword()
+    {
+        return $this->testDbPassword;
     }
 
     /**
@@ -139,7 +171,9 @@ class ProjectWorkbenchConfig
             $processed['sftp']['user'],
             $processed['sftp']['pass'],
             $processed['useComposer'],
-            ImmArray::fromArray($processed['extraSrc'])
+            ImmArray::fromArray($processed['extraSrc']),
+            $processed['testDb']['user'],
+            $processed['testDb']['pass']
         );
     }
 }

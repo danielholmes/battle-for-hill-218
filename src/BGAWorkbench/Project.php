@@ -69,6 +69,22 @@ class Project
     }
 
     /**
+     * @return string
+     */
+    private function getDbModelSqlRelativePathname()
+    {
+        return "dbmodel.sql";
+    }
+
+    /**
+     * @return SplFileInfo
+     */
+    public function getDbModelSqlFile()
+    {
+        return $this->getProjectFile($this->getDbModelSqlRelativePathname());
+    }
+
+    /**
      * @return ImmArray
      */
     public function getRequiredFiles()
@@ -80,7 +96,7 @@ class Project
             "{$this->name}.css",
             "{$this->name}.js",
             "{$this->name}_{$this->name}.tpl",
-            "dbmodel.sql",
+            $this->getDbModelSqlRelativePathname(),
             $this->getGameinfosProjectFileRelativePathname(),
             "gameoptions.inc.php",
             "material.inc.php",

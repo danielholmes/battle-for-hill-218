@@ -15,17 +15,16 @@ class GameTest extends ProjectIntegrationTestCase
     protected function setUp()
     {
         $this->gameInstance = self::gameTableInstanceBuilder()
-            ->setPlayers(array(
-                66 => array(),
-                77 => array()
-            ))
-            ->build();
-        $this->gameInstance->createDatabase();
+            ->setRandomPlayers(2)
+            ->build()
+            ->createDatabase();
     }
 
     protected function tearDown()
     {
-        $this->gameInstance->dropDatabase();
+        if ($this->gameInstance !== null) {
+            $this->gameInstance->dropDatabase();
+        }
     }
 
     public function testInit()

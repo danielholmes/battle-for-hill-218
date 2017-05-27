@@ -11,18 +11,18 @@ class ProjectIntegrationTestCase extends TestCase
     /**
      * @var Project|null
      */
-    private static $cwdProject = null;
+    private static $cwdConfig = null;
 
     /**
      * @return Project
      */
-    private static function getCwdProject()
+    private static function getCwdProjectConfig()
     {
-        if (self::$cwdProject === null) {
-            self::$cwdProject = ProjectWorkbenchConfig::loadFromCwd()->loadProject();
+        if (self::$cwdConfig === null) {
+            self::$cwdConfig = ProjectWorkbenchConfig::loadFromCwd();
         }
 
-        return self::$cwdProject;
+        return self::$cwdConfig;
     }
 
     /**
@@ -30,6 +30,6 @@ class ProjectIntegrationTestCase extends TestCase
      */
     protected static function gameTableInstanceBuilder()
     {
-        return GameTableInstanceBuilder::create(self::getCwdProject());
+        return GameTableInstanceBuilder::create(self::getCwdProjectConfig());
     }
 }

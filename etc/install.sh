@@ -10,14 +10,12 @@ add-apt-repository ppa:ondrej/php
 apt-get update -y
 
 # PHP and packages
-apt-get install -y php5.6 php5.6-mbstring php5.6-dom php5.6-zip
+apt-get install -y php5.6 php5.6-mbstring php5.6-dom php5.6-zip php5.6-mysql
 
 # MySQL TODO: Should be version 5.1.73-0ubuntu0.10.04.1 if can
-#debconf-set-selections <<< 'mysql-server mysql-server/root_password password your_password'
-#debconf-set-selections <<< 'mysql-server mysql-server/root_password_again password your_password'
-export DEBIAN_FRONTEND=noninteractive
+debconf-set-selections <<< 'mysql-server mysql-server/root_password password battle218pw'
+debconf-set-selections <<< 'mysql-server mysql-server/root_password_again password battle218pw'
 apt-get install -y mysql-server
-mysqladmin -u root password battle218pw
 
 # Composer
 COMPOSER_INSTALLER="$PROJECT_DIR/etc/install_composer.sh"
