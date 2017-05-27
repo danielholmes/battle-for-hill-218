@@ -3,7 +3,7 @@
 namespace BGAWorkbench\Commands;
 
 use BGAWorkbench\Project;
-use BGAWorkbench\ProjectWorkbenchConfig;
+use BGAWorkbench\WorkbenchProjectConfig;
 use BGAWorkbench\StateConfiguration;
 use Symfony\Component\Config\Definition\Processor;
 use Symfony\Component\Console\Command\Command;
@@ -29,7 +29,7 @@ class ValidateCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $config = ProjectWorkbenchConfig::loadFromCwd();
+        $config = WorkbenchProjectConfig::loadFromCwd();
         $project = $config->loadProject();
 
         $this->validateRequiredFilesExist($project);

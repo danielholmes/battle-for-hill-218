@@ -3,7 +3,7 @@
 namespace BGAWorkbench\Commands;
 
 use BGAWorkbench\ProductionDeployment;
-use BGAWorkbench\ProjectWorkbenchConfig;
+use BGAWorkbench\WorkbenchProjectConfig;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -27,7 +27,7 @@ class DeployCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $config = ProjectWorkbenchConfig::loadFromCwd();
+        $config = WorkbenchProjectConfig::loadFromCwd();
         $project = $config->loadProject();
 
         $deployment = new ProductionDeployment(

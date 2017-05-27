@@ -3,7 +3,11 @@
 # Settings
 PROJECT_NAME=$1
 DB_NAME=$PROJECT_NAME
-PROJECT_DIR=/home/ubuntu/$PROJECT_NAME
+HOME_DIR=/home/ubuntu
+PROJECT_DIR=$HOME_DIR/$PROJECT_NAME
+
+# Make sure start in project directory
+echo "cd $PROJECT_DIR" >> "$HOME_DIR/.bashrc"
 
 # Install essential packages from Apt
 add-apt-repository ppa:ondrej/php

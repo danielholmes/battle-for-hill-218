@@ -14,7 +14,7 @@
 ## Setting up Developer Machine
 
 ```
-Vagrant up
+vagrant up
 ```
 
 
@@ -22,7 +22,6 @@ Vagrant up
 
 ```
 Vagrant ssh
-cd battle-for-hill-218
 vendor/bin/phpunit
 bin/bgawb validate
 ```
@@ -31,8 +30,7 @@ bin/bgawb validate
 ## Deploying to Production
 
 ```
-Vagrant ssh
-cd battle-for-hill-218
+vagrant ssh
 bin/bgawb deploy
 ```
 
@@ -42,7 +40,6 @@ bin/bgawb deploy
 Watches development files and deploys them as they change.
 
 ```
-Vagrant ssh
-cd battle-for-hill-218
+vagrant ssh
 bin/bgawb watch
 ```

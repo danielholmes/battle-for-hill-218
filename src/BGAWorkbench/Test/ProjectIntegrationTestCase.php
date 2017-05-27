@@ -3,7 +3,7 @@
 namespace BGAWorkbench\Test;
 
 use BGAWorkbench\Project;
-use BGAWorkbench\ProjectWorkbenchConfig;
+use BGAWorkbench\WorkbenchProjectConfig;
 use PHPUnit\Framework\TestCase;
 
 class ProjectIntegrationTestCase extends TestCase
@@ -14,22 +14,22 @@ class ProjectIntegrationTestCase extends TestCase
     private static $cwdConfig = null;
 
     /**
-     * @return Project
+     * @return WorkbenchProjectConfig
      */
     private static function getCwdProjectConfig()
     {
         if (self::$cwdConfig === null) {
-            self::$cwdConfig = ProjectWorkbenchConfig::loadFromCwd();
+            self::$cwdConfig = WorkbenchProjectConfig::loadFromCwd();
         }
 
         return self::$cwdConfig;
     }
 
     /**
-     * @return GameTableInstanceBuilder
+     * @return TableInstanceBuilder
      */
     protected static function gameTableInstanceBuilder()
     {
-        return GameTableInstanceBuilder::create(self::getCwdProjectConfig());
+        return TableInstanceBuilder::create(self::getCwdProjectConfig());
     }
 }

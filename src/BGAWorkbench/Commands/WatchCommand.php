@@ -3,7 +3,7 @@
 namespace BGAWorkbench\Commands;
 
 use BGAWorkbench\ProductionDeployment;
-use BGAWorkbench\ProjectWorkbenchConfig;
+use BGAWorkbench\WorkbenchProjectConfig;
 use Illuminate\Filesystem\Filesystem;
 use JasonLewis\ResourceWatcher\Tracker;
 use JasonLewis\ResourceWatcher\Watcher;
@@ -30,7 +30,7 @@ class WatchCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $config = ProjectWorkbenchConfig::loadFromCwd();
+        $config = WorkbenchProjectConfig::loadFromCwd();
         $project = $config->loadProject();
         $deployment = new ProductionDeployment(
             $config->getSftpHost(),

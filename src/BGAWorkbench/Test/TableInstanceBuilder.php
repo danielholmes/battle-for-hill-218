@@ -3,13 +3,13 @@
 namespace BGAWorkbench\Test;
 
 use BGAWorkbench\Project;
-use BGAWorkbench\ProjectWorkbenchConfig;
+use BGAWorkbench\WorkbenchProjectConfig;
 use Symfony\Component\Config\Definition\Processor;
 
-class GameTableInstanceBuilder
+class TableInstanceBuilder
 {
     /**
-     * @var ProjectWorkbenchConfig
+     * @var WorkbenchProjectConfig
      */
     private $config;
 
@@ -29,9 +29,9 @@ class GameTableInstanceBuilder
     private $configProcessor;
 
     /**
-     * @param ProjectWorkbenchConfig $config
+     * @param WorkbenchProjectConfig $config
      */
-    private function __construct(ProjectWorkbenchConfig $config)
+    private function __construct(WorkbenchProjectConfig $config)
     {
         $this->config = $config;
         $this->options = array();
@@ -68,18 +68,18 @@ class GameTableInstanceBuilder
     }
 
     /**
-     * @return GameTableInstance
+     * @return TableInstance
      */
     public function build()
     {
-        return new GameTableInstance($this->config, $this->players, $this->options);
+        return new TableInstance($this->config, $this->players, $this->options);
     }
 
     /**
-     * @param ProjectWorkbenchConfig $config
-     * @return GameTableInstanceBuilder
+     * @param WorkbenchProjectConfig $config
+     * @return TableInstanceBuilder
      */
-    public static function create(ProjectWorkbenchConfig $config)
+    public static function create(WorkbenchProjectConfig $config)
     {
         return new self($config);
     }

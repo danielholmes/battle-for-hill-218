@@ -23,7 +23,7 @@ class PlayersConfiguration implements ConfigurationInterface
                     ->scalarNode('player_name')->defaultValue($faker->firstName)->end()
                     ->scalarNode('player_avatar')->defaultValue('000000')->end()
                     ->scalarNode('player_is_admin')->defaultValue(0)->end()
-                    ->scalarNode('beginner')->defaultValue(0)->end()
+                    ->scalarNode('player_beginner')->defaultValue(0)->end()
                     ->scalarNode('player_is_ai')->defaultValue(0)->end()
                     ->scalarNode('player_table_order')->defaultValue(0)->end() // TODO: Should be sequential
                 ->end()

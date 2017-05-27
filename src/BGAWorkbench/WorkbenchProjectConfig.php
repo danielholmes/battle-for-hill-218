@@ -5,7 +5,7 @@ namespace BGAWorkbench;
 use Qaribou\Collection\ImmArray;
 use Symfony\Component\Config\Definition\Processor;
 
-class ProjectWorkbenchConfig
+class WorkbenchProjectConfig
 {
     /**
      * @var \SplFileInfo
@@ -143,7 +143,7 @@ class ProjectWorkbenchConfig
     }
 
     /**
-     * @return ProjectWorkbenchConfig
+     * @return WorkbenchProjectConfig
      */
     public static function loadFromCwd()
     {
@@ -152,7 +152,7 @@ class ProjectWorkbenchConfig
 
     /**
      * @param \SplFileInfo $directory
-     * @return ProjectWorkbenchConfig
+     * @return WorkbenchProjectConfig
      */
     public static function loadFrom(\SplFileInfo $directory)
     {
@@ -165,7 +165,7 @@ class ProjectWorkbenchConfig
         $rawConfig = @json_decode($rawContent, true);
         $processor = new Processor();
         $processed = $processor->processConfiguration(new ConfigFileConfiguration(), array($rawConfig));
-        return new ProjectWorkbenchConfig(
+        return new WorkbenchProjectConfig(
             $directory,
             $processed['sftp']['host'],
             $processed['sftp']['user'],

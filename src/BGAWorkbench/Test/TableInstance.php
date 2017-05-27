@@ -3,15 +3,16 @@
 namespace BGAWorkbench\Test;
 
 use BGAWorkbench\Project;
-use BGAWorkbench\ProjectWorkbenchConfig;
+use BGAWorkbench\WorkbenchProjectConfig;
 use Doctrine\DBAL\Configuration;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
+use Doctrine\DBAL\Query\QueryBuilder;
 
-class GameTableInstance
+class TableInstance
 {
     /**
-     * @var ProjectWorkbenchConfig
+     * @var WorkbenchProjectConfig
      */
     private $config;
 
@@ -56,11 +57,11 @@ class GameTableInstance
     private $dbConfig;
 
     /**
-     * @param ProjectWorkbenchConfig $config
+     * @param WorkbenchProjectConfig $config
      * @param array $players
      * @param array $options
      */
-    public function __construct(ProjectWorkbenchConfig $config, array $players, array $options)
+    public function __construct(WorkbenchProjectConfig $config, array $players, array $options)
     {
         $this->config = $config;
         $this->project = $config->loadProject();
@@ -85,9 +86,21 @@ class GameTableInstance
     }
 
     /**
+     * @return QueryBuilder
+     */
+    public function createDbQueryBuilder()
+    {
+        if (!$this->databaseCreated) {
+            throw new \RuntimeException('Database not created');
+        }
+
+        return $this->getOrCreateDbConnection()->createQueryBuilder();
+    }
+
+    /**
      * @return Connection
      */
-    private function getDbConnection()
+    private function getOrCreateDbConnection()
     {
         if ($this->dbConnection === null) {
             $this->dbConnection = DriverManager::getConnection(
@@ -102,7 +115,7 @@ class GameTableInstance
     /**
      * @return Connection
      */
-    private function getDbSchemaConnection()
+    private function getOrCreateDbSchemaConnection()
     {
         if ($this->dbSchemaConnection === null) {
             $this->dbSchemaConnection = DriverManager::getConnection(
@@ -123,7 +136,7 @@ class GameTableInstance
             throw new \LogicException('Database already created');
         }
 
-        $this->getDbSchemaConnection()->getSchemaManager()->createDatabase($this->databaseName);
+        $this->getOrCreateDbSchemaConnection()->getSchemaManager()->createDatabase($this->databaseName);
         $this->createDatabaseTables();
 
         $this->databaseCreated = true;
@@ -132,12 +145,18 @@ class GameTableInstance
 
     private function createDatabaseTables()
     {
-        $contents = @file_get_contents($this->project->getDbModelSqlFile()->getPathname());
-        if ($contents === false) {
+        $frameworkSql = @file_get_contents(join(DIRECTORY_SEPARATOR, [__DIR__, '..', 'Stubs', 'dbmodel.sql']));
+        if ($frameworkSql === false) {
+            throw new \RuntimeException("Couldn't read framework db schema");
+        }
+
+        $projectSql = @file_get_contents($this->project->getDbModelSqlFile()->getPathname());
+        if ($projectSql === false) {
             throw new \RuntimeException("Couldn't read db schema");
         }
 
-        $this->getDbConnection()->executeUpdate($contents);
+        $this->getOrCreateDbConnection()->executeUpdate($frameworkSql);
+        $this->getOrCreateDbConnection()->executeUpdate($projectSql);
     }
 
     /**
@@ -149,7 +168,7 @@ class GameTableInstance
             throw new \LogicException('Database not created');
         }
 
-        $this->getDbSchemaConnection()->getSchemaManager()->dropDatabase($this->databaseName);
+        $this->getOrCreateDbSchemaConnection()->getSchemaManager()->dropDatabase($this->databaseName);
 
         $this->databaseCreated = false;
         return $this;
@@ -167,8 +186,8 @@ class GameTableInstance
         $setupNewGame = $gameClass->getMethod('setupNewGame');
         $setupNewGame->setAccessible(true);
 
-        // TODO: Find if this could be done on instance - is it actually static?
         call_user_func(array($gameClass->getName(), 'stubGameInfos'), $this->project->getGameInfos());
+        call_user_func(array($gameClass->getName(), 'setDbConnection'), $this->getOrCreateDbConnection());
 
         $setupNewGame->invoke($table, $this->players, $this->options);
 

@@ -2,19 +2,19 @@
 
 namespace TheBattleForHill218\Tests;
 
-use BGAWorkbench\Test\GameTableInstance;
+use BGAWorkbench\Test\TableInstance;
 use BGAWorkbench\Test\ProjectIntegrationTestCase;
 
 class GameTest extends ProjectIntegrationTestCase
 {
     /**
-     * @var GameTableInstance
+     * @var TableInstance
      */
-    private $gameInstance;
+    private $table;
 
     protected function setUp()
     {
-        $this->gameInstance = self::gameTableInstanceBuilder()
+        $this->table = self::gameTableInstanceBuilder()
             ->setRandomPlayers(2)
             ->build()
             ->createDatabase();
@@ -22,13 +22,16 @@ class GameTest extends ProjectIntegrationTestCase
 
     protected function tearDown()
     {
-        if ($this->gameInstance !== null) {
-            $this->gameInstance->dropDatabase();
+        if ($this->table !== null) {
+            $this->table->dropDatabase();
         }
     }
 
-    public function testInit()
+    public function testSetup()
     {
-        $game = $this->gameInstance->setupNewGame();
+        $game = $this->table->setupNewGame();
+
+        $res = $this->table->createDbQueryBuilder()->select('*')->from('player')->execute()->fetchAll();
+        var_export($res);
     }
 }

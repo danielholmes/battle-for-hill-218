@@ -1,5 +1,7 @@
 <?php
 
+use Doctrine\DBAL\Connection;
+
 class APP_Object
 {
 
@@ -7,12 +9,38 @@ class APP_Object
 
 class APP_DbObject extends APP_Object
 {
+    ////////////////////////////////////////////////////////////////////////
+    // Testing methods
     /**
      * @param string $sql
      */
     public static function DbQuery($sql)
     {
-        // TODO: Run sql
+        self::getDbConnection()->executeQuery($sql);
+    }
+
+    /**
+     * @var Connection
+     */
+    private static $connection;
+
+    /**
+     * @param Connection $connection
+     */
+    public static function setDbConnection(Connection $connection)
+    {
+        self::$connection = $connection;
+    }
+
+    /**
+     * @return Connection
+     */
+    private static function getDbConnection()
+    {
+        if (self::$connection === null) {
+            throw new \RuntimeException('No db connection set');
+        }
+        return self::$connection;
     }
 }
 
@@ -47,6 +75,7 @@ class Table extends APP_GameClass
 
     public function reloadPlayersBasicInfos() { }
 
+    ////////////////////////////////////////////////////////////////////////
     // Testing methods
     /**
      * @var array|null
