@@ -22,6 +22,11 @@ class GameTableInstance
     private $options;
 
     /**
+     * @var boolean
+     */
+    private $databaseCreated;
+
+    /**
      * @param Project $project
      * @param array $players
      * @param array $options
@@ -31,6 +36,31 @@ class GameTableInstance
         $this->project = $project;
         $this->players = $players;
         $this->options = $options;
+        $this->databaseCreated = false;
+    }
+
+    /**
+     * @return self
+     */
+    public function createDatabase()
+    {
+        if ($this->databaseCreated) {
+            throw new \LogicException('Database already created');
+        }
+        $this->databaseCreated = true;
+        return $this;
+    }
+
+    /**
+     * @return self
+     */
+    public function dropDatabase()
+    {
+        if (!$this->databaseCreated) {
+            throw new \LogicException('Database not created');
+        }
+        $this->databaseCreated = false;
+        return $this;
     }
 
     /**

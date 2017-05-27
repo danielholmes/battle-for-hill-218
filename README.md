@@ -8,20 +8,21 @@
 
 ## Development Requirements
 
- - PHP 5.6+
- - [Composer](https://getcomposer.org/)
+ - [Vagrant](https://www.vagrantup.com/)
 
 
 ## Setting up Developer Machine
 
 ```
-composer install
+Vagrant up
 ```
 
 
 ## Running Tests
 
 ```
+Vagrant ssh
+cd battle-for-hill-218
 vendor/bin/phpunit
 bin/bgawb validate
 ```
@@ -30,6 +31,8 @@ bin/bgawb validate
 ## Deploying to Production
 
 ```
+Vagrant ssh
+cd battle-for-hill-218
 bin/bgawb deploy
 ```
 
@@ -39,5 +42,7 @@ bin/bgawb deploy
 Watches development files and deploys them as they change.
 
 ```
+Vagrant ssh
+cd battle-for-hill-218
 bin/bgawb watch
 ```
