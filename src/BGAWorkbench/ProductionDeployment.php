@@ -155,7 +155,7 @@ class ProductionDeployment
      */
     private function rawListToMTimesByFilepath(array $rawRemoteList)
     {
-        $map = array();
+        $map = [];
         foreach ($rawRemoteList as $key => $value) {
             if ($key === '.' || $key === '..') {
                 continue;
@@ -180,7 +180,7 @@ class ProductionDeployment
      */
     private function rawListToDirectories(array $rawRemoteList)
     {
-        $directories = ImmArray::fromArray(array());
+        $directories = ImmArray::fromArray([]);
         foreach ($rawRemoteList as $key => $value) {
             if ($key === '.' || $key === '..') {
                 continue;
@@ -191,7 +191,7 @@ class ProductionDeployment
             }
 
             $subDirectories = $this->rawListToDirectories($value);
-            $directories = $directories->concat(ImmArray::fromArray(array($key)))
+            $directories = $directories->concat(ImmArray::fromArray([$key]))
                 ->concat($subDirectories->map(function($subDir) use ($key) { return $key . '/' . $subDir; }));
         }
         return $directories;

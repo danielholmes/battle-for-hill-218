@@ -10,7 +10,7 @@ class SQLHelperTest extends TestCase
     public function testBasicInsert()
     {
         assertThat(
-            SQLHelper::insert('person', array('name' => 'Daniel Holmes')),
+            SQLHelper::insert('person', ['name' => 'Daniel Holmes']),
             equalTo("INSERT INTO `person` (`name`) VALUES ('Daniel Holmes')")
         );
     }
@@ -20,14 +20,14 @@ class SQLHelperTest extends TestCase
         assertThat(
             SQLHelper::insert(
                 'game',
-                array(
+                [
                     'name' => "Johnny's Quest",
                     'category' => null,
                     'fun' => true,
                     'hard' => false,
                     'year' => 2017,
                     'weight' => 1.65
-                )
+                ]
             ),
             equalTo("INSERT INTO `game` (`name`, `category`, `fun`, `hard`, `year`, `weight`) VALUES ('Johnny\\'s Quest', NULL, 1, 0, 2017, 1.65)")
         );
@@ -36,7 +36,7 @@ class SQLHelperTest extends TestCase
     public function testInsertInvalidValue()
     {
         $this->expectException('RuntimeException');
-        SQLHelper::insert('person', array('name' => $this));
+        SQLHelper::insert('person', ['name' => $this]);
     }
 
     public function testBasicInsertAll()
@@ -44,10 +44,10 @@ class SQLHelperTest extends TestCase
         assertThat(
             SQLHelper::insertAll(
                 'person',
-                array(
-                    array('name' => 'Daniel Holmes', 'age' => 32),
-                    array('name' => 'Lava Raman', 'age' => 31)
-                )
+                [
+                    ['name' => 'Daniel Holmes', 'age' => 32],
+                    ['name' => 'Lava Raman', 'age' => 31]
+                ]
             ),
             equalTo("INSERT INTO `person` (`name`, `age`) VALUES ('Daniel Holmes', 32), ('Lava Raman', 31)")
         );
@@ -59,10 +59,10 @@ class SQLHelperTest extends TestCase
 
         SQLHelper::insertAll(
             'person',
-            array(
-                array('name' => 'Daniel Holmes'),
-                array('label' => 'Lava Raman')
-            )
+            [
+                ['name' => 'Daniel Holmes'],
+                ['label' => 'Lava Raman']
+            ]
         );
     }
 }

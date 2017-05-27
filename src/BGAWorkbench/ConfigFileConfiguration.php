@@ -34,7 +34,7 @@ class ConfigFileConfiguration implements ConfigurationInterface
                     ->defaultFalse()
                 ->end()
                 ->arrayNode('extraSrc')
-                    ->defaultValue(array())
+                    ->defaultValue([])
                     ->prototype('scalar')->end()
                 ->end()
             ->end()

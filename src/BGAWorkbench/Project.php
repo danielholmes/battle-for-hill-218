@@ -89,7 +89,7 @@ class Project
      */
     public function getRequiredFiles()
     {
-        return ImmArray::fromArray(array(
+        return ImmArray::fromArray([
             "{$this->name}.action.php",
             $this->getGameProjectFileRelativePathname(),
             "{$this->name}.view.php",
@@ -108,7 +108,7 @@ class Project
             "img" . DIRECTORY_SEPARATOR . "game_box180.png",
             "img" . DIRECTORY_SEPARATOR . "game_icon.png",
             "img" . DIRECTORY_SEPARATOR . "publisher.png"
-        ))->map(function($name) { return $this->getProjectFile($name); });
+        ])->map(function($name) { return $this->getProjectFile($name); });
     }
 
     /**
@@ -144,12 +144,12 @@ class Project
             ->reduce(
                 function(ImmArray $current, SplFileInfo $file) {
                     if ($file->isFile()) {
-                        return $current->concat(ImmArray::fromArray(array($file)));
+                        return $current->concat(ImmArray::fromArray([$file]));
                     }
 
                     return $current->concat($this->getPathFiles($file, $this->getRequiredFiles()));
                 },
-                ImmArray::fromArray(array())
+                ImmArray::fromArray([])
             );
     }
 
@@ -162,7 +162,7 @@ class Project
         return $required
             ->concat(
                 $this->extraSrcPaths
-                    ->concat(ImmArray::fromArray(array('img')))
+                    ->concat(ImmArray::fromArray(['img']))
                     ->map(function($path) { return $this->getProjectFile($path); })
             );
     }

@@ -45,21 +45,21 @@ class ComposerProject extends Project
         // TODO: Persist vendor/autoload.php and vendor/composer
         $fileSystem->remove($tempDir->getPathname());
         $fileSystem->mkdir($tempDir->getPathname());
-        foreach (array('composer.json', 'composer.lock') as $composerFileName) {
+        foreach (['composer.json', 'composer.lock'] as $composerFileName) {
             $fileSystem->copy(
                 $this->getDirectory()->getPathname() . DIRECTORY_SEPARATOR . $composerFileName,
                 $tempDir->getPathname() . DIRECTORY_SEPARATOR . $composerFileName
             );
         }
 
-        $builder = new ProcessBuilder(array(
+        $builder = new ProcessBuilder([
             'composer',
             'install',
             '--no-dev',
             '-o',
             '-d',
             $tempDir->getPathname()
-        ));
+        ]);
         $process = $builder->getProcess();
         $process->run();
         if (!$process->isSuccessful()) {

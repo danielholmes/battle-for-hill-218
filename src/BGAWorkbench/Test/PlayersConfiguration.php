@@ -19,6 +19,7 @@ class PlayersConfiguration implements ConfigurationInterface
         $treeBuilder->root('players')
             ->prototype('array')
                 ->children()
+                    ->scalarNode('player_id')->end()
                     ->scalarNode('player_canal')->defaultValue(md5(time()))->end()
                     ->scalarNode('player_name')->defaultValue($faker->firstName)->end()
                     ->scalarNode('player_avatar')->defaultValue('000000')->end()

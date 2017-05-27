@@ -46,7 +46,7 @@ class StateConfiguration implements ConfigurationInterface
                     ->booleanNode('updateGameProgression')->end()
                     ->enumNode('type')
                         ->isRequired()
-                        ->values(array('activeplayer', 'multipleactiveplayer', 'game', 'manager'))
+                        ->values(['activeplayer', 'multipleactiveplayer', 'game', 'manager'])
                     ->end()
                 ->end()
             ->end()

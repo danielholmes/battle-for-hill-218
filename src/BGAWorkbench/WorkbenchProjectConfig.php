@@ -164,7 +164,7 @@ class WorkbenchProjectConfig
 
         $rawConfig = @json_decode($rawContent, true);
         $processor = new Processor();
-        $processed = $processor->processConfiguration(new ConfigFileConfiguration(), array($rawConfig));
+        $processed = $processor->processConfiguration(new ConfigFileConfiguration(), [$rawConfig]);
         return new WorkbenchProjectConfig(
             $directory,
             $processed['sftp']['host'],

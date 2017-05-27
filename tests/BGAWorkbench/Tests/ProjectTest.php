@@ -20,7 +20,7 @@ class ProjectTest extends TestCase
         $this->project = new Project(
             new \SplFileInfo(realpath(__DIR__ . '/../../..')),
             'battleforhilldhau',
-            ImmArray::fromArray(array())
+            ImmArray::fromArray([])
         );
     }
 
@@ -29,7 +29,7 @@ class ProjectTest extends TestCase
         assertThat(
             $this->project->getDevelopmentLocations()->toArray(),
             containsInAnyOrder(
-                ImmArray::fromArray(array(
+                ImmArray::fromArray([
                     'img',
                     'img/game_box.png',
                     'img/game_box180.png',
@@ -49,7 +49,7 @@ class ProjectTest extends TestCase
                     'gameinfos.inc.php',
                     'dbmodel.sql',
                     'version.php'
-                ))->map(function($path) {
+                ])->map(function($path) {
                     return $this->project->absoluteToProjectRelativeFile(
                         new \SplFileInfo($this->project->getDirectory()->getPathname() . DIRECTORY_SEPARATOR . $path)
                     );
@@ -63,7 +63,7 @@ class ProjectTest extends TestCase
         assertThat(
             $this->project->getAllFiles()->toArray(),
             containsInAnyOrder(
-                ImmArray::fromArray(array(
+                ImmArray::fromArray([
                     'img/game_box.png',
                     'img/game_box180.png',
                     'img/game_box75.png',
@@ -83,7 +83,7 @@ class ProjectTest extends TestCase
                     'gameinfos.inc.php',
                     'dbmodel.sql',
                     'version.php'
-                ))->map(function($path) {
+                ])->map(function($path) {
                     return $this->project->absoluteToProjectRelativeFile(
                         new \SplFileInfo($this->project->getDirectory()->getPathname() . DIRECTORY_SEPARATOR . $path)
                     );
@@ -97,7 +97,7 @@ class ProjectTest extends TestCase
         assertThat(
             $this->project->getRequiredFiles()->toArray(),
             containsInAnyOrder(
-                ImmArray::fromArray(array(
+                ImmArray::fromArray([
                     'img/game_box.png',
                     'img/game_box180.png',
                     'img/game_box75.png',
@@ -116,7 +116,7 @@ class ProjectTest extends TestCase
                     'gameinfos.inc.php',
                     'dbmodel.sql',
                     'version.php'
-                ))->map(function($path) {
+                ])->map(function($path) {
                     return $this->project->absoluteToProjectRelativeFile(
                         new \SplFileInfo($this->project->getDirectory()->getPathname() . DIRECTORY_SEPARATOR . $path)
                     );

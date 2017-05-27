@@ -60,7 +60,7 @@ class Utils
             ->reduce(
                 function(Option $current, $name) use ($namePredicate, $definedVars) {
                     if ($namePredicate($name)) {
-                        return new Some(array($name, $definedVars[$name]));
+                        return new Some([$name, $definedVars[$name]]);
                     }
                     return $current;
                 },

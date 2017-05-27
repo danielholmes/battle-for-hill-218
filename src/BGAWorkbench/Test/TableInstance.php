@@ -77,24 +77,34 @@ class TableInstance
      */
     private function getDbServerConnectionParams()
     {
-        return array(
+        return [
             'user' => $this->config->getTestDbUsername(),
             'password' => $this->config->getTestDbPassword(),
             'host' => '127.0.0.1',
             'driver' => 'pdo_mysql'
-        );
+        ];
     }
 
     /**
-     * @return QueryBuilder
+     * @param string $tableName
+     * @param array $conditions
+     * @return array
      */
-    public function createDbQueryBuilder()
+    public function fetchDbRows($tableName, array $conditions = array())
     {
         if (!$this->databaseCreated) {
             throw new \RuntimeException('Database not created');
         }
 
-        return $this->getOrCreateDbConnection()->createQueryBuilder();
+        $qb = $this->getOrCreateDbConnection()
+            ->createQueryBuilder()
+            ->select('*')
+            ->from($tableName);
+        foreach ($conditions as $name => $value) {
+            $qb = $qb->andWhere("{$name} = :{$name}")
+                    ->setParameter(":{$name}", $value);
+        }
+        return $qb->execute()->fetchAll();
     }
 
     /**
@@ -104,7 +114,7 @@ class TableInstance
     {
         if ($this->dbConnection === null) {
             $this->dbConnection = DriverManager::getConnection(
-                array_merge($this->getDbServerConnectionParams(), array('dbname' => $this->databaseName)),
+                array_merge($this->getDbServerConnectionParams(), ['dbname' => $this->databaseName]),
                 $this->dbConfig
             );
         }
@@ -186,11 +196,29 @@ class TableInstance
         $setupNewGame = $gameClass->getMethod('setupNewGame');
         $setupNewGame->setAccessible(true);
 
-        call_user_func(array($gameClass->getName(), 'stubGameInfos'), $this->project->getGameInfos());
-        call_user_func(array($gameClass->getName(), 'setDbConnection'), $this->getOrCreateDbConnection());
+        call_user_func([$gameClass->getName(), 'stubGameInfos'], $this->project->getGameInfos());
+        call_user_func([$gameClass->getName(), 'setDbConnection'], $this->getOrCreateDbConnection());
 
-        $setupNewGame->invoke($table, $this->players, $this->options);
+        $setupNewGame->invoke($table, $this->createPlayersById(), $this->options);
 
         return $table;
+    }
+
+    /**
+     * @return array
+     */
+    private function createPlayersById()
+    {
+        $ids = array_map(
+            function($i, array $player) {
+                if (isset($player['player_id'])) {
+                    return $player['player_id'];
+                }
+                return $i;
+            },
+            range(1, count($this->players)),
+            $this->players
+        );
+        return array_combine($ids, $this->players);
     }
 }

@@ -95,9 +95,6 @@ class BattleForHillDhau extends Table
         $this->reloadPlayersBasicInfos();
     }
 
-    /**
-     *
-     */
     private function setupBattlefield()
     {
         self::DBQuery(SQLHelper::insert('battlefield_card', array(

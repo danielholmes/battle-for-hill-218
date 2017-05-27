@@ -4,6 +4,7 @@ namespace BGAWorkbench\Test;
 
 use BGAWorkbench\Project;
 use BGAWorkbench\WorkbenchProjectConfig;
+use Qaribou\Collection\ImmArray;
 use Symfony\Component\Config\Definition\Processor;
 
 class TableInstanceBuilder
@@ -34,7 +35,7 @@ class TableInstanceBuilder
     private function __construct(WorkbenchProjectConfig $config)
     {
         $this->config = $config;
-        $this->options = array();
+        $this->options = [];
         $this->configProcessor = new Processor();
     }
 
@@ -44,8 +45,17 @@ class TableInstanceBuilder
      */
     public function setPlayers(array $players)
     {
-        $this->players = $this->configProcessor->processConfiguration(new PlayersConfiguration(), array($players));
+        $this->players = $this->configProcessor->processConfiguration(new PlayersConfiguration(), [$players]);
         return $this;
+    }
+
+    /**
+     * @param array $ids
+     * @return self
+     */
+    public function setPlayersWithIds(array $ids)
+    {
+        return self::setPlayers(array_map(function($id) { return ['player_id' => $id]; }, $ids));
     }
 
     /**
@@ -54,7 +64,7 @@ class TableInstanceBuilder
      */
     public function setRandomPlayers($amount)
     {
-        return $this->setPlayers(array_fill(0, $amount, array()));
+        return $this->setPlayers(array_fill(0, $amount, []));
     }
 
     /**

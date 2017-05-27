@@ -64,7 +64,7 @@ class ValidateCommand extends Command
             ->getOrThrow(new \RuntimeException("Expect variable {$variableName} in {$fileName}"));
 
         $processor = new Processor();
-        $validated = $processor->processConfiguration(new StateConfiguration(), array($states));
+        $validated = $processor->processConfiguration(new StateConfiguration(), [$states]);
         $stateIds = array_keys($validated);
 
         array_walk(
