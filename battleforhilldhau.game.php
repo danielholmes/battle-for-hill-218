@@ -285,9 +285,9 @@ class BattleForHillDhau extends Table
     */
     public function returnToDeck(array $cardIds)
     {
-        self::checkAction('returnToDeck');
+        $this->checkAction('returnToDeck');
 
-        $playerId = self::getCurrentPlayerId();
+        $playerId = $this->getCurrentPlayerId();
 
         // Remove cards from hand
         $idList = join(', ', $cardIds);
@@ -330,15 +330,20 @@ class BattleForHillDhau extends Table
             })
         ));
 
-        // TODO: Notify other players that my hand count has decreased
+        $opponentPlayerId = (int) self::getUniqueValueFromDB("SELECT player_id FROM player WHERE player_id != {$playerId}");
         $this->notifyPlayer(
             $playerId,
             'returnedToDeck',
             clienttranslate("You returned {$numCards} to your deck"),
             array('oldIds' => $cardIds, 'replacements' => $replacements)
         );
+        $this->notifyPlayer(
+            $opponentPlayerId,
+            'opponentReturnedToDeck',
+            clienttranslate("Opponent returned {$numCards} to their deck"),
+            array('numCards' => $numCards)
+        );
 
-        // TODO: Tell framework that my part of multiplayer state is done
         $this->gamestate->setPlayerNonMultiactive($playerId, 'allReturned');
     }
 

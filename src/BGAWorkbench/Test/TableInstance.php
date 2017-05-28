@@ -104,6 +104,14 @@ class TableInstance
     }
 
     /**
+     * @return \Table
+     */
+    public function getTable()
+    {
+        return $this->table;
+    }
+
+    /**
      * @param string $methodName
      * @param array $args
      * @return mixed
@@ -136,5 +144,22 @@ class TableInstance
             $this->players
         );
         return array_combine($ids, $this->players);
+    }
+
+    /**
+     * @return self
+     */
+    public function resetNotificationTracking()
+    {
+        $this->table->resetNotifications();
+        return $this;
+    }
+
+    /**
+     * @return Notification[]
+     */
+    public function getTrackedNotifications()
+    {
+        return $this->table->getNotifications();
     }
 }

@@ -1,5 +1,6 @@
 <?php
 
+use BGAWorkbench\Test\Notification;
 use Doctrine\DBAL\Connection;
 
 class APP_Object
@@ -51,6 +52,15 @@ class APP_DbObject extends APP_Object
     }
 
     /**
+     * @param string $sql
+     * @return mixed
+     */
+    protected static function getUniqueValueFromDB($sql)
+    {
+        return self::getDbConnection()->fetchColumn($sql);
+    }
+
+    /**
      * @var Connection
      */
     private static $connection;
@@ -82,8 +92,12 @@ class APP_GameClass extends APP_DbObject
 
 class Gamestate
 {
-    // TODO: Test
     public function setAllPlayersMultiactive() { }
+
+    public function setPlayerNonMultiactive($player_id, $next_state)
+    {
+        return false;
+    }
 }
 
 abstract class Table extends APP_GameClass
@@ -106,12 +120,60 @@ abstract class Table extends APP_GameClass
 
     public function reloadPlayersBasicInfos() { }
 
-    public function notifyAllPlayers($notification_type, $notification_log, $notification_args) { }
-
-    public function notifyPlayer($player_id, $notification_type, $notification_log, $notification_args) { }
+    public function checkAction($actionName, $bThrowException = true)
+    {
+        return true;
+    }
 
     ////////////////////////////////////////////////////////////////////////
     // Testing methods
+    /**
+     * @var array[]
+     */
+    private $notifications = [];
+
+    /**
+     * @return array[]
+     */
+    public function getNotifications()
+    {
+        return $this->notifications;
+    }
+
+    public function resetNotifications()
+    {
+        $this->notifications = [];
+    }
+
+    /**
+     * @param string $notification_type
+     * @param string $notification_log
+     * @param array $notification_args
+     */
+    public function notifyAllPlayers($notification_type, $notification_log, $notification_args)
+    {
+        $ids = array_keys(self::getCollectionFromDB('SELECT player_id FROM player'));
+        foreach ($ids as $id) {
+            $this->notifyPlayer($id, $notification_type, $notification_log, $notification_args);
+        }
+    }
+
+    /**
+     * @param int $player_id
+     * @param string $notification_type
+     * @param string $notification_log
+     * @param array $notification_args
+     */
+    public function notifyPlayer($player_id, $notification_type, $notification_log, $notification_args)
+    {
+        $this->notifications[] = [
+            'playerId' => $player_id,
+            'type' => $notification_type,
+            'log' => $notification_log,
+            'args' => $notification_args
+        ];
+    }
+
     /**
      * @var int
      */
