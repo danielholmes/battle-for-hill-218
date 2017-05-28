@@ -149,11 +149,6 @@ class BattleForHillDhau extends Table
     */
     protected function getAllDatas()
     {
-        try {
-            throw new \Exception('t');
-        } catch (\Exception $e) {
-            die($e);
-        }
         // Players
         $myPlayerId = (int) self::getCurrentPlayerId();
         $players = self::getCollectionFromDb('SELECT player_id id, player_score score, player_color color FROM player');
