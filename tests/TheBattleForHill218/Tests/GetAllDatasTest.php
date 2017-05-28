@@ -38,8 +38,15 @@ class GetAllDatasTest extends ProjectIntegrationTestCase
             $datas,
             M::hasEntries([
                 'players' => nonEmptyArray(),
-                'me' => nonEmptyArray(),
-                'opponent' => nonEmptyArray(),
+                'me' => M::hasEntries([
+                    'hand' => arrayWithSize(7),
+                    'deckSize' => 19
+                ]),
+                'opponent' => M::hasEntries([
+                    'handSize' => 7,
+                    'deckSize' => 19,
+                    'numAirStrikes' => 2
+                ]),
                 'battlefield' => contains(
                     M::hasEntries([
                         'playerId' => null,
