@@ -55,7 +55,7 @@ class Gamestate
     public function setAllPlayersMultiactive() { }
 }
 
-class Table extends APP_GameClass
+abstract class Table extends APP_GameClass
 {
     /**
      * @var Gamestate
@@ -67,7 +67,7 @@ class Table extends APP_GameClass
         $this->gamestate = new Gamestate();
     }
 
-    protected function setupNewGame($players, $options = array()) { }
+    abstract protected function setupNewGame($players, $options = array());
 
     public function initGameStateLabels($labels) { }
 
