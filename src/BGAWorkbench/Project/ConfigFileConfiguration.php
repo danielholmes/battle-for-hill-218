@@ -1,8 +1,6 @@
 <?php
 
-
-namespace BGAWorkbench;
-
+namespace BGAWorkbench\Project;
 
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;

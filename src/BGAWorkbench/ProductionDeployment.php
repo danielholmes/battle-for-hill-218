@@ -1,6 +1,5 @@
 <?php
 
-
 namespace BGAWorkbench;
 
 use phpseclib\Net\SFTP;

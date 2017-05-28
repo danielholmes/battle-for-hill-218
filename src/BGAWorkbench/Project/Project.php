@@ -1,7 +1,8 @@
 <?php
 
-namespace BGAWorkbench;
+namespace BGAWorkbench\Project;
 
+use BGAWorkbench\Utils;
 use Nette\Reflection\AnnotationsParser;
 use Qaribou\Collection\ImmArray;
 use Symfony\Component\Finder\Finder;

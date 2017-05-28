@@ -2,8 +2,8 @@
 
 namespace BGAWorkbench\Test;
 
-use BGAWorkbench\Project;
-use BGAWorkbench\WorkbenchProjectConfig;
+use BGAWorkbench\Project\Project;
+use BGAWorkbench\Project\WorkbenchProjectConfig;
 
 class TableInstance
 {
@@ -99,7 +99,7 @@ class TableInstance
         $gameClass = new \ReflectionClass($this->table);
         call_user_func([$gameClass->getName(), 'stubGameInfos'], $this->project->getGameInfos());
         call_user_func([$gameClass->getName(), 'setDbConnection'], $this->database->getOrCreateConnection());
-        $this->callProtectedAndReturn('setupNewGame', [$this->createPlayersById(), $this->options]);
+        $this->callProtectedAndReturn('setupNewGame', $this->createPlayersById(), $this->options);
         return $this;
     }
 
@@ -113,10 +113,10 @@ class TableInstance
 
     /**
      * @param string $methodName
-     * @param array $args
+     * @param mixed $args,...
      * @return mixed
      */
-    public function callProtectedAndReturn($methodName, array $args = array())
+    public function callProtectedAndReturn($methodName, $args = null)
     {
         $gameClass = new \ReflectionClass($this->table);
         $method = $gameClass->getMethod($methodName);
@@ -125,7 +125,9 @@ class TableInstance
         }
 
         $method->setAccessible(true);
-        return $method->invokeArgs($this->table, $args);
+        $methodArgs = func_get_args();
+        array_shift($methodArgs);
+        return $method->invokeArgs($this->table, $methodArgs);
     }
 
     /**
@@ -156,7 +158,7 @@ class TableInstance
     }
 
     /**
-     * @return Notification[]
+     * @return array[]
      */
     public function getTrackedNotifications()
     {

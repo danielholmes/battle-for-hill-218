@@ -21,7 +21,7 @@ vagrant up
 ## Running Tests
 
 ```
-Vagrant ssh
+vagrant ssh
 vendor/bin/phpunit
 bin/bgawb validate
 ```

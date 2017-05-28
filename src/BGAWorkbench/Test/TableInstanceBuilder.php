@@ -2,9 +2,7 @@
 
 namespace BGAWorkbench\Test;
 
-use BGAWorkbench\Project;
-use BGAWorkbench\WorkbenchProjectConfig;
-use Qaribou\Collection\ImmArray;
+use BGAWorkbench\Project\WorkbenchProjectConfig;
 use Symfony\Component\Config\Definition\Processor;
 
 class TableInstanceBuilder

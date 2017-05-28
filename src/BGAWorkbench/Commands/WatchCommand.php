@@ -3,7 +3,7 @@
 namespace BGAWorkbench\Commands;
 
 use BGAWorkbench\ProductionDeployment;
-use BGAWorkbench\WorkbenchProjectConfig;
+use BGAWorkbench\Project\WorkbenchProjectConfig;
 use Illuminate\Filesystem\Filesystem;
 use JasonLewis\ResourceWatcher\Tracker;
 use JasonLewis\ResourceWatcher\Watcher;

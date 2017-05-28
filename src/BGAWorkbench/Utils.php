@@ -1,6 +1,5 @@
 <?php
 
-
 namespace BGAWorkbench;
 
 use PhpOption\None;

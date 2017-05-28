@@ -2,7 +2,7 @@
 
 namespace TheBattleForHill218\Tests;
 
-use BGAWorkbench\Project;
+use BGAWorkbench\Project\Project;
 use PhpOption\Some;
 use PHPUnit\Framework\TestCase;
 use Qaribou\Collection\ImmArray;

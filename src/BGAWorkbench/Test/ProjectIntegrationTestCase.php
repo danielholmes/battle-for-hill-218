@@ -2,8 +2,8 @@
 
 namespace BGAWorkbench\Test;
 
-use BGAWorkbench\Project;
-use BGAWorkbench\WorkbenchProjectConfig;
+use BGAWorkbench\Project\Project;
+use BGAWorkbench\Project\WorkbenchProjectConfig;
 use PHPUnit\Framework\TestCase;
 
 class ProjectIntegrationTestCase extends TestCase

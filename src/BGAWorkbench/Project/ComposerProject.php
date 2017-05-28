@@ -1,6 +1,6 @@
 <?php
 
-namespace BGAWorkbench;
+namespace BGAWorkbench\Project;
 
 use Qaribou\Collection\ImmArray;
 use Symfony\Component\Filesystem\Filesystem;

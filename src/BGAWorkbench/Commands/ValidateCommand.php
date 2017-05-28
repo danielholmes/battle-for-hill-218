@@ -2,9 +2,9 @@
 
 namespace BGAWorkbench\Commands;
 
-use BGAWorkbench\Project;
-use BGAWorkbench\WorkbenchProjectConfig;
-use BGAWorkbench\StateConfiguration;
+use BGAWorkbench\Project\Project;
+use BGAWorkbench\Project\WorkbenchProjectConfig;
+use BGAWorkbench\Validate\StateConfiguration;
 use Symfony\Component\Config\Definition\Processor;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -35,6 +35,8 @@ class ValidateCommand extends Command
         $this->validateRequiredFilesExist($project);
         // TODO: Lint all php files
         $this->validateStates($project);
+
+        $output->writeln('<info>All validation checks passed</info>');
     }
 
     /**
