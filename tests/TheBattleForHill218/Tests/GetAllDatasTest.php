@@ -17,7 +17,7 @@ class GetAllDatasTest extends ProjectIntegrationTestCase
     {
         $this->table = self::gameTableInstanceBuilder()
             ->setPlayersWithIds([66, 77])
-            ->build()
+            ->buildForCurrentPlayer(66)
             ->createDatabase();
     }
 
@@ -28,13 +28,27 @@ class GetAllDatasTest extends ProjectIntegrationTestCase
         }
     }
 
-    public function testSetup()
+    public function testGetAllDatas()
     {
-        // TODO: Maybe a helper - call protected method?
         $datas = $this->table
-            ->setupNewGame();
-            //->getAllDatas();
+            ->setupNewGame()
+            ->callProtectedAndReturn('getAllDatas');
 
-        var_export($datas);
+        assertThat(
+            $datas,
+            M::hasEntries([
+                'players' => nonEmptyArray(),
+                'me' => nonEmptyArray(),
+                'opponent' => nonEmptyArray(),
+                'battlefield' => contains(
+                    M::hasEntries([
+                        'playerId' => null,
+                        'type' => 'hill',
+                        'x' => 0,
+                        'y' => 0
+                    ])
+                )
+            ])
+        );
     }
 }

@@ -78,11 +78,18 @@ class TableInstanceBuilder
     }
 
     /**
+     * @param int $currentPlayerId
      * @return TableInstance
      */
-    public function build()
+    public function buildForCurrentPlayer($currentPlayerId)
     {
-        return new TableInstance($this->config, $this->players, $this->options);
+        $playerIds = array_map(function(array $player) { return $player['player_id']; }, $this->players);
+        if (!in_array($currentPlayerId, $playerIds, true)) {
+            $playerIdsList = join(', ', $playerIds);
+            throw new \InvalidArgumentException("Current player {$currentPlayerId} not in {$playerIdsList}");
+        }
+
+        return new TableInstance($this->config, $this->players, $this->options, $currentPlayerId);
     }
 
     /**

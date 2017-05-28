@@ -20,6 +20,37 @@ class APP_DbObject extends APP_Object
     }
 
     /**
+     * @param string $sql
+     * @param boolean $bSingleValue
+     * @return array
+     */
+    protected function getCollectionFromDB($sql, $bSingleValue = false)
+    {
+        $rows = self::getObjectListFromDB($sql);
+        $result = array();
+        foreach ($rows as $row) {
+            if ($bSingleValue) {
+                $key = reset($row);
+                $result[$key] = next($row);
+            } else {
+                $result[reset($row)] = $row;
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * @param string $sql
+     * @param boolean $bUniqueValue
+     * @return array
+     */
+    protected static function getObjectListFromDB($sql, $bUniqueValue = false)
+    {
+        return self::getDbConnection()->fetchAll($sql);
+    }
+
+    /**
      * @var Connection
      */
     private static $connection;
@@ -75,8 +106,33 @@ abstract class Table extends APP_GameClass
 
     public function reloadPlayersBasicInfos() { }
 
+    public function notifyAllPlayers($notification_type, $notification_log, $notification_args) { }
+
+    public function notifyPlayer($player_id, $notification_type, $notification_log, $notification_args) { }
+
     ////////////////////////////////////////////////////////////////////////
     // Testing methods
+    /**
+     * @var int
+     */
+    private $currentPlayerId;
+
+    /**
+     * @return int
+     */
+    protected function getCurrentPlayerId()
+    {
+        return $this->currentPlayerId;
+    }
+
+    /**
+     * @param int $currentPlayerId
+     */
+    public function stubCurrentPlayerId($currentPlayerId)
+    {
+        $this->currentPlayerId = $currentPlayerId;
+    }
+
     /**
      * @var array|null
      */

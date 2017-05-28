@@ -28,16 +28,28 @@ class TableInstance
     private $options;
 
     /**
+     * @var int
+     */
+    private $currentPlayerId;
+
+    /**
+     * @var \Table
+     */
+    private $table;
+
+    /**
      * @param WorkbenchProjectConfig $config
      * @param array $players
      * @param array $options
+     * @param int $currentPlayerId
      */
-    public function __construct(WorkbenchProjectConfig $config, array $players, array $options)
+    public function __construct(WorkbenchProjectConfig $config, array $players, array $options, $currentPlayerId)
     {
         $this->config = $config;
         $this->project = $config->loadProject();
         $this->players = $players;
         $this->options = $options;
+        $this->currentPlayerId = $currentPlayerId;
         $this->database = new DatabaseInstance(
             $this->project->getName() . '_' . md5(time()),
             $config->getTestDbUsername(),
@@ -47,6 +59,8 @@ class TableInstance
                 $this->project->getDbModelSqlFile()->getPathname()
             ]
         );
+        $this->table = $this->project->createTableInstance();
+        $this->table->stubCurrentPlayerId($this->currentPlayerId);
     }
 
     /**
@@ -78,21 +92,32 @@ class TableInstance
     }
 
     /**
-     * @return \Table
+     * @return self
      */
     public function setupNewGame()
     {
-        $table = $this->project->createTableInstance();
-
-        $gameClass = new \ReflectionClass($table);
+        $gameClass = new \ReflectionClass($this->table);
         call_user_func([$gameClass->getName(), 'stubGameInfos'], $this->project->getGameInfos());
         call_user_func([$gameClass->getName(), 'setDbConnection'], $this->database->getOrCreateConnection());
+        $this->callProtectedAndReturn('setupNewGame', [$this->createPlayersById(), $this->options]);
+        return $this;
+    }
 
-        $setupNewGame = $gameClass->getMethod('setupNewGame');
-        $setupNewGame->setAccessible(true);
-        $setupNewGame->invoke($table, $this->createPlayersById(), $this->options);
+    /**
+     * @param string $methodName
+     * @param array $args
+     * @return mixed
+     */
+    public function callProtectedAndReturn($methodName, array $args = array())
+    {
+        $gameClass = new \ReflectionClass($this->table);
+        $method = $gameClass->getMethod($methodName);
+        if (!$method->isProtected()) {
+            throw new \RuntimeException("Method {$methodName} isn't protected");
+        }
 
-        return $table;
+        $method->setAccessible(true);
+        return $method->invokeArgs($this->table, $args);
     }
 
     /**

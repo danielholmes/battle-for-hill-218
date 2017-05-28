@@ -238,7 +238,7 @@ class BattleForHillDhau extends Table
             self::getObjectListFromDB('SELECT player_id AS playerId, type, x, y FROM battlefield_card'),
             function(array $card) {
                 return array(
-                    'playerId' => (int) $card['playerId'],
+                    'playerId' => $card['playerId'] !== null ? (int) $card['playerId'] : null,
                     'type' => $card['type'],
                     'x' => (int) $card['x'],
                     'y' => (int) $card['y']
@@ -331,7 +331,7 @@ class BattleForHillDhau extends Table
         ));
 
         // TODO: Notify other players that my hand count has decreased
-        self::notifyPlayer(
+        $this->notifyPlayer(
             $playerId,
             'returnedToDeck',
             clienttranslate("You returned {$numCards} to your deck"),

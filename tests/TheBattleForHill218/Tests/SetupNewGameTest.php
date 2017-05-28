@@ -17,7 +17,7 @@ class SetupNewGameTest extends ProjectIntegrationTestCase
     {
         $this->table = self::gameTableInstanceBuilder()
             ->setPlayersWithIds([66, 77])
-            ->build()
+            ->buildForCurrentPlayer(66)
             ->createDatabase();
     }
 
