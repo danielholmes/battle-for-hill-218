@@ -31,7 +31,7 @@
     "phpseclib/phpseclib": "2.0.5",
     "phpoption/phpoption": "1.5.0",
     "qaribou/immutable.php": "1.1.0",
-    "phpunit/phpunit": "5.7.20",
+    "phpunit/phpunit": ">=4.0.0",
     "hamcrest/hamcrest-php": "2.0.0",
     "nette/reflection": "2.4.1",
     "fzaninotto/faker": "1.6.0",
