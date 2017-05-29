@@ -18,11 +18,11 @@
   },
   "bin": ["bin/bgawb"],
   "require": {
-    "php": "^5.3.2 <8.0.0",
+    "php": ">=5.3.2",
     "lstrojny/functional-php": "1.0.0"
   },
   "require-dev": {
-    "php": "^5.6.0 <8.0.0",
+    "php": ">=5.5.0",
     "jasonlewis/resource-watcher": "1.2.0",
     "symfony/console": "3.2.8",
     "symfony/config": "3.2.8",
