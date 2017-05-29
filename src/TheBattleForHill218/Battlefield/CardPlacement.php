@@ -3,6 +3,7 @@
 namespace TheBattleForHill218\Battlefield;
 
 use TheBattleForHill218\Cards\BattlefieldCard;
+use TheBattleForHill218\Cards\PlayerCard;
 
 class CardPlacement
 {
@@ -24,6 +25,17 @@ class CardPlacement
     {
         $this->card = $card;
         $this->position = $position;
+    }
+
+    /**
+     * @return int|null
+     */
+    public function getPlayerId()
+    {
+        if ($this->card instanceof PlayerCard) {
+            return $this->card->getPlayerId();
+        }
+        return null;
     }
 
     /**

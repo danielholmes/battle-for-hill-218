@@ -2,13 +2,23 @@
 
 namespace TheBattleForHill218\Cards;
 
-class HeavyWeaponsCard extends BasePlayerCard implements BattlefieldCard
+use TheBattleForHill218\Battlefield\Battlefield;
+
+class HeavyWeaponsCard extends BattlefieldPlayerCard implements BattlefieldCard
 {
     /**
-     * @return string
+     * @inheritdoc
      */
     public function getTypeKey()
     {
         return 'heavy-weapons';
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getPossiblePlacements(Battlefield $battlefield)
+    {
+        return $battlefield->getAllowedPositions($this->getPlayerId(), SupplyOffset::createPlusConfig());
     }
 }

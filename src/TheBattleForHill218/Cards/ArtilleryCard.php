@@ -2,13 +2,23 @@
 
 namespace TheBattleForHill218\Cards;
 
-class ArtilleryCard extends BasePlayerCard implements BattlefieldCard
+use TheBattleForHill218\Battlefield\Battlefield;
+
+class ArtilleryCard extends BattlefieldPlayerCard implements BattlefieldCard
 {
     /**
-     * @return string
+     * @inheritdoc
      */
     public function getTypeKey()
     {
         return 'artillery';
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getPossiblePlacements(Battlefield $battlefield)
+    {
+        return $battlefield->getAllowedPositions($this->getPlayerId(), SupplyOffset::createPlusConfig());
     }
 }

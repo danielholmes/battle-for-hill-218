@@ -2,13 +2,23 @@
 
 namespace TheBattleForHill218\Cards;
 
-class SpecialForcesCard extends BasePlayerCard implements BattlefieldCard
+use TheBattleForHill218\Battlefield\Battlefield;
+
+class SpecialForcesCard extends BattlefieldPlayerCard implements BattlefieldCard
 {
     /**
-     * @return string
+     * @inheritdoc
      */
     public function getTypeKey()
     {
         return 'special-forces';
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getPossiblePlacements(Battlefield $battlefield)
+    {
+        return $battlefield->getAllowedPositions($this->getPlayerId(), SupplyOffset::createCrossConfig());
     }
 }

@@ -2,13 +2,23 @@
 
 namespace TheBattleForHill218\Cards;
 
-class ParatrooperCard extends BasePlayerCard implements BattlefieldCard
+use TheBattleForHill218\Battlefield\Battlefield;
+
+class ParatrooperCard extends BattlefieldPlayerCard implements BattlefieldCard
 {
     /**
-     * @return string
+     * @inheritdoc
      */
     public function getTypeKey()
     {
         return 'paratroopers';
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getPossiblePlacements(Battlefield $battlefield)
+    {
+        return $battlefield->getUnoccupiedWithExpansion(1);
     }
 }

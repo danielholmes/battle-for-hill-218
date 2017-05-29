@@ -45,7 +45,8 @@ bin/bgawb watch
 ```
 
 
-## Known Issues
+## Known Workbench Issues
 
  - When using the watch command - a changed file during the initial deploy won't redeploy
+ - SFTP diconnects after a while - should be intelligent enough to reconnect
  

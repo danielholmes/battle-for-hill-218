@@ -41,6 +41,39 @@ class Position
     }
 
     /**
+     * @param int $xOffset
+     * @param int $yOffset
+     * @return Position
+     */
+    public function offset($xOffset, $yOffset)
+    {
+        return new Position($this->x + $xOffset, $this->y + $yOffset);
+    }
+
+    /**
+     * @param Position $other
+     * @return Position[]
+     */
+    public function gridTo(Position $other)
+    {
+        if ($this->equals($other)) {
+            return array($this);
+        }
+
+        $grid = [];
+        $minX = min($this->getX(), $other->getX());
+        $maxX = max($this->getX(), $other->getX());
+        $minY = min($this->getY(), $other->getY());
+        $maxY = max($this->getY(), $other->getY());
+        for ($x = $minX; $x <= $maxX; $x++) {
+            for ($y = $minY; $y <= $maxY; $y++) {
+                $grid[] = new Position($x, $y);
+            }
+        }
+        return $grid;
+    }
+
+    /**
      * @param Position $other
      * @return boolean
      */

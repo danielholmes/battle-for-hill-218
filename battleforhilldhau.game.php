@@ -279,7 +279,9 @@ class BattleForHillDhau extends Table
      */
     private function loadBattlefield()
     {
+        $downwardPlayerId = (int) self::getUniqueValueFromDB('SELECT player_id FROM player WHERE base_side = -1');
         return new Battlefield(
+            $downwardPlayerId,
             F\map(
                 self::getObjectListFromDB('SELECT * FROM battlefield_card'),
                 function(array $rawCard) {
@@ -288,7 +290,10 @@ class BattleForHillDhau extends Table
                         case 'hill':
                             return new CardPlacement(new HillCard(), $position);
                         default:
-                            throw new RuntimeException("Unknown battlefield card type {$rawCard['type']}");
+                            return new CardPlacement(
+                                CardFactory::createBattlefieldFromTypeKey($rawCard['type'], (int) $rawCard['player_id']),
+                                $position
+                            );
                     }
                 }
             )
@@ -395,24 +400,13 @@ class BattleForHillDhau extends Table
                 function(array $playableCard) use ($battlefield) {
                     $card = CardFactory::createFromTypeKey($playableCard['type'], (int) $playableCard['player_id']);
                     return F\map(
-                        $battlefield->getPossiblePlacements($card),
+                        $card->getPossiblePlacements($battlefield),
                         function(Position $position) {
                             return array('x' => $position->getX(), 'y' => $position->getY());
                         }
                     );
                 }
             )
-        );
-    }
-
-    /**
-     * @param array $playableCard
-     * @return array
-     */
-    public function getPossiblePlacements(array $playableCard)
-    {
-        return array(
-            array('x' => 0, 'y' => 1)
         );
     }
 

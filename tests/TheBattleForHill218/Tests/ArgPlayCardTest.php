@@ -38,7 +38,7 @@ class ArgPlayCardTest extends ProjectIntegrationTestCase
             ->argPlayCard();
 
         $handCardIds = F\pluck($this->table->fetchDbRows('playable_card', ['player_id' => 66]), 'id');
-        assertThat($datas, allOf(M::hasKeys($handCardIds), everyItem(contains(M::hasEntries(['x' => 0, 'y' => 1])))));
+        assertThat($datas, allOf(M::hasKeys($handCardIds), everyItem(arrayValue())));
     }
 
     public function testArgPlayCardForNotActive()
