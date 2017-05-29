@@ -57,7 +57,7 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domGeom, fx, eas
                 lang.hitch(this, this.placeInMyHand)
             );
 
-            query('.player-hand .hand-card.clickable').connect('onclick', this, 'onHandCardClick');
+            this.getMyHandCardsNodes().filter('.clickable').connect('onclick', this, 'onHandCardClick');
         },
 
         setupOpponentHand: function(data) {
@@ -101,9 +101,9 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domGeom, fx, eas
         },
 
         onEnterReturnToDeck: function() {
-            var handCards = query('#my-hand .hand-cards .hand-card');
+            var handCards = this.getMyHandCardsNodes();
             handCards.addClass('clickable');
-            // TODO: Find the proper way to do this and pass hand-card through the even
+            // TODO: Find the proper way to do this and pass hand-card through the event
             var _this = this;
             handCards.on('click', function() { _this.onHandCardReturnClick({target: this}); });
 
@@ -164,61 +164,45 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domGeom, fx, eas
         },        
 
         ///////////////////////////////////////////////////
-        //// Utility methods
+        //// DOM Node Utility methods
+        getOpponentDeckNode: function() {
+            return query('#player_boards > .player-board:not(.current-player-board)').pop();
+        },
+
+        getOpponentHandCardsContainerNode: function() {
+            return query('#opponent-hand .hand-cards').pop();
+        },
+
+        getOpponentHandCardsNodes: function() {
+            return query(this.getOpponentHandCardsContainerNode()).query('.hand-card');
+        },
+
+        placeInOpponentHand: function(card) {
+            dojo.place(this.recoverFromAnimation(card), this.getOpponentHandCardsContainerNode())
+        },
+
+        getMyDeckNode: function() {
+            return query('#player_boards > .player-board.current-player-board').pop();
+        },
+
+        getMyHandCardsContainerNode: function() {
+            return query('#my-hand .hand-cards').pop();
+        },
+
+        getMyHandCardsNodes: function() {
+            return query(this.getMyHandCardsContainerNode()).query('.hand-card');
+        },
+
+        getMyHandCardNodeById: function(cardId) {
+            return query(this.getMyHandCardsNodes()).filter('[data-id=' + cardId + ']').pop();
+        },
+
         placeInMyHand: function(card) {
-            dojo.place(this.recoverFromAnimation(card), query('#my-hand .hand-cards').pop())
+            dojo.place(this.recoverFromAnimation(card), this.getMyHandCardsContainerNode())
         },
 
         getSelectedHandCards: function() {
-            return query('#my-hand .hand-card.selected');
-        },
-
-        prepareForAnimation: function(node) {
-            return query(node)
-                .style('zIndex', 100)
-                .style('position', 'absolute')
-                .pop();
-        },
-
-        recoverFromAnimation: function(node) {
-            return query(node)
-                .style('zIndex', null)
-                .style('position', null)
-                .pop();
-        },
-
-        getMyDeck: function() {
-            return dom.byId('overall_player_board_' + this.player_id);
-        },
-
-        slideToDeckAndDestroy: function(card) {
-            this.slideToObjectAndDestroy(this.prepareForAnimation(card), this.getMyDeck(), this.slideAnimationDuration);
-        },
-
-        slideFromDeck: function(card, target, offset) {
-            if (!offset) {
-                offset = {x: 0, y:0};
-            }
-            this.prepareForAnimation(card);
-            dojo.place(card, query('body').pop());
-            this.placeOnObjectPos(card, this.getMyDeck(), offset.x, offset.y);
-            var targetPosition = this.getCentredPosition(card, target);
-            return fx.slideTo({
-                node: card,
-                left: targetPosition.x + offset.x,
-                top: targetPosition.y + offset.y,
-                units: "px",
-                duration: this.slideAnimationDuration
-            }).play();
-        },
-
-        getCentredPosition: function(from, target) {
-            var fromBox = domGeom.getMarginBox(from);
-            var targetBox = domGeom.getMarginBox(target);
-            return {
-                x: targetBox.l + (targetBox.w / 2) - (fromBox.w / 2),
-                y: targetBox.t + (targetBox.h / 2) - (fromBox.h / 2)
-            };
+            return this.getMyHandCardsNodes().filter('.selected');
         },
 
         createMyHandCard: function(card) {
@@ -234,6 +218,83 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domGeom, fx, eas
         createBattlefieldCard: function(card, color) {
             var coloredCard = lang.mixin({}, card, {color: color});
             return domConstruct.toDom(this.format_block('jstpl_battlefield_card', coloredCard));
+        },
+
+        ///////////////////////////////////////////////////
+        //// Animation Utility methods
+        prepareForAnimation: function(node) {
+            return query(node)
+                .style('zIndex', 100)
+                .style('position', 'absolute')
+                .pop();
+        },
+
+        recoverFromAnimation: function(node) {
+            return query(node)
+                .style('zIndex', null)
+                .style('position', null)
+                .style('left', null)
+                .style('top', null)
+                .pop();
+        },
+
+        getCentredPosition: function(from, target) {
+            var fromBox = domGeom.position(from);
+            var targetBox = domGeom.position(target);
+            return {
+                x: targetBox.x + (targetBox.w / 2) - (fromBox.w / 2),
+                y: targetBox.y + (targetBox.h / 2) - (fromBox.h / 2)
+            };
+        },
+
+        slideToOpponentDeckAndDestroy: function(card) {
+            this.slideToObjectAndDestroy(
+                this.prepareForAnimation(card),
+                this.getOpponentDeckNode(),
+                this.slideAnimationDuration
+            );
+        },
+
+        slideFromOpponentDeck: function(card, target, offset) {
+            if (!offset) {
+                offset = {x: 0, y:0};
+            }
+            this.prepareForAnimation(card);
+            dojo.place(card, query('body').pop());
+            this.placeOnObjectPos(card, this.getOpponentDeckNode(), offset.x, offset.y);
+            var targetPosition = this.getCentredPosition(card, target);
+            return fx.slideTo({
+                node: card,
+                left: targetPosition.x + offset.x,
+                top: targetPosition.y + offset.y,
+                units: "px",
+                duration: this.slideAnimationDuration
+            }).play();
+        },
+
+        slideToMyDeckAndDestroy: function(card) {
+            this.slideToObjectAndDestroy(
+                this.prepareForAnimation(card),
+                this.getMyDeckNode(),
+                this.slideAnimationDuration
+            );
+        },
+
+        slideFromMyDeck: function(card, target, offset) {
+            if (!offset) {
+                offset = {x: 0, y:0};
+            }
+            this.prepareForAnimation(card);
+            dojo.place(card, query('body').pop());
+            this.placeOnObjectPos(card, this.getMyDeckNode(), offset.x, offset.y);
+            var targetPosition = this.getCentredPosition(card, target);
+            return fx.slideTo({
+                node: card,
+                left: targetPosition.x + offset.x,
+                top: targetPosition.y + offset.y,
+                units: "px",
+                duration: this.slideAnimationDuration
+            }).play();
         },
 
         ///////////////////////////////////////////////////
@@ -271,7 +332,8 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domGeom, fx, eas
         //// Reaction to cometD notifications
         setupNotifications: function() {
             dojo.subscribe('returnedToDeck', lang.hitch(this, this.notif_returnedToDeck));
-            
+            dojo.subscribe('opponentReturnedToDeck', lang.hitch(this, this.notif_opponentReturnedToDeck));
+
             // Example 2: standard notification handling + tell the user interface to wait
             //            during 3 seconds after calling the method in order to let the players
             //            see what is happening in the game.
@@ -282,15 +344,15 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domGeom, fx, eas
 
         notif_returnedToDeck: function(notification) {
             // Return old cards to deck
-            var handCards = query('#my-hand .hand-cards .hand-card');
+            // Sorting makes sure positioning is correct (and don't remove earlier card first thus repositioning the
+            // latter card before animating
+            var handCards = this.getMyHandCardsNodes();
             array.forEach(
-                array.map(
-                    notification.args.oldIds,
-                    function(cardId) { return query('#my-hand .hand-cards .hand-card[data-id=' + cardId + ']').pop(); }
-                ).sort(lang.hitch(this,
-                    function(card1, card2) { return handCards.indexOf(card2) - handCards.indexOf(card1); }
-                )), // Sorting makes sure positioning
-                lang.hitch(this, this.slideToDeckAndDestroy)
+                array.map(notification.args.oldIds, lang.hitch(this, this.getMyHandCardNodeById))
+                    .sort(lang.hitch(this,
+                        function(card1, card2) { return handCards.indexOf(card2) - handCards.indexOf(card1); }
+                    )),
+                lang.hitch(this, this.slideToMyDeckAndDestroy)
             );
 
             // Take card from deck then slide to hand
@@ -303,8 +365,46 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domGeom, fx, eas
                         ),
                         lang.hitch(this, function (cardDisplay, i) {
                             var offset = i * 20;
-                            this.slideFromDeck(cardDisplay, query('#my-hand .hand-cards').pop(), {x: offset, y: offset})
+                            this.slideFromMyDeck(cardDisplay, this.getMyHandCardsContainerNode(), {x: offset, y: offset})
                                 .on("End", lang.hitch(this, this.placeInMyHand));
+                        })
+                    );
+                }),
+                this.slideAnimationDuration
+            );
+        },
+
+        notif_opponentReturnedToDeck: function(notification) {
+            var numCards = notification.args.numCards;
+            // Just use random cards - doesn't matter which one actually moved
+            var handCards = this.getOpponentHandCardsNodes();
+            var cardNodesToMove = [];
+            while (cardNodesToMove.length < numCards) {
+                var proposedCard = handCards[Math.floor(Math.random() * handCards.length)];
+                if (cardNodesToMove.indexOf(proposedCard) === -1) {
+                    cardNodesToMove.push(proposedCard);
+                }
+            }
+            array.forEach(
+                cardNodesToMove.sort(lang.hitch(this,
+                    function(card1, card2) { return handCards.indexOf(card2) - handCards.indexOf(card1); }
+                )),
+                lang.hitch(this, this.slideToOpponentDeckAndDestroy)
+            );
+
+            // Take card from deck then slide to hand
+            var newCards = [];
+            for (var i = 0; i < numCards; i++) {
+                newCards.push(this.createOpponentHandCard({type: 'back'}));
+            }
+            setTimeout(
+                lang.hitch(this, function() {
+                    array.forEach(
+                        newCards,
+                        lang.hitch(this, function (cardDisplay, i) {
+                            var offset = i * 20;
+                            this.slideFromOpponentDeck(cardDisplay, this.getOpponentHandCardsContainerNode(), {x: offset, y: offset})
+                                .on("End", lang.hitch(this, this.placeInOpponentHand));
                         })
                     );
                 }),
