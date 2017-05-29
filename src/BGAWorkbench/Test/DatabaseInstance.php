@@ -121,7 +121,7 @@ class DatabaseInstance
             throw new \LogicException('Database already created');
         }
 
-        $this->getOrCreateSchemaConnection()->getSchemaManager()->createDatabase($this->name);
+        $this->getOrCreateSchemaConnection()->getSchemaManager()->dropAndCreateDatabase($this->name);
         $this->createTables();
 
         $this->isCreated = true;

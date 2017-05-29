@@ -43,3 +43,9 @@ Watches development files and deploys them as they change.
 vagrant ssh
 bin/bgawb watch
 ```
+
+
+## Known Issues
+
+ - When using the watch command - a changed file during the initial deploy won't redeploy
+ 

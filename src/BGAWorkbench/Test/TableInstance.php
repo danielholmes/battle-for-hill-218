@@ -51,7 +51,7 @@ class TableInstance
         $this->options = $options;
         $this->currentPlayerId = $currentPlayerId;
         $this->database = new DatabaseInstance(
-            $this->project->getName() . '_' . md5(time()),
+            $this->project->getName() . '_test',
             $config->getTestDbUsername(),
             $config->getTestDbPassword(),
             [

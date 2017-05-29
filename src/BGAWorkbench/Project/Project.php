@@ -182,7 +182,7 @@ class Project
      * @param string $relativePath
      * @return SplFileInfo
      */
-    private function getProjectFile($relativePath)
+    protected function getProjectFile($relativePath)
     {
         return $this->createProjectFile($this->directory->getPathname() . DIRECTORY_SEPARATOR . $relativePath);
     }
