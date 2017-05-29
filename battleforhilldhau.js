@@ -119,6 +119,7 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domGeom, fx) {
 
         onEnterPlayCard: function(possiblePlacementsByCardId) {
             console.log('onEnterPlayCard', possiblePlacementsByCardId);
+            this.possiblePlacementsByCardId = possiblePlacementsByCardId;
             this.enablePlayableCardsClick(this.onHandCardPlayClick);
         },
 
@@ -325,6 +326,13 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domGeom, fx) {
                 }
             });
             query(clickedCard).toggleClass('selected');
+
+            // TODO: Remove all clickable positions
+            var selectedIds = this.getMySelectedPlayableCards().attr('data-id');
+            for (var i in selectedIds) {
+                var selectedId = selectedIds[i];
+                console.log('selected', this.possiblePlacementsByCardId[selectedId]);
+            }
         },
 
         onSubmitReturnCards: function() {

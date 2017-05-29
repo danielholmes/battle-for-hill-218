@@ -2,6 +2,8 @@
 
 namespace TheBattleForHill218\Battlefield;
 
+use Functional as F;
+
 class Position
 {
     /**
@@ -60,17 +62,19 @@ class Position
             return array($this);
         }
 
-        $grid = [];
         $minX = min($this->getX(), $other->getX());
         $maxX = max($this->getX(), $other->getX());
         $minY = min($this->getY(), $other->getY());
         $maxY = max($this->getY(), $other->getY());
-        for ($x = $minX; $x <= $maxX; $x++) {
-            for ($y = $minY; $y <= $maxY; $y++) {
-                $grid[] = new Position($x, $y);
+        return F\flat_map(
+            range($minX, $maxX),
+            function($x) use ($minY, $maxY) {
+                return F\flat_map(
+                    range($minY, $maxY),
+                    function($y) use ($x) { return new Position($x, $y); }
+                );
             }
-        }
-        return $grid;
+        );
     }
 
     /**
