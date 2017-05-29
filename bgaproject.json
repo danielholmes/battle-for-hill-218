@@ -4,6 +4,7 @@
     "src/TheBattleForHill218"
   ],
   "testDb": {
+    "name": "battleforhill218_test",
     "user": "root",
     "pass": "battle218pw"
   }
