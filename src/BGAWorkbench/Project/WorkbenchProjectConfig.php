@@ -34,18 +34,25 @@ class WorkbenchProjectConfig
     private $testDbPassword;
 
     /**
+     * @var string
+     */
+    private $php532Bin;
+
+    /**
      * @param \SplFileInfo $directory
      * @param boolean $useComposer
      * @param ImmArray $extraSrcPaths
      * @param string $testDbUsername
      * @param string $testDbPassword
+     * @param string $php532Bin
      */
     public function __construct(
         \SplFileInfo $directory,
         $useComposer,
         ImmArray $extraSrcPaths,
         $testDbUsername,
-        $testDbPassword
+        $testDbPassword,
+        $php532Bin
     )
     {
         $this->directory = $directory;
@@ -53,6 +60,7 @@ class WorkbenchProjectConfig
         $this->extraSrcPaths = $extraSrcPaths;
         $this->testDbUsername = $testDbUsername;
         $this->testDbPassword = $testDbPassword;
+        $this->php532Bin = $php532Bin;
     }
 
     /**
@@ -69,6 +77,22 @@ class WorkbenchProjectConfig
     public function getTestDbPassword()
     {
         return $this->testDbPassword;
+    }
+
+    /**
+     * @return boolean
+     */
+    public function hasPhp532Bin()
+    {
+        return $this->php532Bin !== null;
+    }
+
+    /**
+     * @return string
+     */
+    public function getPhp532Bin()
+    {
+        return $this->php532Bin;
     }
 
     /**
@@ -123,7 +147,8 @@ class WorkbenchProjectConfig
             $processed['useComposer'],
             ImmArray::fromArray($processed['extraSrc']),
             $processed['testDb']['user'],
-            $processed['testDb']['pass']
+            $processed['testDb']['pass'],
+            $processed['php532Bin']
         );
     }
 }

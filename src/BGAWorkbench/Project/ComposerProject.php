@@ -50,15 +50,14 @@ class ComposerProject extends Project
             );
         }
 
-        $builder = new ProcessBuilder([
+        $process = ProcessBuilder::create([
             'composer',
             'install',
             '--no-dev',
             '-o',
             '-d',
             $buildDir->getPathname()
-        ]);
-        $process = $builder->getProcess();
+        ])->getProcess();
         $process->run();
         if (!$process->isSuccessful()) {
             throw new ProcessFailedException($process);

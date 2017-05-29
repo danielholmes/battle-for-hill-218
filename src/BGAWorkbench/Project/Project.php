@@ -141,6 +141,14 @@ class Project
      */
     public function getAllFiles()
     {
+        return $this->getBaseProjectFiles();
+    }
+
+    /**
+     * @return ImmArray
+     */
+    private function getBaseProjectFiles()
+    {
         return $this->getDevelopmentLocations()
             ->reduce(
                 function(ImmArray $current, SplFileInfo $file) {
@@ -152,6 +160,15 @@ class Project
                 },
                 ImmArray::fromArray([])
             );
+    }
+
+    /**
+     * @return ImmArray
+     */
+    public function getDevelopmentPhpFiles()
+    {
+        return $this->getBaseProjectFiles()
+            ->filter(function(SplFileInfo $file) { return $file->getExtension() === 'php'; });
     }
 
     /**

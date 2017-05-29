@@ -10,6 +10,8 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Finder\SplFileInfo;
+use Symfony\Component\Process\Process;
+use Symfony\Component\Process\ProcessBuilder;
 
 class ValidateCommand extends Command
 {
@@ -33,7 +35,7 @@ class ValidateCommand extends Command
         $project = $config->loadProject();
 
         $this->validateRequiredFilesExist($project);
-        // TODO: Lint all php files
+        $this->validateFilesPhp($config, $project, $output);
         $this->validateStates($project);
 
         $output->writeln('<info>All validation checks passed</info>');
@@ -51,6 +53,31 @@ class ValidateCommand extends Command
             ->join(', ');
         if (!empty($notFoundList)) {
             throw new \RuntimeException("Missing required files: {$notFoundList}");
+        }
+    }
+
+    /**
+     * @param WorkbenchProjectConfig $config
+     * @param Project $project
+     * @param OutputInterface $output
+     */
+    private function validateFilesPhp(WorkbenchProjectConfig $config, Project $project, OutputInterface $output)
+    {
+        if (!$config->hasPhp532Bin()) {
+            $output->writeln('<comment>No PHP 5.3.2 binary configured</comment>');
+            return;
+        }
+
+        $invalid = $project->getDevelopmentPhpFiles()
+            ->map(function(SplFileInfo $file) use ($config) {
+                return ProcessBuilder::create([$config->getPhp532Bin(), '-l', $file->getPathname()])
+                    ->getProcess();
+            })
+            ->walk(function(Process $process) { $process->run(); })
+            ->filter(function(Process $process) { return !$process->isSuccessful(); })
+            ->map(function(Process $process) { return $process->getOutput(); });
+        if ($invalid->count() > 0) {
+            throw new \RuntimeException($invalid->join(', '));
         }
     }
 
