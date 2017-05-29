@@ -14,4 +14,4 @@ before_script:
 
 script:
   - bin/bgawb validate
-  - $COMPOSER_BIN_DIR/phpunit
+  - vendor/bin/phpunit
