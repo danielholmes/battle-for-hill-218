@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS `hand_card` (
+CREATE TABLE IF NOT EXISTS `playable_card` (
   `id` tinyint(3) unsigned NOT NULL AUTO_INCREMENT,
   `player_id` int(10) unsigned NOT NULL,
   `type` enum('air-strike','artillery','heavy-weapons','infantry','paratroopers','special-forces','tank') NOT NULL,
@@ -7,8 +7,8 @@ CREATE TABLE IF NOT EXISTS `hand_card` (
   UNIQUE KEY `player_id_order` (`player_id`,`order`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
 
-ALTER TABLE `hand_card`
-  ADD CONSTRAINT `hand_card_ibfk_1` FOREIGN KEY (`player_id`) REFERENCES `player` (`player_id`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `playable_card`
+  ADD CONSTRAINT `playable_card_ibfk_1` FOREIGN KEY (`player_id`) REFERENCES `player` (`player_id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 
 CREATE TABLE IF NOT EXISTS `deck_card` (

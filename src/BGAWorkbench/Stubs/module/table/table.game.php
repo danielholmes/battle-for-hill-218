@@ -198,6 +198,27 @@ abstract class Table extends APP_GameClass
     }
 
     /**
+     * @var int
+     */
+    private $activePlayerId;
+
+    /**
+     * @return int
+     */
+    public function getActivePlayerId()
+    {
+        return $this->activePlayerId;
+    }
+
+    /**
+     * @param int $activePlayerId
+     */
+    public function stubActivePlayerId($activePlayerId)
+    {
+        $this->activePlayerId = $activePlayerId;
+    }
+
+    /**
      * @var array|null
      */
     private static $stubbedGameInfos = null;

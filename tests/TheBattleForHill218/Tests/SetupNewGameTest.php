@@ -72,7 +72,7 @@ class SetupNewGameTest extends ProjectIntegrationTestCase
     private function assertHandCardsSetup($playerId)
     {
         assertThat(
-            $this->table->fetchDbRows('hand_card', ['player_id' => $playerId]),
+            $this->table->fetchDbRows('playable_card', ['player_id' => $playerId]),
             allOf(
                 arrayWithSize(7),
                 containsInAnyOrder([

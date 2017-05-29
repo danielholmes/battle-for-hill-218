@@ -25,6 +25,11 @@ foreach ($prevAutoloads as $prevAutoload) {
 }
 
 use Functional as F;
+use TheBattleForHill218\Battlefield\Battlefield;
+use TheBattleForHill218\Battlefield\CardPlacement;
+use TheBattleForHill218\Battlefield\Position;
+use TheBattleForHill218\Cards\CardFactory;
+use TheBattleForHill218\Cards\HillCard;
 use TheBattleForHill218\Cards\PlayerCard;
 use TheBattleForHill218\Hill218Setup;
 use TheBattleForHill218\SQLHelper;
@@ -112,7 +117,7 @@ class BattleForHillDhau extends Table
     private function setupPlayerCards($playerId)
     {
         list($hand, $deck) = Hill218Setup::getPlayerStartingCards($playerId);
-        $this->saveCards('hand_card', $hand);
+        $this->saveCards('playable_card', $hand);
         $this->saveCards('deck_card', $deck);
     }
 
@@ -160,7 +165,7 @@ class BattleForHillDhau extends Table
 
         // Hands
         $handCardsByPlayerId = F\group(
-            self::getObjectListFromDB('SELECT id, player_id, type FROM hand_card ORDER BY `order` ASC'),
+            self::getObjectListFromDB('SELECT id, player_id, type FROM playable_card ORDER BY `order` ASC'),
             function(array $card) { return (int) $card['player_id']; }
         );
 
@@ -268,11 +273,27 @@ class BattleForHillDhau extends Table
 
 //////////////////////////////////////////////////////////////////////////////
 //////////// Utility functions
-////////////    
-
-    /*
-        In this space, you can put any utility methods useful for your game logic
-    */
+////////////
+    /**
+     * @return Battlefield
+     */
+    private function loadBattlefield()
+    {
+        return new Battlefield(
+            F\map(
+                self::getObjectListFromDB('SELECT * FROM battlefield_card'),
+                function(array $rawCard) {
+                    $position = new Position((int) $rawCard['x'], (int) $rawCard['y']);
+                    switch ($rawCard['type']) {
+                        case 'hill':
+                            return new CardPlacement(new HillCard(), $position);
+                        default:
+                            throw new RuntimeException("Unknown battlefield card type {$rawCard['type']}");
+                    }
+                }
+            )
+        );
+    }
 
 
 
@@ -292,10 +313,10 @@ class BattleForHillDhau extends Table
 
         // Remove cards from hand
         $idList = join(', ', $cardIds);
-        $returnCards = self::getObjectListFromDB("SELECT id, type FROM hand_card WHERE player_id = {$playerId} AND id IN ({$idList})");
+        $returnCards = self::getObjectListFromDB("SELECT id, type FROM playable_card WHERE player_id = {$playerId} AND id IN ({$idList})");
         $returnIds = F\pluck($returnCards, 'id');
         $returnIdsList = join(', ', $returnIds);
-        self::DBQuery("DELETE FROM hand_card WHERE id IN ({$returnIdsList})");
+        self::DBQuery("DELETE FROM playable_card WHERE id IN ({$returnIdsList})");
         $numCards = count($returnIds);
 
         // Remove replacements from the deck
@@ -319,9 +340,9 @@ class BattleForHillDhau extends Table
 
         // Put replacement cards into hand
         // Leaves holes in `order`, but is more efficient this way
-        $maxOrder = (int) self::getUniqueValueFromDB("SELECT MAX(`order`) FROM hand_card WHERE player_id = {$playerId}");
+        $maxOrder = (int) self::getUniqueValueFromDB("SELECT MAX(`order`) FROM playable_card WHERE player_id = {$playerId}");
         self::DBQuery(SQLHelper::insertAll(
-            'hand_card',
+            'playable_card',
             F\map($replacements, function(array $replacement, $i) use ($playerId, $maxOrder) {
                 return array(
                     'type' => $replacement['type'],
@@ -353,29 +374,47 @@ class BattleForHillDhau extends Table
 //////////////////////////////////////////////////////////////////////////////
 //////////// Game state arguments
 ////////////
-
     /*
         Here, you can create methods defined as "game state arguments" (see "args" property in states.inc.php).
         These methods function is to return some additional information that is specific to the current
         game state.
     */
-
-    /*
-    
-    Example for game state "MyGameState":
-    
-    function argMyGameState()
+    public function argPlayCard()
     {
-        // Get some values from the current game situation in database...
-    
-        // return values:
-        return array(
-            'variable1' => $value1,
-            'variable2' => $value2,
-            ...
+        $currentPlayerId = (int) $this->getCurrentPlayerId();
+        if ((int) $this->getActivePlayerId() !== $currentPlayerId) {
+            return array();
+        }
+
+        $playableCards = self::getCollectionFromDB("SELECT * from playable_card WHERE player_id = {$currentPlayerId}");
+        $battlefield = $this->loadBattlefield();
+        return array_combine(
+            F\pluck($playableCards, 'id'),
+            F\map(
+                $playableCards,
+                function(array $playableCard) use ($battlefield) {
+                    $card = CardFactory::createFromTypeKey($playableCard['type'], (int) $playableCard['player_id']);
+                    return F\map(
+                        $battlefield->getPossiblePlacements($card),
+                        function(Position $position) {
+                            return array('x' => $position->getX(), 'y' => $position->getY());
+                        }
+                    );
+                }
+            )
         );
-    }    
-    */
+    }
+
+    /**
+     * @param array $playableCard
+     * @return array
+     */
+    public function getPossiblePlacements(array $playableCard)
+    {
+        return array(
+            array('x' => 0, 'y' => 1)
+        );
+    }
 
 //////////////////////////////////////////////////////////////////////////////
 //////////// Game state actions

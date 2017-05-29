@@ -4,6 +4,7 @@ namespace TheBattleForHill218;
 
 use TheBattleForHill218\Cards\AirStrikeCard;
 use TheBattleForHill218\Cards\ArtilleryCard;
+use TheBattleForHill218\Cards\CardFactory;
 use TheBattleForHill218\Cards\HeavyWeaponsCard;
 use TheBattleForHill218\Cards\InfantryCard;
 use TheBattleForHill218\Cards\ParatrooperCard;
@@ -55,33 +56,7 @@ class Hill218Setup
                 array_fill(0, 3, 'paratroopers'),
                 array_fill(0, 2, 'air-strike')
             ),
-            function($typeKey) use ($playerId) { return Hill218Setup::createFromTypeKey($typeKey, $playerId); }
+            function($typeKey) use ($playerId) { return CardFactory::createFromTypeKey($typeKey, $playerId); }
         );
-    }
-
-    /**
-     * @param string $key
-     * @param int $playerId
-     * @return PlayerCard
-     */
-    public static function createFromTypeKey($key, $playerId)
-    {
-        switch ($key) {
-            case 'air-strike':
-                return new AirStrikeCard($playerId);
-            case 'infantry':
-                return new InfantryCard($playerId);
-            case 'paratroopers':
-                return new ParatrooperCard($playerId);
-            case 'heavy-weapons':
-                return new HeavyWeaponsCard($playerId);
-            case 'special-forces':
-                return new SpecialForcesCard($playerId);
-            case 'tank':
-                return new TankCard($playerId);
-            case 'artillery':
-                return new ArtilleryCard($playerId);
-        }
-        throw new \InvalidArgumentException("Unknown type key {$key}");
     }
 }

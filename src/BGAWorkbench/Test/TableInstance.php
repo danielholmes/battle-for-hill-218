@@ -38,6 +38,11 @@ class TableInstance
     private $table;
 
     /**
+     * @var boolean
+     */
+    private $isSetup;
+
+    /**
      * @param WorkbenchProjectConfig $config
      * @param array $players
      * @param array $options
@@ -61,6 +66,7 @@ class TableInstance
         );
         $this->table = $this->project->createTableInstance();
         $this->table->stubCurrentPlayerId($this->currentPlayerId);
+        $this->isSetup = false;
     }
 
     /**
@@ -96,6 +102,12 @@ class TableInstance
      */
     public function setupNewGame()
     {
+        if ($this->isSetup) {
+            throw new \RuntimeException('Already setup');
+        }
+
+        $this->isSetup = true;
+
         $gameClass = new \ReflectionClass($this->table);
         call_user_func([$gameClass->getName(), 'stubGameInfos'], $this->project->getGameInfos());
         call_user_func([$gameClass->getName(), 'setDbConnection'], $this->database->getOrCreateConnection());
@@ -146,6 +158,16 @@ class TableInstance
             $this->players
         );
         return array_combine($ids, $this->players);
+    }
+
+    /**
+     * @param int $activePlayerId
+     * @return self
+     */
+    public function setActivePlayer($activePlayerId)
+    {
+        $this->table->stubActivePlayerId($activePlayerId);
+        return $this;
     }
 
     /**

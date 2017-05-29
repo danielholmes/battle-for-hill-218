@@ -69,7 +69,7 @@ class WatchCommand extends Command
             $listener->onDelete(function($resource, $path) use ($project, $deployment, $output) {
                 $file = $project->absoluteToProjectRelativeFile(new \SplFileInfo($path));
                 $output->write(">< {$file->getRelativePathname()}");
-                $deployment->remove($path);
+                $deployment->remove($file);
                 $output->writeln(' <info>✓</info>');
             });
         });
