@@ -10,4 +10,4 @@ php:
 
 before_script:
   - composer install
-  - cp bgaproject.travis.json bgaproject.json
+  - echo "USE mysql;\nUPDATE user SET password=PASSWORD('battle218pw') WHERE user='root';\nFLUSH PRIVILEGES;\n" | mysql -u root
