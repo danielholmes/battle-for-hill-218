@@ -45,6 +45,10 @@ bin/bgawb watch
 ```
 
 
+## TODO
+ - provide php532 bin in vm and put its path in config so runs the PHP code through linter
+
+
 ## Known Workbench Issues
 
  - When using the watch command - a changed file during the initial deploy won't redeploy

@@ -24,7 +24,7 @@ class ConfigFileConfiguration implements ConfigurationInterface
                 ->booleanNode('useComposer')
                     ->defaultFalse()
                 ->end()
-                ->scalarNode('php532Bin')->defaultNull()->end()
+                ->scalarNode('linterPhpBin')->defaultValue('php')->end()
                 ->arrayNode('extraSrc')
                     ->defaultValue([])
                     ->prototype('scalar')->end()

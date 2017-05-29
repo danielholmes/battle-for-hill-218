@@ -63,14 +63,14 @@ class ValidateCommand extends Command
      */
     private function validateFilesPhp(WorkbenchProjectConfig $config, Project $project, OutputInterface $output)
     {
-        if (!$config->hasPhp532Bin()) {
+        if (!$config->hasLinterPhpBin()) {
             $output->writeln('<comment>No PHP 5.3.2 binary configured</comment>');
             return;
         }
 
         $invalid = $project->getDevelopmentPhpFiles()
             ->map(function(SplFileInfo $file) use ($config) {
-                return ProcessBuilder::create([$config->getPhp532Bin(), '-l', $file->getPathname()])
+                return ProcessBuilder::create([$config->getLinterPhpBin(), '-l', $file->getPathname()])
                     ->getProcess();
             })
             ->walk(function(Process $process) { $process->run(); })

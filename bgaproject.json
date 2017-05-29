@@ -6,6 +6,5 @@
   "testDb": {
     "user": "root",
     "pass": "battle218pw"
-  },
-  "php532Bin": "/usr/bin/php"
+  }
 }

@@ -36,7 +36,7 @@ class WorkbenchProjectConfig
     /**
      * @var string
      */
-    private $php532Bin;
+    private $linterPhpBin;
 
     /**
      * @param \SplFileInfo $directory
@@ -44,7 +44,7 @@ class WorkbenchProjectConfig
      * @param ImmArray $extraSrcPaths
      * @param string $testDbUsername
      * @param string $testDbPassword
-     * @param string $php532Bin
+     * @param string $linterPhpBin
      */
     public function __construct(
         \SplFileInfo $directory,
@@ -52,7 +52,7 @@ class WorkbenchProjectConfig
         ImmArray $extraSrcPaths,
         $testDbUsername,
         $testDbPassword,
-        $php532Bin
+        $linterPhpBin
     )
     {
         $this->directory = $directory;
@@ -60,7 +60,7 @@ class WorkbenchProjectConfig
         $this->extraSrcPaths = $extraSrcPaths;
         $this->testDbUsername = $testDbUsername;
         $this->testDbPassword = $testDbPassword;
-        $this->php532Bin = $php532Bin;
+        $this->linterPhpBin = $linterPhpBin;
     }
 
     /**
@@ -82,17 +82,17 @@ class WorkbenchProjectConfig
     /**
      * @return boolean
      */
-    public function hasPhp532Bin()
+    public function hasLinterPhpBin()
     {
-        return $this->php532Bin !== null;
+        return $this->linterPhpBin !== null;
     }
 
     /**
      * @return string
      */
-    public function getPhp532Bin()
+    public function getLinterPhpBin()
     {
-        return $this->php532Bin;
+        return $this->linterPhpBin;
     }
 
     /**
@@ -148,7 +148,7 @@ class WorkbenchProjectConfig
             ImmArray::fromArray($processed['extraSrc']),
             $processed['testDb']['user'],
             $processed['testDb']['pass'],
-            $processed['php532Bin']
+            $processed['linterPhpBin']
         );
     }
 }
