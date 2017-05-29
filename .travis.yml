@@ -11,3 +11,7 @@ php:
 before_script:
   - composer install
   - echo "USE mysql;\nUPDATE user SET password=PASSWORD('battle218pw') WHERE user='root';\nFLUSH PRIVILEGES;\n" | mysql -u root
+
+script:
+  - bin/bgawb validate
+  - $COMPOSER_BIN_DIR/phpunit
