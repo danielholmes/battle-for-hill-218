@@ -112,11 +112,59 @@
 .viewing-player-color-04237b .card.hill {
     transform: rotate(180deg);
 }
-
-/* Return */
-#return-cards {
-    display: none;
+.battlefield-card {
+    position: absolute;
 }
-.state-returnToDeck #return-cards {
-    display: inline;
+#map_container {
+    position: relative;
+    width: 100%;
+    height: 602px;
+    overflow: hidden;
+}
+#map_scrollable, #map_scrollable_oversurface {
+    position: absolute;
+    top: 205px;
+    left:  315px;
+}
+#map_surface {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    width: 100%;
+    height: 100%;
+    cursor: move;
+}
+#map_footer {
+    text-align: center;
+}
+#movetop, #moveleft, #moveright, #movedown {
+    display: block;
+    position: absolute;
+    background-image: url('../../../img/common/arrows.png');
+    width: 32px;
+    height: 32px;
+}
+#movetop {
+    top: 0;
+    left: 50%;
+    background-position: 0 32px;
+    margin-left:-16px;
+}
+#moveleft {
+    top: 50%;
+    left: 0;
+    background-position: 32px 0;
+    margin-top:-16px;
+}
+#moveright {
+    top: 50%;
+    right: 0;
+    background-position: 0 0;
+    margin-top:-16px;
+}
+#movedown {
+    bottom: 0;
+    left: 50%;
+    background-position: 32px 32px;
+    margin-left:-16px;
 }

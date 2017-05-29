@@ -10,15 +10,19 @@ define([
     "dojo/dom-construct",
     "dojo/dom-geometry",
     "dojo/fx",
-    "dojo/fx/easing",
     "dojo/NodeList-data",
     "ebg/core/gamegui",
-    "ebg/counter"
+    "ebg/counter",
+    "ebg/scrollmap"
 ],
-function (dojo, declare, lang, dom, query, array, domConstruct, domGeom, fx, easing) {
+function (dojo, declare, lang, dom, query, array, domConstruct, domGeom, fx) {
+    var CARD_WIDTH = 80;
+    var CARD_HEIGHT = 112;
+    var SLIDE_ANIMATION_DURATION = 1000;
+    
     return declare("bgagame.battleforhilldhau", ebg.core.gamegui, {
         constructor: function() {
-            this.slideAnimationDuration = 1000;
+            this.battlefieldMap = new ebg.scrollmap();
         },
         
         /*
@@ -80,8 +84,20 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domGeom, fx, eas
         setupBattlefield: function(data, viewingPlayerColor) {
             query('#battlefield-panel').addClass('viewing-player-color-' + viewingPlayerColor);
             array.forEach(data, lang.hitch(this, function(card) {
-                dojo.place(this.createBattlefieldCard(card, ''), 'battlefield-panel');
+                dojo.place(this.createBattlefieldCard(card, ''), 'map_scrollable_oversurface');
             }));
+
+            this.battlefieldMap.create(
+                $('map_container'),
+                $('map_scrollable'),
+                $('map_surface'),
+                $('map_scrollable_oversurface')
+            );
+            this.battlefieldMap.setupOnScreenArrows(150);
+            dojo.connect($('movetop'), 'onclick', this, 'onMoveTop');
+            dojo.connect($('moveleft'), 'onclick', this, 'onMoveLeft');
+            dojo.connect($('moveright'), 'onclick', this, 'onMoveRight');
+            dojo.connect($('movedown'), 'onclick', this, 'onMoveDown');
         },
 
         ///////////////////////////////////////////////////
@@ -92,7 +108,6 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domGeom, fx, eas
         //
         onEnteringState: function(stateName, args) {
             console.log('Entering state', stateName);
-            query('#game-container').addClass('state-' + stateName);
             switch (stateName) {
                 case 'returnToDeck':
                     this.onEnterReturnToDeck();
@@ -139,26 +154,12 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domGeom, fx, eas
         // onUpdateActionButtons: in this method you can manage "action buttons" that are displayed in the
         //                        action status bar (ie: the HTML links in the status bar).
         //        
-        onUpdateActionButtons: function( stateName, args )
-        {
-            console.log( 'onUpdateActionButtons: '+stateName );
-                      
-            if( this.isCurrentPlayerActive() )
-            {            
-                switch( stateName )
-                {
-/*               
-                 Example:
- 
-                 case 'myGameState':
-                    
-                    // Add 3 action buttons in the action status bar:
-                    
-                    this.addActionButton( 'button_1_id', _('Button 1 label'), 'onMyMethodToCall1' ); 
-                    this.addActionButton( 'button_2_id', _('Button 2 label'), 'onMyMethodToCall2' ); 
-                    this.addActionButton( 'button_3_id', _('Button 3 label'), 'onMyMethodToCall3' ); 
-                    break;
-*/
+        onUpdateActionButtons: function(stateName, args) {
+            if (this.isCurrentPlayerActive()) {
+                switch (stateName) {
+                    case 'returnToDeck':
+                        this.addActionButton('button_1_id', _('Return cards to Deck'), 'onSubmitReturnCards');
+                        break;
                 }
             }
         },        
@@ -216,7 +217,9 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domGeom, fx, eas
         },
 
         createBattlefieldCard: function(card, color) {
-            var coloredCard = lang.mixin({}, card, {color: color});
+            var left = -CARD_WIDTH / 2 + (card.x * CARD_WIDTH);
+            var top = -CARD_HEIGHT / 2 + (card.y * CARD_HEIGHT);
+            var coloredCard = lang.mixin({}, card, {color: color, left: left, top: top});
             return domConstruct.toDom(this.format_block('jstpl_battlefield_card', coloredCard));
         },
 
@@ -251,7 +254,7 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domGeom, fx, eas
             this.slideToObjectAndDestroy(
                 this.prepareForAnimation(card),
                 this.getOpponentDeckNode(),
-                this.slideAnimationDuration
+                SLIDE_ANIMATION_DURATION
             );
         },
 
@@ -268,7 +271,7 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domGeom, fx, eas
                 left: targetPosition.x + offset.x,
                 top: targetPosition.y + offset.y,
                 units: "px",
-                duration: this.slideAnimationDuration
+                duration: SLIDE_ANIMATION_DURATION
             }).play();
         },
 
@@ -276,7 +279,7 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domGeom, fx, eas
             this.slideToObjectAndDestroy(
                 this.prepareForAnimation(card),
                 this.getMyDeckNode(),
-                this.slideAnimationDuration
+                SLIDE_ANIMATION_DURATION
             );
         },
 
@@ -293,7 +296,7 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domGeom, fx, eas
                 left: targetPosition.x + offset.x,
                 top: targetPosition.y + offset.y,
                 units: "px",
-                duration: this.slideAnimationDuration
+                duration: SLIDE_ANIMATION_DURATION
             }).play();
         },
 
@@ -301,12 +304,6 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domGeom, fx, eas
         //// Player's action
         onHandCardReturnClick: function(e) {
             query(e.target).toggleClass('selected');
-            // TODO: Where should this business logic go?
-            if (this.getSelectedHandCards().length === 2) {
-                query('#return-cards').removeAttr('disabled');
-            } else {
-                query('#return-cards').attr('disabled', 'disabled');
-            }
         },
 
         onSubmitReturnCards: function() {
@@ -314,11 +311,17 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domGeom, fx, eas
                 return;
             }
 
+            var selectedIds = this.getSelectedHandCards().attr('data-id');
+            // TODO: Where should this business logic go?
+            if (selectedIds.length !== 2) {
+                alert('Must select exactly 2 cards to return');
+                return;
+            }
             this.ajaxcall(
                 "/battleforhilldhau/battleforhilldhau/returnToDeck.html",
                 {
                     lock: true,
-                    ids: this.getSelectedHandCards().attr('data-id').join(',')
+                    ids: selectedIds.join(',')
                 },
                 function(result) { },
                 function(isError) {
@@ -327,6 +330,25 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domGeom, fx, eas
             );
         },
 
+        onMoveTop: function(e) {
+            e.preventDefault();
+            this.battlefieldMap.scroll(0, 300);
+        },
+
+        onMoveLeft: function(e) {
+            e.preventDefault();
+            this.battlefieldMap.scroll(300, 0);
+        },
+
+        onMoveRight: function(e) {
+            e.preventDefault();
+            this.battlefieldMap.scroll(-300, 0);
+        },
+
+        onMoveDown: function(e) {
+            e.preventDefault();
+            this.battlefieldMap.scroll(0, -300);
+        },
         
         ///////////////////////////////////////////////////
         //// Reaction to cometD notifications
@@ -339,7 +361,6 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domGeom, fx, eas
             //            see what is happening in the game.
             // dojo.subscribe( 'cardPlayed', this, "notif_cardPlayed" );
             // this.notifqueue.setSynchronous( 'cardPlayed', 3000 );
-            // 
         },
 
         notif_returnedToDeck: function(notification) {
@@ -370,7 +391,7 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domGeom, fx, eas
                         })
                     );
                 }),
-                this.slideAnimationDuration
+                SLIDE_ANIMATION_DURATION
             );
         },
 
@@ -408,7 +429,7 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domGeom, fx, eas
                         })
                     );
                 }),
-                this.slideAnimationDuration
+                SLIDE_ANIMATION_DURATION
             );
         }
    });             
