@@ -14,21 +14,6 @@ class WorkbenchProjectConfig
     private $directory;
 
     /**
-     * @var string
-     */
-    private $sftpHost;
-
-    /**
-     * @var string
-     */
-    private $sftpUsername;
-
-    /**
-     * @var string
-     */
-    private $sftpPassword;
-
-    /**
      * @var boolean
      */
     private $useComposer;
@@ -50,9 +35,6 @@ class WorkbenchProjectConfig
 
     /**
      * @param \SplFileInfo $directory
-     * @param string $sftpHost
-     * @param string $sftpUsername
-     * @param string $sftpPassword
      * @param boolean $useComposer
      * @param ImmArray $extraSrcPaths
      * @param string $testDbUsername
@@ -60,9 +42,6 @@ class WorkbenchProjectConfig
      */
     public function __construct(
         \SplFileInfo $directory,
-        $sftpHost,
-        $sftpUsername,
-        $sftpPassword,
         $useComposer,
         ImmArray $extraSrcPaths,
         $testDbUsername,
@@ -70,37 +49,10 @@ class WorkbenchProjectConfig
     )
     {
         $this->directory = $directory;
-        $this->sftpHost = $sftpHost;
-        $this->sftpUsername = $sftpUsername;
-        $this->sftpPassword = $sftpPassword;
         $this->useComposer = $useComposer;
         $this->extraSrcPaths = $extraSrcPaths;
         $this->testDbUsername = $testDbUsername;
         $this->testDbPassword = $testDbPassword;
-    }
-
-    /**
-     * @return string
-     */
-    public function getSftpHost()
-    {
-        return $this->sftpHost;
-    }
-
-    /**
-     * @return string
-     */
-    public function getSftpUsername()
-    {
-        return $this->sftpUsername;
-    }
-
-    /**
-     * @return string
-     */
-    public function getSftpPassword()
-    {
-        return $this->sftpPassword;
     }
 
     /**
@@ -168,9 +120,6 @@ class WorkbenchProjectConfig
         $processed = $processor->processConfiguration(new ConfigFileConfiguration(), [$rawConfig]);
         return new WorkbenchProjectConfig(
             $directory,
-            $processed['sftp']['host'],
-            $processed['sftp']['user'],
-            $processed['sftp']['pass'],
             $processed['useComposer'],
             ImmArray::fromArray($processed['extraSrc']),
             $processed['testDb']['user'],

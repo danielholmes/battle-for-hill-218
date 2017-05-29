@@ -5,7 +5,7 @@ namespace BGAWorkbench\Project;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
 
-class ConfigFileConfiguration implements ConfigurationInterface
+class DeployConfiguration implements ConfigurationInterface
 {
     /**
      * @inheritdoc
@@ -15,18 +15,12 @@ class ConfigFileConfiguration implements ConfigurationInterface
         $treeBuilder = new TreeBuilder();
         $treeBuilder->root('config')
             ->children()
-                ->arrayNode('testDb')
+                ->arrayNode('sftp')
                     ->children()
+                        ->scalarNode('host')->end()
                         ->scalarNode('user')->end()
                         ->scalarNode('pass')->end()
                     ->end()
-                ->end()
-                ->booleanNode('useComposer')
-                    ->defaultFalse()
-                ->end()
-                ->arrayNode('extraSrc')
-                    ->defaultValue([])
-                    ->prototype('scalar')->end()
                 ->end()
             ->end()
         ;

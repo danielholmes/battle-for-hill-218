@@ -1,0 +1,10 @@
+{
+  "useComposer": true,
+  "extraSrc": [
+    "src/TheBattleForHill218"
+  ],
+  "testDb": {
+    "user": "root",
+    "pass": "battle218pw"
+  }
+}
