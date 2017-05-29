@@ -49,7 +49,7 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domGeom, fx) {
 
             var airStrikeCards = array.filter(data.hand, function(card) { return card.type === 'air-strike'; });
             array.forEach(airStrikeCards, lang.hitch(this, function(card) {
-                dojo.place(this.createMyHandCard(card), query('#my-hand .air-strikes').pop());
+                dojo.place(this.createMyAirStrikeCard(card), query('#my-hand .air-strikes').pop());
             }));
 
             var handCards = array.filter(data.hand, function(card) { return card.type !== 'air-strike'; });
@@ -64,7 +64,7 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domGeom, fx) {
 
             for (var i = 0; i < data.numAirStrikes; i++) {
                 dojo.place(
-                    this.createOpponentHandCard({type: 'air-strike'}),
+                    this.createOpponentAirStrikeCard({type: 'air-strike'}),
                     query('#opponent-hand .air-strikes').pop()
                 );
             }
@@ -118,7 +118,7 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domGeom, fx) {
         },
 
         onEnterPlayCard: function() {
-            this.enableHandCardsAndAirStrikesClick(this.onHandCardPlayClick);
+            this.enablePlayableCardsClick(this.onHandCardPlayClick);
         },
 
         // onLeavingState: this method is called each time we are leaving a game state.
@@ -190,8 +190,8 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domGeom, fx) {
             return query(this.getMyHandCardsContainerNode()).query('.hand-card');
         },
 
-        getMyHandAndAirStrikesCardsNodes: function() {
-            return query('#my-hand .hand-card');
+        getMyPlayableCardsNodes: function() {
+            return query('#my-hand .playable-card');
         },
 
         getMyHandCardNodeById: function(cardId) {
@@ -202,18 +202,28 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domGeom, fx) {
             dojo.place(this.recoverFromAnimation(card), this.getMyHandCardsContainerNode())
         },
 
-        getSelectedHandCards: function() {
-            return this.getMyHandCardsNodes().filter('.selected');
+        getMySelectedPlayableCards: function() {
+            return this.getMyPlayableCardsNodes().filter('.selected');
         },
 
         createMyHandCard: function(card) {
             var coloredCard = lang.mixin({}, card, {color: this.myColor});
             return domConstruct.toDom(this.format_block('jstpl_hand_card', coloredCard));
         },
+        
+        createMyAirStrikeCard: function(card) {
+            var coloredCard = lang.mixin({}, card, {color: this.myColor});
+            return domConstruct.toDom(this.format_block('jstpl_air_strike_card', coloredCard));
+        },
 
         createOpponentHandCard: function(card) {
             var coloredCard = lang.mixin({}, card, {color: this.opponentColor});
             return domConstruct.toDom(this.format_block('jstpl_opponent_hand_card', coloredCard));
+        },
+
+        createOpponentAirStrikeCard: function(card) {
+            var coloredCard = lang.mixin({}, card, {color: this.opponentColor});
+            return domConstruct.toDom(this.format_block('jstpl_opponent_air_strike_card', coloredCard));
         },
 
         createBattlefieldCard: function(card, color) {
@@ -306,26 +316,26 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domGeom, fx) {
             this.enableCardsClick(this.getMyHandCardsNodes(), handler);
         },
 
-        enableHandCardsAndAirStrikesClick: function(handler) {
-            this.enableCardsClick(this.getMyHandAndAirStrikesCardsNodes(), handler);
+        enablePlayableCardsClick: function(handler) {
+            this.enableCardsClick(this.getMyPlayableCardsNodes(), handler);
         },
 
         enableCardsClick: function(cardNodes, handler) {
-            this.disableHandCardsClick();
+            this.disablePlayableCardsClick();
 
             cardNodes.addClass('clickable');
             // TODO: Find the proper way to do this and pass hand-card through the event
             var _this = this;
-            this.handCardsClickSignal = cardNodes.on(
+            this.myPlayableCardsClickSignal = cardNodes.on(
                 'click',
                 function() { lang.hitch(_this, handler)({target: this}); }
             );
         },
 
-        disableHandCardsClick: function() {
-            this.getMyHandAndAirStrikesCardsNodes().removeClass('.clickable').removeClass('.selected');
-            if (this.handCardsClickSignal) {
-                this.handCardsClickSignal.remove();
+        disablePlayableCardsClick: function() {
+            this.getMyPlayableCardsNodes().removeClass('.clickable').removeClass('.selected');
+            if (this.myPlayableCardsClickSignal) {
+                this.myPlayableCardsClickSignal.remove();
             }
         },
 
@@ -337,7 +347,7 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domGeom, fx) {
 
         onHandCardPlayClick: function(e) {
             var clickedCard = e.target;
-            this.getMyHandAndAirStrikesCardsNodes().forEach(function(card) {
+            this.getMyPlayableCardsNodes().forEach(function(card) {
                 if (card !== clickedCard) {
                     query(card).removeClass('selected');
                 }
@@ -350,7 +360,7 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domGeom, fx) {
                 return;
             }
 
-            var selectedIds = this.getSelectedHandCards().attr('data-id');
+            var selectedIds = this.getMySelectedPlayableCards().attr('data-id');
             // TODO: Where should this business logic go?
             if (selectedIds.length !== 2) {
                 alert('Must select exactly 2 cards to return');
@@ -404,7 +414,7 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domGeom, fx) {
             // Return old cards to deck
             // Sorting makes sure positioning is correct (and don't remove earlier card first thus repositioning the
             // latter card before animating
-            this.disableHandCardsClick();
+            this.disablePlayableCardsClick();
             var handCards = this.getMyHandCardsNodes();
             array.forEach(
                 array.map(notification.args.oldIds, lang.hitch(this, this.getMyHandCardNodeById))

@@ -344,6 +344,7 @@ class BattleForHillDhau extends Table
             clienttranslate("Opponent returned {$numCards} to their deck"),
             array('numCards' => $numCards)
         );
+        // TODO: Sub in name for opponent
 
         $this->gamestate->setPlayerNonMultiactive($playerId, 'allReturned');
     }

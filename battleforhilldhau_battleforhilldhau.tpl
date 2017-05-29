@@ -27,9 +27,11 @@
 </div>
 
 <script type="text/javascript">
-var jstpl_hand_card = '<div class="hand-card" data-id="${id}"><div class="selected-border card"></div><div class="card ${type} color-${color}"></div></div>';
-var jstpl_opponent_hand_card = '<div class="hand-card"><div class="card ${type} color-${color}"></div></div>';
-var jstpl_battlefield_card = '<div class="battlefield-card" style="left: ${left}px;top: ${top}px"><div class="card ${type} color-${color}"></div></div>';
+    var jstpl_air_strike_card = '<div class="playable-card" data-id="${id}"><div class="selected-border landscape-border card"></div><div class="card ${type} color-${color}"></div></div>';
+    var jstpl_hand_card = '<div class="playable-card hand-card" data-id="${id}"><div class="selected-border card"></div><div class="card ${type} color-${color}"></div></div>';
+    var jstpl_opponent_hand_card = '<div class="playable-card hand-card"><div class="card ${type} color-${color}"></div></div>';
+    var jstpl_opponent_air_strike_card = '<div class="playable-card"><div class="card ${type} color-${color}"></div></div>';
+    var jstpl_battlefield_card = '<div class="battlefield-card" style="left: ${left}px;top: ${top}px"><div class="card ${type} color-${color}"></div></div>';
 </script>
 
 {OVERALL_GAME_FOOTER}

@@ -82,7 +82,7 @@
 .player-hand .air-strikes {
     text-align: center;
 }
-.player-hand .hand-card {
+.player-hand .playable-card {
     display: inline-block;
     margin-bottom: 4px;
     margin-left: 4px;
@@ -90,19 +90,22 @@
 #my-hand .hand-cards {
     margin-left: -4px;
 }
-#opponent-hand.player-hand .hand-cards .hand-card {
-    margin-right: -44px;
-}
-.player-hand .hand-card.clickable {
+#my-hand .playable-card.clickable {
     cursor: pointer;
 }
-.player-hand .hand-card .selected-border {
+#my-hand .playable-card .selected-border {
     display: none;
     background-position: -672px -112px;
     position: absolute;
 }
-.player-hand .hand-card.clickable.selected .selected-border {
+#my-hand .playable-card .selected-border.landscape-border {
+    transform: rotate(-90deg) translateX(16px) translateY(-40px);
+}
+#my-hand .playable-card.clickable.selected .selected-border {
     display: inline-block;
+}
+#opponent-hand .hand-cards .hand-card {
+    margin-right: -44px;
 }
 
 /* Battlefield */
