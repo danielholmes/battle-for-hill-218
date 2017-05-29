@@ -1,5 +1,5 @@
 {
-  "name": "dhau/thebattlefor",
+  "name": "dhau/thebattleforhill",
   "type": "project",
   "description": "The Battle for Hill 218 - BoardGameArena implementation",
   "minimum-stability": "stable",
@@ -18,9 +18,11 @@
   },
   "bin": ["bin/bgawb"],
   "require": {
+    "php": "^5.3.2",
     "lstrojny/functional-php": "1.0.0"
   },
   "require-dev": {
+    "php": "^5.6.0",
     "jasonlewis/resource-watcher": "1.2.0",
     "symfony/console": "3.2.8",
     "symfony/config": "3.2.8",
