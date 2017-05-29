@@ -120,6 +120,8 @@ abstract class Table extends APP_GameClass
 
     public function reloadPlayersBasicInfos() { }
 
+    protected function activeNextPlayer() { }
+
     public function checkAction($actionName, $bThrowException = true)
     {
         return true;

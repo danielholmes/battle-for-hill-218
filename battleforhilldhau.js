@@ -54,14 +54,9 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domGeom, fx) {
 
             var handCards = array.filter(data.hand, function(card) { return card.type !== 'air-strike'; });
             array.forEach(
-                array.map(
-                    handCards,
-                    lang.hitch(this, this.createMyHandCard)
-                ),
+                array.map(handCards, lang.hitch(this, this.createMyHandCard)),
                 lang.hitch(this, this.placeInMyHand)
             );
-
-            this.getMyHandCardsNodes().filter('.clickable').connect('onclick', this, 'onHandCardClick');
         },
 
         setupOpponentHand: function(data) {
@@ -94,10 +89,10 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domGeom, fx) {
                 $('map_scrollable_oversurface')
             );
             this.battlefieldMap.setupOnScreenArrows(150);
-            dojo.connect($('movetop'), 'onclick', this, 'onMoveTop');
-            dojo.connect($('moveleft'), 'onclick', this, 'onMoveLeft');
-            dojo.connect($('moveright'), 'onclick', this, 'onMoveRight');
-            dojo.connect($('movedown'), 'onclick', this, 'onMoveDown');
+            query('movetop').on('click', lang.hitch(this, this.onMoveTop));
+            query('moveleft').on('click', lang.hitch(this, this.onMoveLeft));
+            query('moveright').on('click', lang.hitch(this, this.onMoveRight));
+            query('movedown').on('click', lang.hitch(this, this.onMoveDown));
         },
 
         ///////////////////////////////////////////////////
@@ -112,17 +107,18 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domGeom, fx) {
                 case 'returnToDeck':
                     this.onEnterReturnToDeck();
                     break;
+                case 'playCard':
+                    this.onEnterPlayCard();
+                    break;
             }
         },
 
         onEnterReturnToDeck: function() {
-            var handCards = this.getMyHandCardsNodes();
-            handCards.addClass('clickable');
-            // TODO: Find the proper way to do this and pass hand-card through the event
-            var _this = this;
-            handCards.on('click', function() { _this.onHandCardReturnClick({target: this}); });
+            this.enableHandCardsClick(this.onHandCardReturnClick);
+        },
 
-            query('#return-cards').on('click', lang.hitch(this, this.onSubmitReturnCards));
+        onEnterPlayCard: function() {
+            this.enableHandCardsAndAirStrikesClick(this.onHandCardPlayClick);
         },
 
         // onLeavingState: this method is called each time we are leaving a game state.
@@ -192,6 +188,10 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domGeom, fx) {
 
         getMyHandCardsNodes: function() {
             return query(this.getMyHandCardsContainerNode()).query('.hand-card');
+        },
+
+        getMyHandAndAirStrikesCardsNodes: function() {
+            return query('#my-hand .hand-card');
         },
 
         getMyHandCardNodeById: function(cardId) {
@@ -301,9 +301,48 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domGeom, fx) {
         },
 
         ///////////////////////////////////////////////////
+        // Interaction utility methods
+        enableHandCardsClick: function(handler) {
+            this.enableCardsClick(this.getMyHandCardsNodes(), handler);
+        },
+
+        enableHandCardsAndAirStrikesClick: function(handler) {
+            this.enableCardsClick(this.getMyHandAndAirStrikesCardsNodes(), handler);
+        },
+
+        enableCardsClick: function(cardNodes, handler) {
+            this.disableHandCardsClick();
+
+            cardNodes.addClass('clickable');
+            // TODO: Find the proper way to do this and pass hand-card through the event
+            var _this = this;
+            this.handCardsClickSignal = cardNodes.on(
+                'click',
+                function() { lang.hitch(_this, handler)({target: this}); }
+            );
+        },
+
+        disableHandCardsClick: function() {
+            this.getMyHandAndAirStrikesCardsNodes().removeClass('.clickable').removeClass('.selected');
+            if (this.handCardsClickSignal) {
+                this.handCardsClickSignal.remove();
+            }
+        },
+
+        ///////////////////////////////////////////////////
         //// Player's action
         onHandCardReturnClick: function(e) {
             query(e.target).toggleClass('selected');
+        },
+
+        onHandCardPlayClick: function(e) {
+            var clickedCard = e.target;
+            this.getMyHandAndAirStrikesCardsNodes().forEach(function(card) {
+                if (card !== clickedCard) {
+                    query(card).removeClass('selected');
+                }
+            });
+            query(clickedCard).toggleClass('selected');
         },
 
         onSubmitReturnCards: function() {
@@ -324,30 +363,28 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domGeom, fx) {
                     ids: selectedIds.join(',')
                 },
                 function(result) { },
-                function(isError) {
-                    // TODO: Re-enable button if error
-                }
+                function(isError) { }
             );
         },
 
         onMoveTop: function(e) {
             e.preventDefault();
-            this.battlefieldMap.scroll(0, 300);
+            this.battlefieldMap.scroll(0, CARD_HEIGHT);
         },
 
         onMoveLeft: function(e) {
             e.preventDefault();
-            this.battlefieldMap.scroll(300, 0);
+            this.battlefieldMap.scroll(CARD_WIDTH, 0);
         },
 
         onMoveRight: function(e) {
             e.preventDefault();
-            this.battlefieldMap.scroll(-300, 0);
+            this.battlefieldMap.scroll(-CARD_WIDTH, 0);
         },
 
         onMoveDown: function(e) {
             e.preventDefault();
-            this.battlefieldMap.scroll(0, -300);
+            this.battlefieldMap.scroll(0, -CARD_HEIGHT);
         },
         
         ///////////////////////////////////////////////////
@@ -367,6 +404,7 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domGeom, fx) {
             // Return old cards to deck
             // Sorting makes sure positioning is correct (and don't remove earlier card first thus repositioning the
             // latter card before animating
+            this.disableHandCardsClick();
             var handCards = this.getMyHandCardsNodes();
             array.forEach(
                 array.map(notification.args.oldIds, lang.hitch(this, this.getMyHandCardNodeById))

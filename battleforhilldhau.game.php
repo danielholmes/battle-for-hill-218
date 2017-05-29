@@ -61,6 +61,7 @@ class BattleForHillDhau extends Table
         foreach (array_keys($players) as $playerId) {
             $this->setupPlayerCards($playerId);
         }
+        $this->activeNextPlayer();
         $this->gamestate->setAllPlayersMultiactive();
     }
 

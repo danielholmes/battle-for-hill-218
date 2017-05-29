@@ -79,16 +79,16 @@
 }
 
 /* Hands */
-.player-hand {
-    margin-left: -4px;
-}
 .player-hand .air-strikes {
     text-align: center;
 }
 .player-hand .hand-card {
     display: inline-block;
-    margin-left: 4px;
     margin-bottom: 4px;
+    margin-left: 4px;
+}
+#my-hand .hand-cards {
+    margin-left: -4px;
 }
 #opponent-hand.player-hand .hand-cards .hand-card {
     margin-right: -44px;
