@@ -18,7 +18,7 @@ define([
 function (dojo, declare, lang, dom, query, array, domConstruct, domGeom, fx) {
     var CARD_WIDTH = 80;
     var CARD_HEIGHT = 112;
-    var SLIDE_ANIMATION_DURATION = 1000;
+    var SLIDE_ANIMATION_DURATION = 700;
     
     return declare("bgagame.battleforhilldhau", ebg.core.gamegui, {
         constructor: function() {
@@ -159,7 +159,7 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domGeom, fx) {
             if (this.isCurrentPlayerActive()) {
                 switch (stateName) {
                     case 'returnToDeck':
-                        this.addActionButton('button_1_id', _('Return cards to Deck'), 'onSubmitReturnCards');
+                        this.addActionButton('button_1_id', _('Return the selected cards.'), 'onSubmitReturnCards');
                         break;
                 }
             }
@@ -346,9 +346,10 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domGeom, fx) {
             var selectedIds = this.getMySelectedPlayableCards().attr('data-id');
             // TODO: Where should this business logic go?
             if (selectedIds.length !== 2) {
-                alert('Must select exactly 2 cards to return');
+                this.showMessage( _('You must select exactly 2 cards to return'), 'error');
                 return;
             }
+
             this.ajaxcall(
                 "/battleforhilldhau/battleforhilldhau/returnToDeck.html",
                 {
