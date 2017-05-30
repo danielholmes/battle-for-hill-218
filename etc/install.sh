@@ -2,12 +2,14 @@
 
 # Settings
 PROJECT_NAME=$1
-DB_NAME=$PROJECT_NAME
 HOME_DIR=/home/ubuntu
 PROJECT_DIR=$HOME_DIR/$PROJECT_NAME
 
 # Make sure start in project directory
 echo "cd $PROJECT_DIR" >> "$HOME_DIR/.bashrc"
+echo "PATH=\$PATH:$PROJECT_DIR/vendor/bin" >> "$HOME_DIR/.bashrc"
+# Not needed once separate out bga workbench project
+echo "PATH=\$PATH:$PROJECT_DIR/bin" >> "$HOME_DIR/.bashrc"
 
 # Install essential packages from Apt
 add-apt-repository ppa:ondrej/php

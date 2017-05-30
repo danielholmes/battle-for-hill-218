@@ -22,8 +22,8 @@ vagrant up
 
 ```
 vagrant ssh
-vendor/bin/phpunit
-bin/bgawb validate
+phpunit
+bgawb validate
 ```
 
 
@@ -31,7 +31,7 @@ bin/bgawb validate
 
 ```
 vagrant ssh
-bin/bgawb deploy
+bgawb deploy
 ```
 
 
@@ -41,16 +41,17 @@ Watches development files and deploys them as they change.
 
 ```
 vagrant ssh
-bin/bgawb watch
+bgawb watch
 ```
 
 
 ## TODO
+
  - provide php532 bin in vm and put its path in config so runs the PHP code through linter
 
 
 ## Known Workbench Issues
 
  - When using the watch command - a changed file during the initial deploy won't redeploy
- - SFTP diconnects after a while - should be intelligent enough to reconnect
+ - SFTP disconnects after a while - should be intelligent enough to reconnect
  
