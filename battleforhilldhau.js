@@ -57,6 +57,9 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domGeom, fx) {
                 array.map(handCards, lang.hitch(this, this.createMyHandCard)),
                 lang.hitch(this, this.placeInMyHand)
             );
+
+            var playerBoard = $('player_board_' + this.player_id);
+            dojo.place(this.format_block('jstpl_deck_icon', {}), playerBoard);
         },
 
         setupOpponentHand: function(data) {
