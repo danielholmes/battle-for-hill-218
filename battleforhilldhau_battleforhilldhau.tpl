@@ -2,16 +2,14 @@
 
 <div id="game-container">
     <div id="players-panel">
-        <div id="opponent-hand" class="whiteblock player-hand">
-            <h3>Opponent Hand</h3>
+
+        <!-- BEGIN player_cards -->
+        <div id="player-cards-{PLAYER_ID}" class="player-cards whiteblock {EXTRA_CONTAINER_CLASS}">
+            <h3>{PLAYER_LABEL}</h3>
             <div class="air-strikes"></div>
             <div class="hand-cards"></div>
         </div>
-        <div id="my-hand" class="whiteblock player-hand">
-            <h3>My Hand</h3>
-            <div class="air-strikes"></div>
-            <div class="hand-cards"></div>
-        </div>
+        <!-- END player_cards -->
     </div>
     <div id="battlefield-panel" class="whiteblock">
         <div id="map_container">

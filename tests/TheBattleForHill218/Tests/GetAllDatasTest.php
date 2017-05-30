@@ -37,16 +37,24 @@ class GetAllDatasTest extends ProjectIntegrationTestCase
         assertThat(
             $datas,
             M::hasEntries([
-                'players' => nonEmptyArray(),
-                'me' => M::hasEntries([
-                    'hand' => arrayWithSize(7),
-                    'deckSize' => 19
-                ]),
-                'opponent' => M::hasEntries([
-                    'handSize' => 7,
-                    'deckSize' => 19,
-                    'numAirStrikes' => 2
-                ]),
+                'players' => containsInAnyOrder(
+                    M::hasEntries([
+                        'id' => 66,
+                        'cards' => arrayWithSize(7),
+                        'numCards' => 7,
+                        'numAirStrikes' => 2,
+                        'deckSize' => 19
+                    ]),
+                    allOf(
+                        M::hasEntries([
+                            'id' => 77,
+                            'numCards' => 7,
+                            'numAirStrikes' => 2,
+                            'deckSize' => 19
+                        ]),
+                        not(hasKey('cards'))
+                    )
+                ),
                 'battlefield' => contains(
                     M::hasEntries([
                         'playerId' => null,

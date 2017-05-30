@@ -1,85 +1,58 @@
 <?php
-/**
- *------
- * BGA framework: © Gregory Isabelli <gisabelli@boardgamearena.com> & Emmanuel Colin <ecolin@boardgamearena.com>
- * BattleForHillDhau implementation : © <Your name here> <Your email address here>
- *
- * This code has been produced on the BGA studio platform for use on http://boardgamearena.com.
- * See http://en.boardgamearena.com/#!doc/Studio for more information.
- * -----
- *
- * battleforhilldhau.view.php
- *
- * This is your "view" file.
- *
- * The method "build_page" below is called each time the game interface is displayed to a player, ie:
- * _ when the game starts
- * _ when a player refreshes the game page (F5)
- *
- * "build_page" method allows you to dynamically modify the HTML generated for the game interface. In
- * particular, you can set here the values of variables elements defined in battleforhilldhau_battleforhilldhau.tpl (elements
- * like {MY_VARIABLE_ELEMENT}), and insert HTML block elements (also defined in your HTML template file)
- *
- * Note: if the HTML of your game interface is always the same, you don't have to place anything here.
- *
- */
-  
-  require_once( APP_BASE_PATH."view/common/game.view.php" );
-  
-  class view_battleforhilldhau_battleforhilldhau extends game_view
-  {
-    function getGameName() {
+
+require_once(APP_BASE_PATH . "view/common/game.view.php");
+
+use Functional as F;
+
+class view_battleforhilldhau_battleforhilldhau extends game_view
+{
+    function getGameName()
+    {
         return "battleforhilldhau";
-    }    
-  	function build_page( $viewArgs )
-  	{		
-  	    // Get players & players number
-        $players = $this->game->loadPlayersBasicInfos();
-        $players_nbr = count( $players );
+    }
 
-        /*********** Place your code below:  ************/
+  	function build_page($viewArgs)
+  	{
+        global $g_user;
+        $currentPlayerId = (int) $g_user->get_id();
 
+        $players = F\sort(
+            F\map(
+                $this->game->loadPlayersBasicInfos(),
+                function(array $player) {
+                    return array(
+                        'id' => (int) $player['player_id'],
+                        'name' => $player['player_name']
+                    );
+                }
+            ),
+            function(array $player1, array $player2) use ($currentPlayerId) {
+                if ($player1['id'] === $currentPlayerId) {
+                    return 1;
+                }
+                if ($player2['id'] === $currentPlayerId) {
+                    return -1;
+                }
+                return strcmp($player1['name'], $player2['name']);
+            }
+        );
 
-        /*
-        
-        // Examples: set the value of some element defined in your tpl file like this: {MY_VARIABLE_ELEMENT}
-
-        // Display a specific number / string
-        $this->tpl['MY_VARIABLE_ELEMENT'] = $number_to_display;
-
-        // Display a string to be translated in all languages: 
-        $this->tpl['MY_VARIABLE_ELEMENT'] = self::_("A string to be translated");
-
-        // Display some HTML content of your own:
-        $this->tpl['MY_VARIABLE_ELEMENT'] = self::raw( $some_html_code );
-        
-        */
-        
-        /*
-        
-        // Example: display a specific HTML block for each player in this game.
-        // (note: the block is defined in your .tpl file like this:
-        //      <!-- BEGIN myblock --> 
-        //          ... my HTML code ...
-        //      <!-- END myblock --> 
-        
-
-        $this->page->begin_block( "battleforhilldhau_battleforhilldhau", "myblock" );
-        foreach( $players as $player )
-        {
-            $this->page->insert_block( "myblock", array( 
-                                                    "PLAYER_NAME" => $player['player_name'],
-                                                    "SOME_VARIABLE" => $some_value
-                                                    ...
-                                                     ) );
+        $this->page->begin_block("battleforhilldhau_battleforhilldhau", "player_cards");
+        foreach ($players as $player) {
+            $playerLabel = $player['name'];
+            $extraContainerClass = 'hidden-player';
+            if ($player['id'] === $currentPlayerId) {
+                $playerLabel = 'My cards';
+                $extraContainerClass = 'current-player';
+            }
+            $this->page->insert_block(
+                "player_cards",
+                array(
+                    'PLAYER_LABEL' => $playerLabel,
+                    'PLAYER_ID' => $player['id'],
+                    'EXTRA_CONTAINER_CLASS' => $extraContainerClass
+                )
+            );
         }
-
-        */
-
-
-
-        /*********** Do not change anything below this line  ************/
   	}
-  }
-  
-
+}

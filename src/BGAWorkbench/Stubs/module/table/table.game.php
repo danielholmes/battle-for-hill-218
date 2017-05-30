@@ -190,6 +190,24 @@ abstract class Table extends APP_GameClass
     }
 
     /**
+     * @todo get from getCurrentPlayerId table load
+     * @return string
+     */
+    protected function getCurrentPlayerName()
+    {
+        return null;
+    }
+
+    /**
+     * @todo get from getCurrentPlayerId table load
+     * @return string
+     */
+    protected function getCurrentPlayerColor()
+    {
+        return null;
+    }
+
+    /**
      * @param int $currentPlayerId
      */
     public function stubCurrentPlayerId($currentPlayerId)

@@ -47,9 +47,12 @@ class ReturnToDeckTest extends ProjectIntegrationTestCase
                     ])
                 ]),
                 M::hasEntries([
-                    'playerId' => 77,
-                    'type' => 'opponentReturnedToDeck',
-                    'args' => hasEntry('numCards', 2)
+                    'playerId' => 'all',
+                    'type' => 'hiddenPlayerReturnedToDeck',
+                    'args' => M::hasEntries([
+                        'playerId' => 66,
+                        'numCards' => 2
+                    ])
                 ])
             )
         );

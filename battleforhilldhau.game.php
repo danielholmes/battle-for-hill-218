@@ -16,7 +16,7 @@
   *
   */
 
-require_once(APP_GAMEMODULE_PATH.'module/table/table.game.php');
+require_once(APP_GAMEMODULE_PATH . 'module/table/table.game.php');
 
 $prevAutoloads = spl_autoload_functions();
 require_once(__DIR__ . '/vendor/autoload.php');
@@ -155,82 +155,82 @@ class BattleForHillDhau extends Table
     */
     protected function getAllDatas()
     {
-        // Players
-        $myPlayerId = (int) self::getCurrentPlayerId();
-        $players = self::getCollectionFromDb('SELECT player_id id, player_score score, player_color color FROM player');
-        $opponentPlayerId = F\first(
-            F\map(array_keys($players), function($id) { return (int) $id; }),
-            function($playerId) use ($myPlayerId) { return $playerId !== $myPlayerId; }
-        );
-
         // Hands
-        $handCardsByPlayerId = F\group(
+        $allHandCards = F\group(
             self::getObjectListFromDB('SELECT id, player_id, type FROM playable_card ORDER BY `order` ASC'),
             function(array $card) { return (int) $card['player_id']; }
         );
 
         // Decks
-        $rawDeckCounts = self::getObjectListFromDB('SELECT COUNT(id) as size, player_id FROM deck_card GROUP BY player_id');
-        $deckSizes = F\map(
+        $allDeckSizes = F\map(
             F\map(
-                F\group($rawDeckCounts, function(array $count) { return (int) $count['player_id']; }),
+                F\group(
+                    self::getObjectListFromDB('SELECT COUNT(id) as size, player_id FROM deck_card GROUP BY player_id'),
+                    function(array $count) { return (int) $count['player_id']; }
+                ),
                 function(array $counts) { return F\head($counts); }
             ),
             function(array $count) { return (int) $count['size']; }
         );
 
+        // Players
+        $currentPlayerId = (int) self::getCurrentPlayerId();
+        $_this = $this;
+        $players = F\map(
+            self::getCollectionFromDb('SELECT player_id id, player_score score, player_color color FROM player'),
+            function(array $player) use ($_this, $allHandCards, $allDeckSizes, $currentPlayerId) {
+                $player = array_merge($player, array('id' => (int) $player['id'], 'score' => (int) $player['score']));
+                $handCards = array_values($allHandCards[$player['id']]);
+                $deckSize = $allDeckSizes[$player['id']];
+
+                if ($player['id'] === $currentPlayerId) {
+                    return array_merge($player, $_this->getMyPlayerData($deckSize, $handCards));
+                }
+
+                return array_merge($player, $_this->getPublicPlayerData($deckSize, $handCards));
+            }
+        );
+
         return array(
             'players' => $players,
-            'me' => $this->getMeDatas(
-                $players[$myPlayerId],
-                $handCardsByPlayerId[$myPlayerId],
-                $deckSizes[$myPlayerId]
-            ),
-            'opponent' => $this->getOpponentDatas(
-                $players[$opponentPlayerId],
-                $handCardsByPlayerId[$opponentPlayerId],
-                $deckSizes[$opponentPlayerId]
-            ),
             'battlefield' => $this->getBattlefieldDatas()
         );
     }
 
     /**
-     * @param array $player
-     * @param array $hand
      * @param int $deckSize
+     * @param array $cards
      * @return array
      */
-    private function getMeDatas(array $player, array $hand, $deckSize)
+    public function getMyPlayerData($deckSize, array $cards)
     {
-        return array(
-            'color' => $player['color'],
-            'hand' => F\map(
-                array_values($hand),
-                function(array $card) { return array('id' => (int) $card['id'], 'type' => $card['type']); }
-            ),
-            'deckSize' => $deckSize
+        return array_merge(
+            $this->getPublicPlayerData($deckSize, $cards),
+            array(
+                'cards' => F\map(
+                    $cards,
+                    function(array $card) { return array('id' => (int) $card['id'], 'type' => $card['type']); }
+                )
+            )
         );
     }
 
     /**
-     * @param array $player
-     * @param array $hand
      * @param int $deckSize
+     * @param array $cards
      * @return array
      */
-    private function getOpponentDatas(array $player, array $hand, $deckSize)
+    public function getPublicPlayerData($deckSize, array $cards)
     {
         $numAirStrikes = count(
             F\filter(
-                F\pluck($hand, 'type'),
+                F\pluck($cards, 'type'),
                 function($type) { return $type === 'air-strike'; }
             )
         );
         return array(
-            'color' => $player['color'],
             'numAirStrikes' => $numAirStrikes,
-            'handSize' => count($hand),
+            'numCards' => count($cards),
             'deckSize' => $deckSize
         );
     }
@@ -263,13 +263,12 @@ class BattleForHillDhau extends Table
         This method is called each time we are in a game state with the "updateGameProgression" property set to true 
         (see states.inc.php)
     */
-    function getGameProgression()
+    public function getGameProgression()
     {
         // TODO: compute and return the game progression
 
         return 0;
     }
-
 
 //////////////////////////////////////////////////////////////////////////////
 //////////// Utility functions
@@ -357,18 +356,26 @@ class BattleForHillDhau extends Table
             })
         ));
 
-        $opponentPlayerId = (int) self::getUniqueValueFromDB("SELECT player_id FROM player WHERE player_id != {$playerId}");
         $this->notifyPlayer(
             $playerId,
             'returnedToDeck',
             clienttranslate("You returned {$numCards} to your deck"),
-            array('oldIds' => $cardIds, 'replacements' => $replacements)
+            array(
+                'oldIds' => $cardIds,
+                'replacements' => $replacements,
+                'playerColor' => $this->getCurrentPlayerColor()
+            )
         );
         $this->notifyPlayer(
-            $opponentPlayerId,
-            'opponentReturnedToDeck',
-            clienttranslate("Opponent returned {$numCards} to their deck"),
-            array('numCards' => $numCards)
+            'all',
+            'hiddenPlayerReturnedToDeck',
+            clienttranslate('${playerName} returned ${numCards} to their deck'),
+            array(
+                'numCards' => $numCards,
+                'playerName' => $this->getCurrentPlayerName(),
+                'playerColor' => $this->getCurrentPlayerColor(),
+                'playerId' => $playerId
+            )
         );
         // TODO: Sub in name for opponent
 

@@ -79,32 +79,32 @@
 }
 
 /* Hands */
-.player-hand .air-strikes {
+.player-cards .air-strikes {
     text-align: center;
 }
-.player-hand .playable-card {
+.player-cards .playable-card {
     display: inline-block;
     margin-bottom: 4px;
     margin-left: 4px;
 }
-#my-hand .hand-cards {
+.player-cards.current-player .hand-cards {
     margin-left: -4px;
 }
-#my-hand .playable-card.clickable {
+.clickable .playable-card {
     cursor: pointer;
 }
-#my-hand .playable-card .selected-border {
+.player-cards.current-player .playable-card .selected-border {
     display: none;
     background-position: -672px -112px;
     position: absolute;
 }
-#my-hand .playable-card .selected-border.landscape-border {
+.player-cards.current-player .playable-card .selected-border.landscape-border {
     transform: rotate(-90deg) translateX(16px) translateY(-40px);
 }
-#my-hand .playable-card.clickable.selected .selected-border {
+.clickable .playable-card.selected .selected-border {
     display: inline-block;
 }
-#opponent-hand .hand-cards .hand-card {
+.player-cards.hidden-player .hand-cards .hand-card {
     margin-right: -44px;
 }
 
