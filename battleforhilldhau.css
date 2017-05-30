@@ -171,3 +171,25 @@
     background-position: 32px 32px;
     margin-left:-16px;
 }
+/* icons */
+.deck-icon {
+    display: inline-block;
+    width: 26px;
+    height: 25px;
+    background-position: -752px -112px;
+    background-image: url(img/cards.png);
+    background-repeat: no-repeat;
+}
+.placed-icon {
+    display: inline-block;
+    width: 25px;
+    height: 25px;
+    background-image: url(img/cards.png);
+    background-repeat: no-repeat;
+}
+.player-color-6f0f11 .placed-icon {
+    background-position: -752px -137px;
+}
+.player-color-04237b .placed-icon {
+    background-position: -752px -162px;
+}

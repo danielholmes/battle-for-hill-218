@@ -47,6 +47,10 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domGeom, fx) {
                     } else {
                         this.setupHiddenPlayerCards(player);
                     }
+
+                    var playerBoard = query('#player_board_' + id);
+                    playerBoard.addClass('player-color-' + player.color);
+                    dojo.place(this.format_block('jstpl_counter_icons', {}), playerBoard.pop());
                 }
             }
         },
@@ -72,9 +76,6 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domGeom, fx) {
                 ),
                 lang.hitch(this, function(card) { this.placeInPlayerHand(data.id, card); })
             );
-
-            var playerBoard = $('player_board_' + this.player_id);
-            dojo.place(this.format_block('jstpl_deck_icon', {}), playerBoard);
         },
 
         setupHiddenPlayerCards: function(data) {
@@ -210,7 +211,7 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domGeom, fx) {
         },
 
         getPlayerDeckNodeById: function(id) {
-            return query('#overall_player_board_' + id).pop();
+            return query('#overall_player_board_' + id).query('.deck-icon').pop();
         },
 
         getCurrentPlayerDeckNode: function() {

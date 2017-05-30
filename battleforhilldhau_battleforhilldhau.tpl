@@ -30,7 +30,7 @@
     var jstpl_opponent_hand_card = '<div class="playable-card hand-card"><div class="card ${type} color-${color}"></div></div>';
     var jstpl_opponent_air_strike_card = '<div class="playable-card"><div class="card ${type} color-${color}"></div></div>';
     var jstpl_battlefield_card = '<div class="battlefield-card" style="left: ${left}px;top: ${top}px"><div class="card ${type} color-${color}"></div></div>';
-    var jstpl_deck_icon = '<div class="deck-icon">TODO: Deck img</div>';
+    var jstpl_counter_icons = '<div id="counter-icons"><div class="deck-icon"></div><span class="deck-count">0</span><div class="placed-icon"></div><span class="placed-count">0</span></div>';
 </script>
 
 {OVERALL_GAME_FOOTER}
