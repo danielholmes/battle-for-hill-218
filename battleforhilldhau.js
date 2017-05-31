@@ -97,14 +97,16 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domGeom, fx) {
 
         setupBattlefield: function(data) {
             array.forEach(data, lang.hitch(this, function(card) {
-                dojo.place(this.createBattlefieldCard(card, ''), 'map_scrollable_oversurface');
+                var position = this.getOrCreatePlacementPosition(card.x, card.y);
+                console.log('position', position);
+                dojo.place(this.createBattlefieldCard(card, ''), position);
             }));
 
             this.battlefieldMap.create(
                 $('map_container'),
                 $('map_scrollable'),
                 $('map_surface'),
-                $('map_scrollable_oversurface')
+                this.getBattlefieldNode()
             );
             this.battlefieldMap.setupOnScreenArrows(150);
             query('movetop').on('click', lang.hitch(this, this.onMoveTop));
@@ -115,10 +117,6 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domGeom, fx) {
 
         ///////////////////////////////////////////////////
         //// Game & client states
-        
-        // onEnteringState: this method is called each time we are entering into a new game state.
-        //                  You can use this method to perform some user interface changes at this moment.
-        //
         onEnteringState: function(stateName, event) {
             console.log('Entering state', stateName, event);
             switch (stateName) {
@@ -138,9 +136,14 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domGeom, fx) {
         },
 
         onEnterPlayCard: function(possiblePlacementsByCardId) {
-            console.log('onEnterPlayCard', possiblePlacementsByCardId);
             this.possiblePlacementsByCardId = possiblePlacementsByCardId;
             this.enablePlayableCardsClick(this.onHandCardPlayClick);
+
+            var _this = this;
+            this.attackPositionClickSignal = query(this.getBattlefieldNode()).on(
+                '.battlefield-position.clickable:click',
+                function() { lang.hitch(_this, _this.onAttackPositionClick)({target: this}); }
+            );
         },
 
         // onLeavingState: this method is called each time we are leaving a game state.
@@ -175,6 +178,10 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domGeom, fx) {
 
         ///////////////////////////////////////////////////
         //// DOM Node Utility methods
+        getBattlefieldNode: function() {
+            return query('#map_scrollable_oversurface').pop();
+        },
+
         getPlayerCardsNodeById: function(id) {
             return dom.byId('player-cards-' + id);
         },
@@ -245,9 +252,7 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domGeom, fx) {
         },
 
         createBattlefieldCard: function(card, color) {
-            var left = -CARD_WIDTH / 2 + (card.x * CARD_WIDTH);
-            var top = -CARD_HEIGHT / 2 + (card.y * CARD_HEIGHT);
-            var coloredCard = lang.mixin({}, card, {color: color, left: left, top: top});
+            var coloredCard = lang.mixin({}, card, {color: color});
             return domConstruct.toDom(this.format_block('jstpl_battlefield_card', coloredCard));
         },
 
@@ -360,6 +365,32 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domGeom, fx) {
         },
 
         ///////////////////////////////////////////////////
+        //// Battlefield utility methods
+        deactivateAllPlacementPositions: function(position) {
+            query(this.getBattlefieldNode()).query('.clickable').removeClass('clickable');
+        },
+
+        activatePossiblePlacementPosition: function(position) {
+            query(this.getOrCreatePlacementPosition(position.x, position.y)).addClass('clickable');
+        },
+
+        getOrCreatePlacementPosition: function(x, y) {
+            var position = query(this.getBattlefieldNode()).query('[data-x=' + x + '][data-y=' + y + ']').pop();
+            if (position) {
+                return position;
+            }
+
+            var left = -CARD_WIDTH / 2 + (x * CARD_WIDTH);
+            var top = -CARD_HEIGHT / 2 - (y * CARD_HEIGHT);
+            position = domConstruct.toDom(this.format_block(
+                'jstpl_battlefield_position',
+                {x: x, y: y, top: top, left: left}
+            ));
+            dojo.place(position, this.getBattlefieldNode());
+            return position;
+        },
+
+        ///////////////////////////////////////////////////
         //// Player's action
         onHandCardReturnClick: function(e) {
             query(e.target).toggleClass('selected');
@@ -377,6 +408,7 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domGeom, fx) {
                 return;
             }
 
+            this.disablePlayableCardsClick();
             this.ajaxcall(
                 "/battleforhilldhau/battleforhilldhau/returnToDeck.html",
                 {
@@ -385,8 +417,6 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domGeom, fx) {
                 },
                 this,
                 function() {
-                    this.disablePlayableCardsClick();
-
                     var handCards = this.getCurrentPlayerHandCardsNodeList();
                     // Sorting makes sure positioning is correct (and don't remove earlier card first thus repositioning the
                     // latter card before animating
@@ -401,7 +431,7 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domGeom, fx) {
                         })
                     );
                 },
-                function(isError) { }
+                function() {}
             );
         },
 
@@ -414,13 +444,38 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domGeom, fx) {
             });
             query(clickedCard).toggleClass('selected');
 
-            // TODO: Remove all clickable positions on battlefield
+            this.deactivateAllPlacementPositions();
             var selectedIds = this.getCurrentPlayerSelectedPlayableCardNodeList().attr('data-id');
-            console.log(this.possiblePlacementsByCardId);
-            for (var i in selectedIds) {
-                var selectedId = selectedIds[i];
-                console.log('selected', selectedId, this.possiblePlacementsByCardId[selectedId]);
+            if (selectedIds.length === 0) {
+                return;
             }
+
+            var cardId = selectedIds.pop();
+            var possiblePlacements = this.possiblePlacementsByCardId[cardId];
+            array.forEach(possiblePlacements, lang.hitch(this, this.activatePossiblePlacementPosition));
+        },
+
+        onAttackPositionClick: function(e) {
+            if (!this.checkAction('playCard')) {
+                return;
+            }
+
+            var id = this.getCurrentPlayerSelectedPlayableCardNodeList().attr('data-id').pop();
+            var position = query(e.target);
+            var x = position.attr('data-x').pop();
+            var y = position.attr('data-y').pop();
+            console.log('click', id, x, y);
+            this.ajaxcall(
+                "/battleforhilldhau/battleforhilldhau/playCard.html",
+                {
+                    lock: true,
+                    id: id,
+                    x: x,
+                    y: y
+                },
+                function() {},
+                function() {}
+            );
         },
 
         onMoveTop: function(e) {
@@ -477,7 +532,7 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domGeom, fx) {
                         {x: offset, y: offset}
                     ).on("End", lang.hitch(this, function(card) { this.placeInPlayerHand(playerId, card); }));
                 })
-             );
+            );
         },
 
         notif_myCardsDrawn: function(notification) {

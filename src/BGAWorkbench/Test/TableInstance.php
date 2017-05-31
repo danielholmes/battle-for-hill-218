@@ -6,6 +6,7 @@ use BGAWorkbench\Project\Project;
 use BGAWorkbench\Project\WorkbenchProjectConfig;
 use BGAWorkbench\Utils;
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Query\QueryBuilder;
 
 class TableInstance
 {
@@ -89,6 +90,14 @@ class TableInstance
     public function fetchDbRows($tableName, array $conditions = array())
     {
         return $this->database->fetchRows($tableName, $conditions);
+    }
+
+    /**
+     * @return QueryBuilder
+     */
+    public function createDbQueryBuilder()
+    {
+        return $this->database->getOrCreateConnection()->createQueryBuilder();
     }
 
     /**

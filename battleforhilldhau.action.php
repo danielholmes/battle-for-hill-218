@@ -29,6 +29,18 @@ class action_battleforhilldhau extends APP_GameAction
 
         self::ajaxResponse();
     }
+
+    public function playCard()
+    {
+        self::setAjaxMode();
+
+        $cardId = self::getArg('id', AT_int, true);
+        $x = self::getArg('x', AT_int, true);
+        $y = self::getArg('y', AT_int, true);
+        $this->game->playCard($cardId, $x, $y);
+
+        self::ajaxResponse();
+    }
 }
   
 

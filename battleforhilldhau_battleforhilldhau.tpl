@@ -2,7 +2,6 @@
 
 <div id="game-container">
     <div id="players-panel">
-
         <!-- BEGIN player_cards -->
         <div id="player-cards-{PLAYER_ID}" class="player-cards whiteblock {EXTRA_CONTAINER_CLASS}">
             <h3>{PLAYER_LABEL}</h3>
@@ -29,8 +28,9 @@
     var jstpl_hand_card = '<div class="playable-card hand-card" data-id="${id}"><div class="selected-border card"></div><div class="card ${type} color-${color}"></div></div>';
     var jstpl_opponent_hand_card = '<div class="playable-card hand-card"><div class="card ${type} color-${color}"></div></div>';
     var jstpl_opponent_air_strike_card = '<div class="playable-card"><div class="card ${type} color-${color}"></div></div>';
-    var jstpl_battlefield_card = '<div class="battlefield-card" style="left: ${left}px;top: ${top}px"><div class="card ${type} color-${color}"></div></div>';
-    var jstpl_counter_icons = '<div id="counter-icons"><div class="deck-icon"></div><span class="deck-count">0</span><div class="placed-icon"></div><span class="placed-count">0</span></div>';
+    var jstpl_battlefield_position = '<div class="battlefield-position" style="left: ${left}px;top: ${top}px" data-x="${x}" data-y="${y}"><div class="clickable-indicator"></div></div>';
+    var jstpl_battlefield_card = '<div class="battlefield-card"><div class="card ${type} color-${color}"></div></div>';
+    var jstpl_counter_icons = '<div id="counter-icons"><div class="deck-icon"></div><span class="deck-count">-</span><div class="placed-icon"></div><span class="placed-count">-</span></div>';
 </script>
 
 {OVERALL_GAME_FOOTER}

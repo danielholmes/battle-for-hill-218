@@ -303,12 +303,10 @@ class BattleForHillDhau extends Table
 
 //////////////////////////////////////////////////////////////////////////////
 //////////// Player actions
-//////////// 
-
-    /*
-        Each time a player is doing some game action, one of the methods below is called.
-        (note: each method below must match an input method in battleforhilldhau.action.php)
-    */
+////////////
+    /**
+     * @param array $cardIds
+     */
     public function returnToDeck(array $cardIds)
     {
         $this->checkAction('returnToDeck');
@@ -360,6 +358,56 @@ class BattleForHillDhau extends Table
         $this->gamestate->setPlayerNonMultiactive($playerId, 'allReturned');
     }
 
+    /**
+     * @param int $cardId
+     * @param int $x
+     * @param int $y
+     */
+    public function playCard($cardId, $x, $y)
+    {
+        $this->checkAction('playCard');
+
+        $playerId = (int) $this->getCurrentPlayerId();
+        $card = self::getNonEmptyObjectFromDB("SELECT id, type FROM playable_card WHERE id = {$cardId} AND player_id = {$playerId}");
+        self::DbQuery("DELETE FROM playable_card WHERE id = {$cardId}");
+        //if (self::DbAffectedRow() !== 1) {
+            // TODO: throw
+        //}
+
+        self::DbQuery(
+            SQLHelper::insert(
+                'battlefield_card',
+                array('type' => $card['type'], 'player_id' => $playerId, 'x' => $x, 'y' => $y)
+            )
+        );
+
+        $players = self::loadPlayersBasicInfos();
+        $player = $players[$playerId];
+        $this->notifyAllPlayers(
+            'placedCard',
+            '${playerName} placed a ${typeName} card at ${x},${y}',
+            [
+                'playerName' => $player['player_name'],
+                'playerColor' => $player['player_color'],
+                'typeName' => 'TODO',
+                'typeKey' => $card['type'],
+                'x' => $x,
+                'y' => $y
+            ]
+        );
+        $this->notifyPlayer(
+            $playerId,
+            'iPlacedCard',
+            '',
+            [
+                'cardId' => $card['id'],
+                'playerColor' => $player['player_color'],
+                'typeKey' => $card['type'],
+                'x' => $x,
+                'y' => $y
+            ]
+        );
+    }
     
 //////////////////////////////////////////////////////////////////////////////
 //////////// Game state arguments

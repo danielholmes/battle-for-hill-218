@@ -12,12 +12,22 @@ class APP_DbObject extends APP_Object
 {
     ////////////////////////////////////////////////////////////////////////
     // Testing methods
+    private static $affectedRows = 0;
+
     /**
      * @param string $sql
      */
     public static function DbQuery($sql)
     {
-        self::getDbConnection()->executeQuery($sql);
+        self::$affectedRows = self::getDbConnection()->executeQuery($sql)->rowCount();
+    }
+
+    /**
+     * @return int
+     */
+    public static function DbAffectedRow()
+    {
+        return self::$affectedRows;
     }
 
     /**
@@ -49,6 +59,20 @@ class APP_DbObject extends APP_Object
     protected static function getObjectListFromDB($sql, $bUniqueValue = false)
     {
         return self::getDbConnection()->fetchAll($sql);
+    }
+
+    /**
+     * @param string $sql
+     * @return array
+     */
+    protected function getNonEmptyObjectFromDB($sql)
+    {
+        $rows = $this->getObjectListFromDB($sql);
+        if (count($rows) !== 1) {
+            throw new RuntimeException('Expected exactly one result');
+        }
+
+        return $rows[0];
     }
 
     /**

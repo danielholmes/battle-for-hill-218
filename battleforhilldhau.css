@@ -109,15 +109,28 @@
 }
 
 /* Battlefield */
-.viewing-player-color-6f0f11 .card.hill {
-    transform: rotate(0);
-}
-.viewing-player-color-04237b .card.hill {
-    transform: rotate(180deg);
-}
-.battlefield-card {
+.battlefield-position {
     position: absolute;
+    border: 1px solid green;
+    width: 80px;
+    height: 112px;
 }
+.battlefield-position .clickable-indicator {
+    display: none;
+    width: 80px;
+    height: 112px;
+    background-image: url(img/cards.png);
+    background-position: -752px 0;
+    background-repeat: no-repeat;
+}
+.battlefield-position.clickable {
+    cursor: pointer;
+}
+.battlefield-position.clickable .clickable-indicator {
+    display: inline-block;
+}
+
+/* Battlefield map */
 #map_container {
     position: relative;
     width: 100%;
