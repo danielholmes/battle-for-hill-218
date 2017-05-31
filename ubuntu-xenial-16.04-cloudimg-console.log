@@ -1,2 +1,4 @@
-[30008.433444] Out of memory: Kill process 3607 (mysqld) score 641 or sacrifice child
-[30008.476082] Killed process 3607 (mysqld) total-vm:1574824kB, anon-rss:246100kB, file-rss:0kB
+[39237.579339] Out of memory: Kill process 4530 (mysqld) score 445 or sacrifice child
+[39237.628952] Killed process 4530 (mysqld) total-vm:1509256kB, anon-rss:170856kB, file-rss:0kB
+[39237.765958] Out of memory: Kill process 4895 (php) score 243 or sacrifice child
+[39237.777658] Killed process 4895 (php) total-vm:259676kB, anon-rss:91848kB, file-rss:1484kB

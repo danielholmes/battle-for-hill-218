@@ -2,30 +2,18 @@
 
 namespace TheBattleForHill218\Tests;
 
-use BGAWorkbench\Test\TableInstance;
-use BGAWorkbench\Test\ProjectIntegrationTestCase;
 use BGAWorkbench\Test\HamcrestMatchers as M;
+use PHPUnit\Framework\TestCase;
+use BGAWorkbench\Test\TestHelp;
 
-class ReturnToDeckTest extends ProjectIntegrationTestCase
+class ReturnToDeckTest extends TestCase
 {
-    /**
-     * @var TableInstance
-     */
-    private $table;
+    use TestHelp;
 
-    protected function setUp()
+    protected function createGameTableInstanceBuilder()
     {
-        $this->table = self::gameTableInstanceBuilder()
-            ->setPlayersWithIds([66, 77])
-            ->build()
-            ->createDatabase();
-    }
-
-    protected function tearDown()
-    {
-        if ($this->table !== null) {
-            $this->table->dropDatabaseAndDisconnect();
-        }
+        return $this->gameTableInstanceBuilder()
+            ->setPlayersWithIds([66, 77]);
     }
 
     public function testReturnToDeck()
