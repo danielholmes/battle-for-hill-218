@@ -2,15 +2,16 @@
 # vi: set ft=ruby :
 
 Vagrant.configure("2") do |config|
-    project_name = "battle-for-hill-218"
+  project_name = "battle-for-hill-218"
 
 	# Base box to build off, and download URL for when it doesn't exist on the user's system already
 	config.vm.box = "ubuntu/xenial64"
 	config.vm.box_url = "http://cloud-images.ubuntu.com/xenial/current/xenial-server-cloudimg-amd64-vagrant.box"
 
-    config.vm.provider "virtualbox" do |v|
-        v.memory = 400
-    end
+  config.vm.provider "virtualbox" do |v|
+    v.memory = 400
+    v.customize [ "modifyvm", :id, "--uartmode1", "disconnected" ]
+  end
 
 	# Share an additional folder to the guest VM. The first argument is
 	# an identifier, the second is the path on the guest to mount the

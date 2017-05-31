@@ -313,21 +313,24 @@ class BattleForHillDhau extends Table
     {
         $this->checkAction('returnToDeck');
 
+        $numCards = Hill218Setup::NUMBER_OF_INITIAL_CARDS_TO_RETURN;
+        if (count($cardIds) !== $numCards) {
+            // TODO: Use BGA Exception
+            throw new InvalidArgumentException(
+                sprintf('Exactly %d cards required', $numCards)
+            );
+        }
+
         $playerId = $this->getCurrentPlayerId();
 
         // Remove cards from hand
         $idList = join(', ', $cardIds);
         $returnCards = self::getObjectListFromDB("SELECT id, type FROM playable_card WHERE player_id = {$playerId} AND id IN ({$idList})");
-        $returnIds = F\pluck($returnCards, 'id');
-        $returnIdsList = join(', ', $returnIds);
-        self::DBQuery("DELETE FROM playable_card WHERE id IN ({$returnIdsList})");
-        $numCards = count($returnIds);
-
-        // Remove replacements from the deck
-        $replacements = self::getObjectListFromDB("SELECT id, type FROM deck_card WHERE player_id = {$playerId} ORDER BY `order` DESC LIMIT {$numCards}");
-        $replacementIds = F\pluck($replacements, 'id');
-        $replacementIdsList = join(', ', $replacementIds);
-        self::DBQuery("DELETE FROM deck_card WHERE id IN ({$replacementIdsList})");
+        if (count($returnCards) !== Hill218Setup::NUMBER_OF_INITIAL_CARDS_TO_RETURN) {
+            // TODO: BGA Exception
+            throw new RuntimeException("Couldn\'t find given card ids {$idList}");
+        }
+        self::DBQuery("DELETE FROM playable_card WHERE id IN ({$idList})");
 
         // Put removed cards into deck
         self::DBQuery("UPDATE deck_card SET `order` = `order` + {$numCards} WHERE player_id = {$playerId} ORDER BY `order` DESC");
@@ -342,34 +345,10 @@ class BattleForHillDhau extends Table
             })
         ));
 
-        // Put replacement cards into hand
-        // Leaves holes in `order`, but is more efficient this way
-        $maxOrder = (int) self::getUniqueValueFromDB("SELECT MAX(`order`) FROM playable_card WHERE player_id = {$playerId}");
-        self::DBQuery(SQLHelper::insertAll(
-            'playable_card',
-            F\map($replacements, function(array $replacement, $i) use ($playerId, $maxOrder) {
-                return array(
-                    'type' => $replacement['type'],
-                    'order' => $maxOrder + $i + 1,
-                    'player_id' => $playerId
-                );
-            })
-        ));
-
-        $this->notifyPlayer(
-            $playerId,
-            'returnedToDeck',
-            clienttranslate("You returned {$numCards} to your deck"),
-            array(
-                'oldIds' => $cardIds,
-                'replacements' => $replacements,
-                'playerColor' => $this->getCurrentPlayerColor()
-            )
-        );
         $this->notifyPlayer(
             'all',
-            'hiddenPlayerReturnedToDeck',
-            clienttranslate('${playerName} returned ${numCards} to their deck'),
+            'returnedToDeck',
+            clienttranslate('${playerName} returned ${numCards} cards to their deck'),
             array(
                 'numCards' => $numCards,
                 'playerName' => $this->getCurrentPlayerName(),
@@ -377,7 +356,6 @@ class BattleForHillDhau extends Table
                 'playerId' => $playerId
             )
         );
-        // TODO: Sub in name for opponent
 
         $this->gamestate->setPlayerNonMultiactive($playerId, 'allReturned');
     }
@@ -420,24 +398,62 @@ class BattleForHillDhau extends Table
 //////////////////////////////////////////////////////////////////////////////
 //////////// Game state actions
 ////////////
-
-    /*
-        Here, you can create methods defined as "game state actions" (see "action" property in states.inc.php).
-        The action method of state X is called everytime the current game state is set to X.
-    */
-    
-    /*
-    
-    Example for game state "MyGameState":
-
-    function stMyGameState()
+    public function stDrawCards()
     {
-        // Do some stuff ...
-        
-        // (very often) go to another gamestate
-        $this->gamestate->nextState( 'some_gamestate_transition' );
-    }    
-    */
+        $playerId = (int) $this->getActivePlayerId();
+        $numCards = 1; // TODO: Change based on turn
+
+        $drawn = self::getObjectListFromDB("SELECT id, type FROM deck_card WHERE player_id = {$playerId} ORDER BY `order` DESC LIMIT {$numCards}");
+        if (count($drawn) === 0) {
+            $this->gamestate->nextState('cardsDrawn');
+            return;
+        }
+
+        // Remove drawn from the deck
+        $drawnIds = F\pluck($drawn, 'id');
+        $drawnIdsList = join(', ', $drawnIds);
+        self::DBQuery("DELETE FROM deck_card WHERE id IN ({$drawnIdsList})");
+
+        // Put drawn cards into hand
+        // Leaves holes in `order`, but is more efficient this way and doesn't matter
+        $maxOrder = (int) self::getUniqueValueFromDB("SELECT MAX(`order`) FROM playable_card WHERE player_id = {$playerId}");
+        self::DBQuery(SQLHelper::insertAll(
+            'playable_card',
+            F\map($drawn, function(array $card, $i) use ($playerId, $maxOrder) {
+                return array(
+                    'type' => $card['type'],
+                    'order' => $maxOrder + $i + 1,
+                    'player_id' => $playerId
+                );
+            })
+        ));
+
+        $players = self::loadPlayersBasicInfos();
+        $playerColor = $players[$playerId]['player_color'];
+        $playerName = $players[$playerId]['player_name'];
+        $this->notifyPlayer(
+            $playerId,
+            'myCardsDrawn',
+            '',
+            array('cards' => $drawn, 'playerColor' => $playerColor)
+        );
+        $drawMessage = '${playerName} has drawn ${numCards} card';
+        if ($numCards > 1) {
+            $drawMessage .= 's';
+        }
+        $this->notifyAllPlayers(
+            'cardsDrawn',
+            clienttranslate($drawMessage),
+            array(
+                'numCards' => count($drawn),
+                'playerName' => $playerName,
+                'playerId' => $playerId,
+                'playerColor' => $playerColor
+            )
+        );
+
+        $this->gamestate->nextState('cardsDrawn');
+    }
 
 //////////////////////////////////////////////////////////////////////////////
 //////////// Zombie

@@ -17,14 +17,14 @@ class SetupNewGameTest extends ProjectIntegrationTestCase
     {
         $this->table = self::gameTableInstanceBuilder()
             ->setPlayersWithIds([66, 77])
-            ->buildForCurrentPlayer(66)
+            ->build(66)
             ->createDatabase();
     }
 
     protected function tearDown()
     {
         if ($this->table !== null) {
-            $this->table->dropDatabase();
+            $this->table->dropDatabaseAndDisconnect();
         }
     }
 

@@ -66,4 +66,23 @@ class Utils
                 None::create()
             );
     }
+
+    /**
+     * @param object $object
+     * @param string $methodName
+     * @param mixed $args,...
+     * @return mixed
+     */
+    public static function callProtectedMethod($object, $methodName, $args = null)
+    {
+        $gameClass = new \ReflectionClass($object);
+        $method = $gameClass->getMethod($methodName);
+        if (!$method->isProtected()) {
+            throw new \RuntimeException("Method {$gameClass->getName()}->{$methodName} isn't protected");
+        }
+
+        $method->setAccessible(true);
+        $methodArgs = array_slice(func_get_args(), 2);
+        return $method->invokeArgs($object, $methodArgs);
+    }
 }

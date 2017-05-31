@@ -58,57 +58,64 @@ $machinestates = array(
         "description" => "",
         "type" => "manager",
         "action" => "stGameSetup",
-        "transitions" => array("" => 2)
+        "transitions" => array("" => 10)
     ),
 
-    // Note: ID=2 => your first state
-
-    2 => array(
+    10 => array(
         "name" => "returnToDeck",
         "description" => clienttranslate('Some players must choose 2 cards to return to their deck'),
         "descriptionmyturn" => clienttranslate('${you} must choose 2 cards to return to the bottom of your deck'),
         "type" => "multipleactiveplayer",
         "possibleactions" => array("returnToDeck"),
-        "transitions" => array("allReturned" => 3)
+        "transitions" => array("allReturned" => 20)
     ),
 
-    3 => array(
+    20 => array(
+        "name" => "drawCards",
+        "description" => "",
+        "type" => "game",
+        "action" => "stDrawCards",
+        "transitions" => array("cardsDrawn" => 30),
+        "updateGameProgression" => true
+    ),
+
+    30 => array(
         "name" => "playCard",
         "description" => clienttranslate('${actplayer} must place a card'),
         "descriptionmyturn" => clienttranslate('${you} must place a card'),
         "type" => "activeplayer",
         "args" => "argPlayCard",
         "possibleactions" => array("playCard"),
-        "transitions" => array("playedWithAttackOption" => 4, "playNext" => 3, "playsComplete" => 5)
+        "transitions" => array("attackAvailable" => 40, "noAttackAvailable" => 50, "occupyEnemyBase" => 99)
     ),
 
-    4 => array(
+    40 => array(
         "name" => "chooseAttack",
         "description" => clienttranslate('${actplayer} must choose an attack'),
         "descriptionmyturn" => clienttranslate('${you} must choose an attack'),
         "type" => "activeplayer",
         "possibleactions" => array("chooseAttack"),
-        "transitions" => array("playNextCard" => 3, "drawCards" => 4)
+        "transitions" => array("playNextCard" => 30, "drawCards" => 50)
     ),
 
-    5 => array(
-        "name" => "drawCards",
+    50 => array(
+        "name" => "nextPlay",
         "description" => "",
         "type" => "game",
-        "action" => "stDrawCards",
-        "transitions" => array("cardsDrawn" => 3),
+        "action" => "stNextPlay",
+        "transitions" => array("playAgain" => 30, "nextPlayer" => 20, "noCardsLeft" => 99),
         "updateGameProgression" => true
     ),
    
     // Final state.
     // Please do not modify.
     99 => array(
-    "name" => "gameEnd",
-    "description" => clienttranslate("End of game"),
-    "type" => "manager",
-    "action" => "stGameEnd",
-    "args" => "argGameEnd"
-)
+        "name" => "gameEnd",
+        "description" => clienttranslate("End of game"),
+        "type" => "manager",
+        "action" => "stGameEnd",
+        "args" => "argGameEnd"
+    )
 
 );
 

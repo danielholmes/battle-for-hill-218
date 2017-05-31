@@ -18,24 +18,25 @@ class ArgPlayCardTest extends ProjectIntegrationTestCase
     {
         $this->table = self::gameTableInstanceBuilder()
             ->setPlayersWithIds([66, 77])
-            ->buildForCurrentPlayer(66)
+            ->build()
             ->createDatabase();
     }
 
     protected function tearDown()
     {
         if ($this->table !== null) {
-            $this->table->dropDatabase();
+            $this->table->dropDatabaseAndDisconnect();
         }
     }
 
     public function testArgPlayCardForActive()
     {
-        $datas = $this->table
+        $game = $this->table
             ->setupNewGame()
-            ->setActivePlayer(66)
-            ->getTable()
-            ->argPlayCard();
+            ->createGameInstanceForCurrentPlayer(66)
+            ->stubActivePlayerId(66);
+
+        $datas = $game->argPlayCard();
 
         $handCardIds = F\pluck($this->table->fetchDbRows('playable_card', ['player_id' => 66]), 'id');
         assertThat($datas, allOf(M::hasKeys($handCardIds), everyItem(arrayValue())));
@@ -43,11 +44,12 @@ class ArgPlayCardTest extends ProjectIntegrationTestCase
 
     public function testArgPlayCardForNotActive()
     {
-        $datas = $this->table
+        $game = $this->table
             ->setupNewGame()
-            ->setActivePlayer(77)
-            ->getTable()
-            ->argPlayCard();
+            ->createGameInstanceForCurrentPlayer(66)
+            ->stubActivePlayerId(77);
+
+        $datas = $game->argPlayCard();
 
         assertThat($datas, emptyArray());
     }

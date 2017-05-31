@@ -5,6 +5,7 @@ namespace TheBattleForHill218\Tests;
 use BGAWorkbench\Test\TableInstance;
 use BGAWorkbench\Test\ProjectIntegrationTestCase;
 use BGAWorkbench\Test\HamcrestMatchers as M;
+use BGAWorkbench\Utils;
 
 class GetAllDatasTest extends ProjectIntegrationTestCase
 {
@@ -17,22 +18,24 @@ class GetAllDatasTest extends ProjectIntegrationTestCase
     {
         $this->table = self::gameTableInstanceBuilder()
             ->setPlayersWithIds([66, 77])
-            ->buildForCurrentPlayer(66)
+            ->build()
             ->createDatabase();
     }
 
     protected function tearDown()
     {
         if ($this->table !== null) {
-            $this->table->dropDatabase();
+            $this->table->dropDatabaseAndDisconnect();
         }
     }
 
     public function testGetAllDatas()
     {
-        $datas = $this->table
+        $game = $this->table
             ->setupNewGame()
-            ->callProtectedAndReturn('getAllDatas');
+            ->createGameInstanceForCurrentPlayer(66);
+
+        $datas = Utils::callProtectedMethod($game, 'getAllDatas');
 
         assertThat(
             $datas,

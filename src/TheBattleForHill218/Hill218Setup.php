@@ -16,6 +16,7 @@ use TheBattleForHill218\Cards\TankCard;
 class Hill218Setup
 {
     const HAND_SIZE = 7;
+    const NUMBER_OF_INITIAL_CARDS_TO_RETURN = 2;
 
     /**
      * @param int $playerId

@@ -2,6 +2,9 @@
 
 use Functional as F;
 
+/**
+ * @property BattleForHillDhau game
+ */
 class action_battleforhilldhau extends APP_GameAction
 {
     // Constructor: please do not modify
@@ -16,9 +19,6 @@ class action_battleforhilldhau extends APP_GameAction
         }
     }
 
-    /**
-     *
-     */
     public function returnToDeck()
     {
         self::setAjaxMode();

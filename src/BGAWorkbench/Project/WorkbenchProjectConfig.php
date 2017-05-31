@@ -96,14 +96,6 @@ class WorkbenchProjectConfig
     }
 
     /**
-     * @return boolean
-     */
-    public function hasLinterPhpBin()
-    {
-        return $this->linterPhpBin !== null;
-    }
-
-    /**
      * @return string
      */
     public function getLinterPhpBin()

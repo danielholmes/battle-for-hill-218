@@ -98,6 +98,8 @@ class Gamestate
     {
         return false;
     }
+
+    public function nextState($action = '') { }
 }
 
 abstract class Table extends APP_GameClass
@@ -126,6 +128,11 @@ abstract class Table extends APP_GameClass
     {
         return true;
     }
+
+    /**
+     * @return string
+     */
+    public function getActivePlayerName() { }
 
     ////////////////////////////////////////////////////////////////////////
     // Testing methods
@@ -168,6 +175,9 @@ abstract class Table extends APP_GameClass
      */
     public function notifyPlayer($player_id, $notification_type, $notification_log, $notification_args)
     {
+        if ($notification_log === null) {
+            throw new \InvalidArgumentException('Use empty string for notification_log instead of null');
+        }
         $this->notifications[] = [
             'playerId' => $player_id,
             'type' => $notification_type,
@@ -186,6 +196,9 @@ abstract class Table extends APP_GameClass
      */
     protected function getCurrentPlayerId()
     {
+        if ($this->currentPlayerId === null) {
+            throw new \RuntimeException('Not a player bounded instance');
+        }
         return $this->currentPlayerId;
     }
 
@@ -230,10 +243,12 @@ abstract class Table extends APP_GameClass
 
     /**
      * @param int $activePlayerId
+     * @return self
      */
     public function stubActivePlayerId($activePlayerId)
     {
         $this->activePlayerId = $activePlayerId;
+        return $this;
     }
 
     /**
@@ -256,5 +271,29 @@ abstract class Table extends APP_GameClass
     public static function getGameInfosForGame($name)
     {
         return self::$stubbedGameInfos;
+    }
+
+    /**
+     * @var array|null
+     */
+    private $stubbedPlayersBasicInfos;
+
+    /**
+     * @param array $stubbedPlayersBasicInfos
+     */
+    public function stubPlayersBasicInfos(array $stubbedPlayersBasicInfos)
+    {
+        $this->stubbedPlayersBasicInfos = $stubbedPlayersBasicInfos;
+    }
+
+    /**
+     * @return array
+     */
+    public function loadPlayersBasicInfos()
+    {
+        if ($this->stubbedPlayersBasicInfos === null) {
+            throw new RuntimeException('PlayersBasicInfos not stubbed');
+        }
+        return $this->stubbedPlayersBasicInfos;
     }
 }

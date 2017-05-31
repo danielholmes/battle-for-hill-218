@@ -4,6 +4,8 @@ namespace BGAWorkbench\Test;
 
 use BGAWorkbench\Project\Project;
 use BGAWorkbench\Project\WorkbenchProjectConfig;
+use BGAWorkbench\Utils;
+use Doctrine\DBAL\Connection;
 
 class TableInstance
 {
@@ -28,14 +30,9 @@ class TableInstance
     private $options;
 
     /**
-     * @var int
+     * @var DatabaseInstance
      */
-    private $currentPlayerId;
-
-    /**
-     * @var \Table
-     */
-    private $table;
+    private $database;
 
     /**
      * @var boolean
@@ -46,15 +43,13 @@ class TableInstance
      * @param WorkbenchProjectConfig $config
      * @param array $players
      * @param array $options
-     * @param int $currentPlayerId
      */
-    public function __construct(WorkbenchProjectConfig $config, array $players, array $options, $currentPlayerId)
+    public function __construct(WorkbenchProjectConfig $config, array $players, array $options)
     {
         $this->config = $config;
         $this->project = $config->loadProject();
         $this->players = $players;
         $this->options = $options;
-        $this->currentPlayerId = $currentPlayerId;
         $this->database = new DatabaseInstance(
             $config->getTestDbName(),
             $config->getTestDbUsername(),
@@ -64,8 +59,6 @@ class TableInstance
                 $this->project->getDbModelSqlFile()->getPathname()
             ]
         );
-        $this->table = $this->project->createTableInstance();
-        $this->table->stubCurrentPlayerId($this->currentPlayerId);
         $this->isSetup = false;
     }
 
@@ -81,9 +74,10 @@ class TableInstance
     /**
      * @return self
      */
-    public function dropDatabase()
+    public function dropDatabaseAndDisconnect()
     {
         $this->database->drop();
+        $this->database->disconnect();
         return $this;
     }
 
@@ -98,6 +92,14 @@ class TableInstance
     }
 
     /**
+     * @return Connection
+     */
+    public function getDbConnection()
+    {
+        return $this->database->getOrCreateConnection();
+    }
+
+    /**
      * @return self
      */
     public function setupNewGame()
@@ -108,38 +110,39 @@ class TableInstance
 
         $this->isSetup = true;
 
-        $gameClass = new \ReflectionClass($this->table);
+        $game = $this->createGameInstanceWithNoBoundedPlayer();
+        $gameClass = new \ReflectionClass($game);
         call_user_func([$gameClass->getName(), 'stubGameInfos'], $this->project->getGameInfos());
         call_user_func([$gameClass->getName(), 'setDbConnection'], $this->database->getOrCreateConnection());
-        $this->callProtectedAndReturn('setupNewGame', $this->createPlayersById(), $this->options);
+        Utils::callProtectedMethod($game, 'setupNewGame', $this->createPlayersById(), $this->options);
         return $this;
     }
 
     /**
      * @return \Table
      */
-    public function getTable()
+    public function createGameInstanceWithNoBoundedPlayer()
     {
-        return $this->table;
+        $game = $this->project->createGameTableInstance();
+        $game->stubPlayersBasicInfos($this->createPlayersById());
+        return $game;
     }
 
     /**
-     * @param string $methodName
-     * @param mixed $args,...
-     * @return mixed
+     * @param int $currentPlayerId
+     * @return \Table
      */
-    public function callProtectedAndReturn($methodName, $args = null)
+    public function createGameInstanceForCurrentPlayer($currentPlayerId)
     {
-        $gameClass = new \ReflectionClass($this->table);
-        $method = $gameClass->getMethod($methodName);
-        if (!$method->isProtected()) {
-            throw new \RuntimeException("Method {$methodName} isn't protected");
+        $playerIds = array_map(function(array $player) { return $player['player_id']; }, $this->players);
+        if (!in_array($currentPlayerId, $playerIds, true)) {
+            $playerIdsList = join(', ', $playerIds);
+            throw new \InvalidArgumentException("Current player {$currentPlayerId} not in {$playerIdsList}");
         }
 
-        $method->setAccessible(true);
-        $methodArgs = func_get_args();
-        array_shift($methodArgs);
-        return $method->invokeArgs($this->table, $methodArgs);
+        $game = $this->createGameInstanceWithNoBoundedPlayer();
+        $game->stubCurrentPlayerId($currentPlayerId);
+        return $game;
     }
 
     /**
@@ -158,32 +161,5 @@ class TableInstance
             $this->players
         );
         return array_combine($ids, $this->players);
-    }
-
-    /**
-     * @param int $activePlayerId
-     * @return self
-     */
-    public function setActivePlayer($activePlayerId)
-    {
-        $this->table->stubActivePlayerId($activePlayerId);
-        return $this;
-    }
-
-    /**
-     * @return self
-     */
-    public function resetNotificationTracking()
-    {
-        $this->table->resetNotifications();
-        return $this;
-    }
-
-    /**
-     * @return array[]
-     */
-    public function getTrackedNotifications()
-    {
-        return $this->table->getNotifications();
     }
 }

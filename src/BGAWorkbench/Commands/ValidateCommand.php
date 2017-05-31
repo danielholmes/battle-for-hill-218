@@ -63,11 +63,6 @@ class ValidateCommand extends Command
      */
     private function validateFilesPhp(WorkbenchProjectConfig $config, Project $project, OutputInterface $output)
     {
-        if (!$config->hasLinterPhpBin()) {
-            $output->writeln('<comment>No PHP 5.3.2 binary configured</comment>');
-            return;
-        }
-
         $invalid = $project->getDevelopmentPhpFiles()
             ->map(function(SplFileInfo $file) use ($config) {
                 return ProcessBuilder::create([$config->getLinterPhpBin(), '-l', $file->getPathname()])
@@ -94,7 +89,7 @@ class ValidateCommand extends Command
 
         $processor = new Processor();
         $validated = $processor->processConfiguration(new StateConfiguration(), [$states]);
-        $stateIds = array_keys($validated);
+        $stateIds = array_keys($states);
 
         array_walk(
             $validated,
@@ -105,8 +100,11 @@ class ValidateCommand extends Command
                 $transitionToIds = array_values($state['transitions']);
                 $differentIds = array_diff($transitionToIds, $stateIds);
                 if (!empty($differentIds)) {
-                    $diff = join(', ', $differentIds);
-                    throw new \RuntimeException("State {$state['name']} has transition to non existent state id(s) {$diff}");
+                    $notFoundIdsList = join(', ', $differentIds);
+                    $stateIdsList = join(', ', $stateIds);
+                    throw new \RuntimeException(
+                        "State {$state['name']} has transition to non existent state id(s) {$notFoundIdsList}, ids present: {$stateIdsList}"
+                    );
                 }
             }
         );

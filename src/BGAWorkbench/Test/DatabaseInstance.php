@@ -148,4 +148,14 @@ class DatabaseInstance
 
         $this->isCreated = false;
     }
+
+    public function disconnect()
+    {
+        if ($this->connection !== null) {
+            $this->connection->close();
+        }
+        if ($this->schemaConnection !== null) {
+            $this->schemaConnection->close();
+        }
+    }
 }

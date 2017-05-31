@@ -17,38 +17,44 @@ class ReturnToDeckTest extends ProjectIntegrationTestCase
     {
         $this->table = self::gameTableInstanceBuilder()
             ->setPlayersWithIds([66, 77])
-            ->buildForCurrentPlayer(66)
+            ->build()
             ->createDatabase();
     }
 
     protected function tearDown()
     {
         if ($this->table !== null) {
-            $this->table->dropDatabase();
+            $this->table->dropDatabaseAndDisconnect();
         }
     }
 
     public function testReturnToDeck()
     {
-        $this->table
+        $game = $this->table
             ->setupNewGame()
-            ->getTable()
-            ->returnToDeck([3, 4]);
+            ->createGameInstanceForCurrentPlayer(66);
+
+        $game->returnToDeck([3, 4]);
 
         assertThat(
-            $this->table->getTrackedNotifications(),
+            $this->table->fetchDbRows('deck_card', ['player_id' => 66]),
+            arrayWithSize(21)
+        );
+        assertThat(
+            $this->table->fetchDbRows('playable_card', ['player_id' => 66]),
+            allOf(
+                arrayWithSize(5),
+                not(hasItem(hasEntry('id', 3))),
+                not(hasItem(hasEntry('id', 4)))
+            )
+        );
+
+        assertThat(
+            $game->getNotifications(),
             containsInAnyOrder(
                 M::hasEntries([
-                    'playerId' => 66,
-                    'type' => 'returnedToDeck',
-                    'args' => M::hasEntries([
-                        'oldIds' => [3, 4],
-                        'replacements' => arrayWithSize(2)
-                    ])
-                ]),
-                M::hasEntries([
                     'playerId' => 'all',
-                    'type' => 'hiddenPlayerReturnedToDeck',
+                    'type' => 'returnedToDeck',
                     'args' => M::hasEntries([
                         'playerId' => 66,
                         'numCards' => 2

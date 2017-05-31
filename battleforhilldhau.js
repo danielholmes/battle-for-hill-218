@@ -126,7 +126,9 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domGeom, fx) {
                     this.onEnterReturnToDeck();
                     break;
                 case 'playCard':
-                    this.onEnterPlayCard(event.args);
+                    if (this.isCurrentPlayerActive()) {
+                        this.onEnterPlayCard(event.args);
+                    }
                     break;
             }
         },
@@ -146,10 +148,7 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domGeom, fx) {
         //
         onLeavingState: function(stateName) {
             console.log( 'Leaving state: '+stateName );
-            
-            switch( stateName )
-            {
-            
+
             /* Example:
             
             case 'myGameState':
@@ -159,11 +158,6 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domGeom, fx) {
                 
                 break;
            */
-           
-           
-            case 'dummmy':
-                break;
-            }               
         }, 
 
         // onUpdateActionButtons: in this method you can manage "action buttons" that are displayed in the
@@ -288,16 +282,26 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domGeom, fx) {
             this.slideToObjectAndDestroy(this.prepareForAnimation(card), deck, SLIDE_ANIMATION_DURATION);
         },
 
-        slideNewElementTo: function(deckNode, card, target, offset) {
+        slideNewElementTo: function(from, newElement, target, offset) {
+            if (from === null) {
+                throw new Error('slideNewElementTo: from element is null');
+            }
+            if (newElement === null) {
+                throw new Error('slideNewElementTo: newElement is null');
+            }
+            if (target === null) {
+                throw new Error('slideNewElementTo: target element is null');
+            }
+
             if (!offset) {
                 offset = {x: 0, y:0};
             }
-            this.prepareForAnimation(card);
-            dojo.place(card, query('body').pop());
-            this.placeOnObject(card, deckNode);
-            var targetPosition = this.getCentredPosition(card, target);
+            this.prepareForAnimation(newElement);
+            dojo.place(newElement, query('body').pop());
+            this.placeOnObject(newElement, from);
+            var targetPosition = this.getCentredPosition(newElement, target);
             return fx.slideTo({
-                node: card,
+                node: newElement,
                 left: targetPosition.x + offset.x,
                 top: targetPosition.y + offset.y,
                 units: "px",
@@ -379,7 +383,24 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domGeom, fx) {
                     lock: true,
                     ids: selectedIds.join(',')
                 },
-                function(result) { },
+                this,
+                function() {
+                    this.disablePlayableCardsClick();
+
+                    var handCards = this.getCurrentPlayerHandCardsNodeList();
+                    // Sorting makes sure positioning is correct (and don't remove earlier card first thus repositioning the
+                    // latter card before animating
+                    array.forEach(
+                        array.map(selectedIds, lang.hitch(this, this.getCurrentPlayerHandCardNodeByCardId))
+                            .sort(lang.hitch(this,
+                                function(card1, card2) { return handCards.indexOf(card2) - handCards.indexOf(card1); }
+                            )),
+                        lang.hitch(this, function(card) {
+                            this.slideToDeckAndDestroy(card, this.getCurrentPlayerDeckNode());
+                            // TODO: on complete, increment deck size counter
+                        })
+                    );
+                },
                 function(isError) { }
             );
         },
@@ -426,64 +447,67 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domGeom, fx) {
         //// Reaction to cometD notifications
         setupNotifications: function() {
             dojo.subscribe('returnedToDeck', lang.hitch(this, this.notif_returnedToDeck));
-            dojo.subscribe('hiddenPlayerReturnedToDeck', lang.hitch(this, this.notif_hiddenPlayerReturnedToDeck));
+            dojo.subscribe('cardsDrawn', lang.hitch(this, this.notif_cardsDrawn));
+            dojo.subscribe('myCardsDrawn', lang.hitch(this, this.notif_myCardsDrawn));
+        },
 
-            // Example 2: standard notification handling + tell the user interface to wait
-            //            during 3 seconds after calling the method in order to let the players
-            //            see what is happening in the game.
-            // dojo.subscribe( 'cardPlayed', this, "notif_cardPlayed" );
-            // this.notifqueue.setSynchronous( 'cardPlayed', 3000 );
+        notif_cardsDrawn: function(notification) {
+            var playerId = notification.args.playerId;
+            if (playerId === this.player_id) {
+                return;
+            }
+
+            // Take numCards from deck then slide to hand
+            var playerColor = notification.args.playerColor;
+            var numCards = notification.args.numCards;
+            array.forEach(
+                array.map(
+                    new Array(numCards),
+                    lang.hitch(
+                        this,
+                        function() { return this.createHiddenPlayerHandCard({type: 'back'}, playerColor); }
+                    )
+                ),
+                lang.hitch(this, function (cardDisplay, i) {
+                    var offset = i * 20;
+                    this.slideNewElementTo(
+                        this.getPlayerDeckNodeById(playerId),
+                        cardDisplay,
+                        this.getPlayerHandCardsNodeById(playerId),
+                        {x: offset, y: offset}
+                    ).on("End", lang.hitch(this, function(card) { this.placeInPlayerHand(playerId, card); }));
+                })
+             );
+        },
+
+        notif_myCardsDrawn: function(notification) {
+            var playerColor = notification.args.playerColor;
+            array.forEach(
+                array.map(
+                    notification.args.cards,
+                    lang.hitch(this, function(card) {
+                        return this.createCurrentPlayerHandCard(card, playerColor);
+                    })
+                ),
+                lang.hitch(this, function (cardDisplay, i) {
+                    var offset = i * 20;
+                    this.slideNewElementTo(
+                        this.getCurrentPlayerDeckNode(),
+                        cardDisplay,
+                        this.getCurrentPlayerHandCardsNode(),
+                        {x: offset, y: offset}
+                    ).on("End", lang.hitch(this, this.placeInCurrentPlayerHand));
+                })
+            );
         },
 
         notif_returnedToDeck: function(notification) {
-            // Return old cards to deck
-            // Sorting makes sure positioning is correct (and don't remove earlier card first thus repositioning the
-            // latter card before animating
-            this.disablePlayableCardsClick();
-            var handCards = this.getCurrentPlayerHandCardsNodeList();
-            array.forEach(
-                array.map(notification.args.oldIds, lang.hitch(this, this.getCurrentPlayerHandCardNodeByCardId))
-                    .sort(lang.hitch(this,
-                        function(card1, card2) { return handCards.indexOf(card2) - handCards.indexOf(card1); }
-                    )),
-                lang.hitch(this, function(card) { this.slideToDeckAndDestroy(card, this.getCurrentPlayerDeckNode()); })
-            );
-
-            // Take card from deck then slide to hand
-            var playerColor = notification.args.playerColor;
-            setTimeout(
-                lang.hitch(this, function() {
-                    array.forEach(
-                        array.map(
-                            notification.args.replacements,
-                            lang.hitch(this, function(card) { 
-                                return this.createCurrentPlayerHandCard(card, playerColor);
-                            })
-                        ),
-                        lang.hitch(this, function (cardDisplay, i) {
-                            var offset = i * 20;
-                            this.slideNewElementTo(
-                                this.getCurrentPlayerDeckNode(),
-                                cardDisplay,
-                                this.getCurrentPlayerHandCardsNode(),
-                                {x: offset, y: offset}
-                            ).on("End", lang.hitch(this, this.placeInCurrentPlayerHand));
-                        })
-                    );
-                }),
-                SLIDE_ANIMATION_DURATION
-            );
-        },
-
-        notif_hiddenPlayerReturnedToDeck: function(notification) {
             var playerId = notification.args.playerId;
-            // Wait for full data in specific notification
             if (playerId === this.player_id) {
                 return;
             }
 
             var numCards = notification.args.numCards;
-            var playerColor = notification.args.playerColor;
             // Just use random cards - doesn't matter which one actually moved
             var handCards = this.getPlayerHandCardsNodeList(playerId);
             var cardNodesToMove = [];
@@ -497,30 +521,10 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domGeom, fx) {
                 cardNodesToMove.sort(lang.hitch(this,
                     function(card1, card2) { return handCards.indexOf(card2) - handCards.indexOf(card1); }
                 )),
-                lang.hitch(this, function(card) { this.slideToDeckAndDestroy(card, this.getPlayerDeckNodeById(playerId)); })
-            );
-
-            // Take card from deck then slide to hand
-            var newCards = [];
-            for (var i = 0; i < numCards; i++) {
-                newCards.push(this.createHiddenPlayerHandCard({type: 'back'}, playerColor));
-            }
-            setTimeout(
-                lang.hitch(this, function() {
-                    array.forEach(
-                        newCards,
-                        lang.hitch(this, function (cardDisplay, i) {
-                            var offset = i * 20;
-                            this.slideNewElementTo(
-                                this.getPlayerDeckNodeById(playerId),
-                                cardDisplay,
-                                this.getPlayerHandCardsNodeById(playerId),
-                                {x: offset, y: offset}
-                            ).on("End", lang.hitch(this, function(card) { this.placeInPlayerHand(playerId, card); }));
-                        })
-                    );
-                }),
-                SLIDE_ANIMATION_DURATION
+                lang.hitch(
+                    this,
+                    function(card) { this.slideToDeckAndDestroy(card, this.getPlayerDeckNodeById(playerId)); }
+                )
             );
         }
    });             

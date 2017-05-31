@@ -240,7 +240,7 @@ class Project
     /**
      * @return \Table
      */
-    public function createTableInstance()
+    public function createGameTableInstance()
     {
         $gameFilepath = $this->getProjectFile($this->getGameProjectFileRelativePathname())->getPathname();
         require_once($gameFilepath);
