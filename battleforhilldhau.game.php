@@ -28,6 +28,7 @@ use Functional as F;
 use TheBattleForHill218\Battlefield\Battlefield;
 use TheBattleForHill218\Battlefield\CardPlacement;
 use TheBattleForHill218\Battlefield\Position;
+use TheBattleForHill218\Cards\BattlefieldCard;
 use TheBattleForHill218\Cards\CardFactory;
 use TheBattleForHill218\Cards\HillCard;
 use TheBattleForHill218\Cards\PlayerCard;
@@ -81,18 +82,17 @@ class BattleForHillDhau extends Table
 
         $infos = self::getGameInfosForGame($this->getGameName());
         $colors = $infos['player_colors'];
-        $directions = array('-1', '1');
 
         $i = 0;
-        foreach ($players as $player_id => $player)
-        {
+        foreach ($players as $player_id => $player) {
+            $color = $colors[$i];
             self::DbQuery(SQLHelper::insert('player', array(
                 'player_id' => $player_id,
-                'player_color' => $colors[$i],
+                'player_color' => $color,
                 'player_canal' => $player['player_canal'],
                 'player_name' => $player['player_name'],
                 'player_avatar' => $player['player_avatar'],
-                'base_side' => $directions[$i]
+                'base_side' => $color === '04237b' ? '1' : '-1'
             )));
             $i++;
         }
@@ -144,14 +144,11 @@ class BattleForHillDhau extends Table
         );
     }
 
-    /*
-        getAllDatas: 
-        
-        Gather all informations about current game situation (visible by the current player).
-        
-        The method is called each time the game interface is displayed to a player, ie:
-        _ when the game starts
-        _ when a player refreshes the game page (F5)
+    /**
+     * Gather all informations about current game situation (visible by the current player).
+     * The method is called each time the game interface is displayed to a player, ie:
+     *  - when the game starts
+     *  - when a player refreshes the game page (F5)
     */
     protected function getAllDatas()
     {
@@ -240,11 +237,19 @@ class BattleForHillDhau extends Table
      */
     private function getBattlefieldDatas()
     {
+        $players = self::loadPlayersBasicInfos();
         return F\map(
             self::getObjectListFromDB('SELECT player_id AS playerId, type, x, y FROM battlefield_card'),
-            function(array $card) {
+            function(array $card) use ($players) {
+                $playerId = $card['playerId'];
+                $playerColor = null;
+                if ($playerId !== null) {
+                    $playerId = (int) $playerId;
+                    $playerColor = $players[$playerId]['player_color'];
+                }
                 return array(
-                    'playerId' => $card['playerId'] !== null ? (int) $card['playerId'] : null,
+                    'playerId' => $playerId,
+                    'playerColor' => $playerColor,
                     'type' => $card['type'],
                     'x' => (int) $card['x'],
                     'y' => (int) $card['y']
@@ -278,34 +283,61 @@ class BattleForHillDhau extends Table
      */
     private function loadBattlefield()
     {
-        $downwardPlayerId = (int) self::getUniqueValueFromDB('SELECT player_id FROM player WHERE base_side = -1');
+        $downwardPlayerId = self::getUniqueValueFromDB('SELECT player_id FROM player WHERE base_side = "-1"');
+        if ($downwardPlayerId === null) {
+            throw new RuntimeException('Downwards player not found');
+        }
         return new Battlefield(
-            $downwardPlayerId,
+            (int) $downwardPlayerId,
             F\map(
                 self::getObjectListFromDB('SELECT * FROM battlefield_card'),
-                function(array $rawCard) {
-                    $position = new Position((int) $rawCard['x'], (int) $rawCard['y']);
-                    switch ($rawCard['type']) {
-                        case 'hill':
-                            return new CardPlacement(new HillCard(), $position);
-                        default:
-                            return new CardPlacement(
-                                CardFactory::createBattlefieldFromTypeKey($rawCard['type'], (int) $rawCard['player_id']),
-                                $position
-                            );
-                    }
-                }
+                array('BattleForHillDhau', 'parseCardPlacement')
             )
         );
     }
 
+    /**
+     * @param array $raw
+     * @return PlayerCard
+     */
+    public static function parsePlayableCard(array $raw)
+    {
+        return CardFactory::createFromTypeKey($raw['type'], (int) $raw['player_id']);
+    }
 
+    /**
+     * @param array $raw
+     * @return CardPlacement
+     */
+    public static function parseCardPlacement(array $raw)
+    {
+        $position = new Position((int) $raw['x'], (int) $raw['y']);
+        switch ($raw['type']) {
+            case 'hill':
+                return new CardPlacement(new HillCard(), $position);
+            default:
+                return new CardPlacement(
+                    CardFactory::createBattlefieldFromTypeKey($raw['type'], (int) $raw['player_id']),
+                    $position
+                );
+        }
+    }
+
+    /**
+     * @param string $sql
+     * @return array
+     */
+    private function getIntCollectionFromDB($sql)
+    {
+        return F\map($this->getCollectionFromDB($sql), function($value) { return (int) $value; });
+    }
 
 //////////////////////////////////////////////////////////////////////////////
 //////////// Player actions
 ////////////
     /**
      * @param array $cardIds
+     * @throws BgaSystemException
      */
     public function returnToDeck(array $cardIds)
     {
@@ -313,10 +345,7 @@ class BattleForHillDhau extends Table
 
         $numCards = Hill218Setup::NUMBER_OF_INITIAL_CARDS_TO_RETURN;
         if (count($cardIds) !== $numCards) {
-            // TODO: Use BGA Exception
-            throw new InvalidArgumentException(
-                sprintf('Exactly %d cards required', $numCards)
-            );
+            throw new BgaSystemException(sprintf('Exactly %d cards required', $numCards));
         }
 
         $playerId = $this->getCurrentPlayerId();
@@ -325,8 +354,7 @@ class BattleForHillDhau extends Table
         $idList = join(', ', $cardIds);
         $returnCards = self::getObjectListFromDB("SELECT id, type FROM playable_card WHERE player_id = {$playerId} AND id IN ({$idList})");
         if (count($returnCards) !== Hill218Setup::NUMBER_OF_INITIAL_CARDS_TO_RETURN) {
-            // TODO: BGA Exception
-            throw new RuntimeException("Couldn\'t find given card ids {$idList}");
+            throw new BgaSystemException("Couldn\'t find given card ids {$idList}");
         }
         self::DBQuery("DELETE FROM playable_card WHERE id IN ({$idList})");
 
@@ -362,51 +390,66 @@ class BattleForHillDhau extends Table
      * @param int $cardId
      * @param int $x
      * @param int $y
+     * @throws BgaSystemException
      */
     public function playCard($cardId, $x, $y)
     {
         $this->checkAction('playCard');
 
         $playerId = (int) $this->getCurrentPlayerId();
-        $card = self::getNonEmptyObjectFromDB("SELECT id, type FROM playable_card WHERE id = {$cardId} AND player_id = {$playerId}");
-        self::DbQuery("DELETE FROM playable_card WHERE id = {$cardId}");
-        //if (self::DbAffectedRow() !== 1) {
-            // TODO: throw
-        //}
+        $position = new Position($x, $y);
+        $card = self::parsePlayableCard(
+            self::getNonEmptyObjectFromDB("SELECT * FROM playable_card WHERE id = {$cardId} AND player_id = {$playerId}")
+        );
 
+        // Check if valid position
+        $battlefield = $this->loadBattlefield();
+        $possiblePositions = $card->getPossiblePlacements($battlefield);
+        if (!F\contains($possiblePositions, $position, false)) {
+            throw new BgaSystemException('That position isn\'t allowed');
+        }
+
+        // Move from playable to battlefield
+        self::DbQuery("DELETE FROM playable_card WHERE id = {$cardId}");
         self::DbQuery(
             SQLHelper::insert(
                 'battlefield_card',
-                array('type' => $card['type'], 'player_id' => $playerId, 'x' => $x, 'y' => $y)
+                array(
+                    'type' => $card->getTypeKey(),
+                    'player_id' => $playerId,
+                    'x' => $position->getX(),
+                    'y' => $position->getY()
+                )
             )
         );
 
+        // Notifications
         $players = self::loadPlayersBasicInfos();
         $player = $players[$playerId];
         $this->notifyAllPlayers(
             'placedCard',
             '${playerName} placed a ${typeName} card at ${x},${y}',
-            [
+            array(
                 'playerName' => $player['player_name'],
                 'playerColor' => $player['player_color'],
-                'typeName' => 'TODO',
-                'typeKey' => $card['type'],
+                'typeName' => $card->getTypeName(),
+                'typeKey' => $card->getTypeKey(),
                 'x' => $x,
                 'y' => $y
-            ]
+            )
         );
         $this->notifyPlayer(
             $playerId,
             'iPlacedCard',
             '',
-            [
-                'cardId' => $card['id'],
-                'playerColor' => $player['player_color'],
-                'typeKey' => $card['type'],
+            array(
+                'cardId' => $cardId,
                 'x' => $x,
                 'y' => $y
-            ]
+            )
         );
+
+        $this->gamestate->nextState('noAttackAvailable');
     }
     
 //////////////////////////////////////////////////////////////////////////////
@@ -424,14 +467,13 @@ class BattleForHillDhau extends Table
             return array();
         }
 
-        $playableCards = self::getCollectionFromDB("SELECT * from playable_card WHERE player_id = {$currentPlayerId}");
+        $playableCards = self::getObjectListFromDB("SELECT * from playable_card WHERE player_id = {$currentPlayerId}");
         $battlefield = $this->loadBattlefield();
         return array_combine(
             F\pluck($playableCards, 'id'),
             F\map(
-                $playableCards,
-                function(array $playableCard) use ($battlefield) {
-                    $card = CardFactory::createFromTypeKey($playableCard['type'], (int) $playableCard['player_id']);
+                F\map($playableCards, array('BattleForHillDhau', 'parsePlayableCard')),
+                function(PlayerCard $card) use ($battlefield) {
                     return F\map(
                         $card->getPossiblePlacements($battlefield),
                         function(Position $position) {
@@ -501,6 +543,27 @@ class BattleForHillDhau extends Table
         );
 
         $this->gamestate->nextState('cardsDrawn');
+    }
+
+    public function stNextPlay()
+    {
+        $playerId = (int) $this->getActivePlayerId();
+
+        $playerIdsWithDeckCard = $this->getIntCollectionFromDB('SELECT DISTINCT player_id FROM deck_card');
+        $playerIdsWithPlayableCard = $this->getIntCollectionFromDB('SELECT DISTINCT player_id FROM playable_card');
+        if (empty($playerIdsWithDeckCard) && empty($playerIdsWithPlayableCard)) {
+            $this->gamestate->nextState('noCardsLeft');
+            return;
+        }
+
+        $players = self::loadPlayersBasicInfos();
+        $opponentPlayerId = F\first(
+            array_keys($players),
+            function($checkId) use ($playerId) { return $checkId !== $playerId; }
+        );
+
+        $this->gamestate->changeActivePlayer($opponentPlayerId);
+        $this->gamestate->nextState('nextPlayer');
     }
 
 //////////////////////////////////////////////////////////////////////////////

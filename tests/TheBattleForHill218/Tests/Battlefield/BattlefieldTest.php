@@ -17,10 +17,19 @@ class BattlefieldTest extends TestCase
     /**
      * @var Battlefield
      */
+    private $emptyBattlefield;
+
+    /**
+     * @var Battlefield
+     */
     private $battlefield;
 
     protected function setUp()
     {
+        $this->emptyBattlefield = $this->battlefield = new Battlefield(
+            2,
+            [new CardPlacement(new HillCard(), new Position(0, 0))]
+        );
         $this->battlefield = new Battlefield(
             2,
             [
@@ -57,11 +66,19 @@ class BattlefieldTest extends TestCase
         );
     }
 
-    public function testGetAllowedPositionsWithNoBase()
+    public function testGetAllowedPositionsWithNoBaseDownwards()
     {
         assertThat(
-            $this->battlefield->getAllowedPositions(2, SupplyOffset::createPlusConfig()),
+            $this->emptyBattlefield->getAllowedPositions(2, SupplyOffset::createPlusConfig()),
             contains(new Position(0, -1))
+        );
+    }
+
+    public function testGetAllowedPositionsWithNoBaseUpwards()
+    {
+        assertThat(
+            $this->emptyBattlefield->getAllowedPositions(3, SupplyOffset::createPlusConfig()),
+            contains(new Position(0, 1))
         );
     }
 }

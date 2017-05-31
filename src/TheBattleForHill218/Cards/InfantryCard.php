@@ -17,6 +17,14 @@ class InfantryCard extends BattlefieldPlayerCard implements BattlefieldCard
     /**
      * @inheritdoc
      */
+    public function getTypeName()
+    {
+        return 'Infantry';
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function getPossiblePlacements(Battlefield $battlefield)
     {
         return $battlefield->getAllowedPositions($this->getPlayerId(), SupplyOffset::createPlusConfig());

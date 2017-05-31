@@ -24,8 +24,8 @@
 </div>
 
 <script type="text/javascript">
-    var jstpl_air_strike_card = '<div class="playable-card" data-id="${id}"><div class="selected-border landscape-border card"></div><div class="card ${type} color-${color}"></div></div>';
-    var jstpl_hand_card = '<div class="playable-card hand-card" data-id="${id}"><div class="selected-border card"></div><div class="card ${type} color-${color}"></div></div>';
+    var jstpl_air_strike_card = '<div class="playable-card" data-id="${id}" data-type="${type}" data-color="${color}"><div class="selected-border landscape-border card"></div><div class="card ${type} color-${color}"></div></div>';
+    var jstpl_hand_card = '<div class="playable-card hand-card" data-id="${id}" data-type="${type}" data-color="${color}"><div class="selected-border card"></div><div class="card ${type} color-${color}"></div></div>';
     var jstpl_opponent_hand_card = '<div class="playable-card hand-card"><div class="card ${type} color-${color}"></div></div>';
     var jstpl_opponent_air_strike_card = '<div class="playable-card"><div class="card ${type} color-${color}"></div></div>';
     var jstpl_battlefield_position = '<div class="battlefield-position" style="left: ${left}px;top: ${top}px" data-x="${x}" data-y="${y}"><div class="clickable-indicator"></div></div>';

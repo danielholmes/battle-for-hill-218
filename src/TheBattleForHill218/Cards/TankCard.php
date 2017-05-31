@@ -17,6 +17,14 @@ class TankCard extends BattlefieldPlayerCard implements BattlefieldCard
     /**
      * @inheritdoc
      */
+    public function getTypeName()
+    {
+        return 'Tank';
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function getPossiblePlacements(Battlefield $battlefield)
     {
         return $battlefield->getAllowedPositions($this->getPlayerId(), SupplyOffset::createPlusConfig());

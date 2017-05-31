@@ -28,13 +28,13 @@ class PlayCardTest extends ProjectIntegrationTestCase
         }
     }
 
-    public function testPlayCardValid()
+    /**
+     * @param int $playerId
+     * @return array
+     */
+    private function getNonAirStrikePlayableCardForPlayer($playerId)
     {
-        $game = $this->table
-            ->setupNewGame()
-            ->createGameInstanceForCurrentPlayer(66);
-
-        $card = $this->table
+        return $this->table
             ->createDbQueryBuilder()
             ->select('*')
             ->from('playable_card')
@@ -44,6 +44,14 @@ class PlayCardTest extends ProjectIntegrationTestCase
             ->setParameter(':airStrikeType', 'air-strike')
             ->execute()
             ->fetch();
+    }
+
+    public function testPlayCardValid()
+    {
+        $game = $this->table
+            ->setupNewGame()
+            ->createGameInstanceForCurrentPlayer(66);
+        $card = $this->getNonAirStrikePlayableCardForPlayer(66);
 
         $game->playCard($card['id'], 0, 1);
 
@@ -66,25 +74,12 @@ class PlayCardTest extends ProjectIntegrationTestCase
             $game->getNotifications(),
             containsInAnyOrder(
                 M::hasEntries([
-                    'playerId' => 66,
+                    'playerId' => 'all',
                     'type' => 'placedCard',
                     'log' => '${playerName} placed a ${typeName} card at ${x},${y}',
                     'args' => M::hasEntries([
                         'playerName' => nonEmptyString(),
                         'typeName' => nonEmptyString(),
-                        'x' => 0,
-                        'y' => 1
-                    ])
-                ]),
-                M::hasEntries([
-                    'playerId' => 77,
-                    'type' => 'placedCard',
-                    'log' => '${playerName} placed a ${typeName} card at ${x},${y}',
-                    'args' => M::hasEntries([
-                        'playerName' => nonEmptyString(),
-                        'playerColor' => nonEmptyString(),
-                        'typeName' => nonEmptyString(),
-                        'typeKey' => nonEmptyString(),
                         'x' => 0,
                         'y' => 1
                     ])
@@ -95,8 +90,6 @@ class PlayCardTest extends ProjectIntegrationTestCase
                     'log' => '',
                     'args' => M::hasEntries([
                         'cardId' => $card['id'],
-                        'playerColor' => nonEmptyString(),
-                        'typeKey' => nonEmptyString(),
                         'x' => 0,
                         'y' => 1
                     ])
@@ -107,14 +100,26 @@ class PlayCardTest extends ProjectIntegrationTestCase
 
     public function testPlayCardThatDoesntExist()
     {
+        $this->expectException('BgaSystemException');
+
         $game = $this->table
             ->setupNewGame()
             ->createGameInstanceForCurrentPlayer(66);
 
-        // TODO:
-        //$game->playCard(-99999, 0, 1);
+        $game->playCard(-99999, 0, 1);
+    }
+
+    public function testPlayCardInInvalidPosition()
+    {
+        $this->expectException('BgaSystemException');
+
+        $game = $this->table
+            ->setupNewGame()
+            ->createGameInstanceForCurrentPlayer(66);
+        $card = $this->getNonAirStrikePlayableCardForPlayer(66);
+
+        $game->playCard($card['id'], 10, 10);
     }
 
     // TODO: Airstrike card
-    // TODO: Invalid placement position
 }

@@ -1,0 +1,2 @@
+[30008.433444] Out of memory: Kill process 3607 (mysqld) score 641 or sacrifice child
+[30008.476082] Killed process 3607 (mysqld) total-vm:1574824kB, anon-rss:246100kB, file-rss:0kB

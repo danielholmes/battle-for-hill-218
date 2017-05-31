@@ -9,6 +9,14 @@ class ArtilleryCard extends BattlefieldPlayerCard implements BattlefieldCard
     /**
      * @inheritdoc
      */
+    public function getTypeName()
+    {
+        return 'Artillery';
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function getTypeKey()
     {
         return 'artillery';

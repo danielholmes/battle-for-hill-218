@@ -3,6 +3,16 @@
 use BGAWorkbench\Test\Notification;
 use Doctrine\DBAL\Connection;
 
+
+class feException extends Exception
+{
+
+}
+
+class BgaSystemException extends feException {
+
+}
+
 class APP_Object
 {
 
@@ -64,12 +74,13 @@ class APP_DbObject extends APP_Object
     /**
      * @param string $sql
      * @return array
+     * @throws BgaSystemException
      */
     protected function getNonEmptyObjectFromDB($sql)
     {
         $rows = $this->getObjectListFromDB($sql);
         if (count($rows) !== 1) {
-            throw new RuntimeException('Expected exactly one result');
+            throw new BgaSystemException('Expected exactly one result');
         }
 
         return $rows[0];
@@ -124,6 +135,8 @@ class Gamestate
     }
 
     public function nextState($action = '') { }
+
+    public function changeActivePlayer($player_id) { }
 }
 
 abstract class Table extends APP_GameClass
@@ -185,10 +198,7 @@ abstract class Table extends APP_GameClass
      */
     public function notifyAllPlayers($notification_type, $notification_log, $notification_args)
     {
-        $ids = array_keys(self::getCollectionFromDB('SELECT player_id FROM player'));
-        foreach ($ids as $id) {
-            $this->notifyPlayer($id, $notification_type, $notification_log, $notification_args);
-        }
+        $this->notifyPlayer('all', $notification_type, $notification_log, $notification_args);
     }
 
     /**

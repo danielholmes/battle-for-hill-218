@@ -61,6 +61,7 @@ class GetAllDatasTest extends ProjectIntegrationTestCase
                 'battlefield' => contains(
                     M::hasEntries([
                         'playerId' => null,
+                        'playerColor' => null,
                         'type' => 'hill',
                         'x' => 0,
                         'y' => 0

@@ -51,16 +51,7 @@ class DrawCardsTest extends ProjectIntegrationTestCase
                     'args' => hasEntry('cards', contains(nonEmptyArray()))
                 ]),
                 M::hasEntries([
-                    'playerId' => 66,
-                    'type' => 'cardsDrawn',
-                    'log' => '${playerName} has drawn ${numCards} card',
-                    'args' => M::hasEntries([
-                        'numCards' => 1,
-                        'playerId' => 66
-                    ])
-                ]),
-                M::hasEntries([
-                    'playerId' => 77,
+                    'playerId' => 'all',
                     'type' => 'cardsDrawn',
                     'log' => '${playerName} has drawn ${numCards} card',
                     'args' => M::hasEntries([
@@ -97,13 +88,7 @@ class DrawCardsTest extends ProjectIntegrationTestCase
                     'args' => hasEntry('cards', contains(nonEmptyArray()))
                 ]),
                 M::hasEntries([
-                    'playerId' => 66,
-                    'type' => 'cardsDrawn',
-                    'log' => '${playerName} has drawn ${numCards} card',
-                    'args' => hasEntry('numCards', 1)
-                ]),
-                M::hasEntries([
-                    'playerId' => 77,
+                    'playerId' => 'all',
                     'type' => 'cardsDrawn',
                     'log' => '${playerName} has drawn ${numCards} card',
                     'args' => hasEntry('numCards', 1)

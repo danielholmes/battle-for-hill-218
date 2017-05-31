@@ -41,26 +41,30 @@ class ComposerProject extends Project
     private function createVendorFiles()
     {
         $buildDir = new \SplFileInfo($this->getProjectFile('build') . DIRECTORY_SEPARATOR . 'prod-vendors');
-        $fileSystem = new Filesystem();
-        $fileSystem->mkdir($buildDir->getPathname());
-        foreach (['composer.json', 'composer.lock'] as $composerFileName) {
-            $fileSystem->copy(
-                $this->getDirectory()->getPathname() . DIRECTORY_SEPARATOR . $composerFileName,
-                $buildDir->getPathname() . DIRECTORY_SEPARATOR . $composerFileName
-            );
-        }
+        $buildVendorLock = new \SplFileInfo($buildDir->getPathname() . DIRECTORY_SEPARATOR . 'composer.lock');
+        $projectLock = $this->getProjectFile('composer.lock');
+        if (!$buildVendorLock->isFile() || $buildVendorLock->getMTime() < $projectLock->getMTime()) {
+            $fileSystem = new Filesystem();
+            $fileSystem->mkdir($buildDir->getPathname());
+            foreach (['composer.json', 'composer.lock'] as $composerFileName) {
+                $fileSystem->copy(
+                    $this->getDirectory()->getPathname() . DIRECTORY_SEPARATOR . $composerFileName,
+                    $buildDir->getPathname() . DIRECTORY_SEPARATOR . $composerFileName
+                );
+            }
 
-        $process = ProcessBuilder::create([
-            'composer',
-            'install',
-            '--no-dev',
-            '-o',
-            '-d',
-            $buildDir->getPathname()
-        ])->getProcess();
-        $process->run();
-        if (!$process->isSuccessful()) {
-            throw new ProcessFailedException($process);
+            $process = ProcessBuilder::create([
+                'composer',
+                'install',
+                '--no-dev',
+                '-o',
+                '-d',
+                $buildDir->getPathname()
+            ])->getProcess();
+            $process->run();
+            if (!$process->isSuccessful()) {
+                throw new ProcessFailedException($process);
+            }
         }
 
         $finder = Finder::create()

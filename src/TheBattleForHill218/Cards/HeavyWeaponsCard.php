@@ -17,6 +17,14 @@ class HeavyWeaponsCard extends BattlefieldPlayerCard implements BattlefieldCard
     /**
      * @inheritdoc
      */
+    public function getTypeName()
+    {
+        return 'Heavy Weapons';
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function getPossiblePlacements(Battlefield $battlefield)
     {
         return $battlefield->getAllowedPositions($this->getPlayerId(), SupplyOffset::createPlusConfig());

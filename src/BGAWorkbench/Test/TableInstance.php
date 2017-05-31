@@ -52,7 +52,7 @@ class TableInstance
         $this->players = $players;
         $this->options = $options;
         $this->database = new DatabaseInstance(
-            $config->getTestDbName(),
+            $config->getTestDbNamePrefix() . substr(md5(time()), 0, 10),
             $config->getTestDbUsername(),
             $config->getTestDbPassword(),
             [

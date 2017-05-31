@@ -17,10 +17,8 @@ CREATE TABLE `player` (
   `player_start_reflexion_time` datetime DEFAULT NULL COMMENT 'Time when the player reflexion time starts. NULL if its not this player turn',
   `player_remaining_reflexion_time` int(11) DEFAULT NULL COMMENT 'Remaining reflexion time. This does not include reflexion time for current move.',
   `player_beginner` varbinary(32) DEFAULT NULL,
-  `base_side` enum('1','-1') NOT NULL,
   PRIMARY KEY (`player_no`),
-  UNIQUE KEY `player_id` (`player_id`),
-  UNIQUE KEY `base_side` (`base_side`)
+  UNIQUE KEY `player_id` (`player_id`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
 

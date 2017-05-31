@@ -43,18 +43,20 @@ class Battlefield
      */
     public function getUnoccupiedWithExpansion($expansionAmount)
     {
-        $positionStrings = $this->getPositionStrings();
+        $placedPositions = $this->getPositions();
         $xs = F\map($this->getPositions(), function(Position $position) { return $position->getX(); });
         $ys = F\map($this->getPositions(), function(Position $position) { return $position->getY(); });
         $topLeft = new Position(F\minimum($xs), F\maximum($ys));
         $topLeft = $topLeft->offset(-$expansionAmount, $expansionAmount);
         $bottomRight = new Position(F\maximum($xs), F\minimum($ys));
         $bottomRight = $bottomRight->offset($expansionAmount, -$expansionAmount);
-        return F\filter(
-            $topLeft->gridTo($bottomRight),
-            function(Position $position) use ($positionStrings) {
-                return !F\contains($positionStrings, (string) $position);
-            }
+        return array_values(
+            F\filter(
+                $topLeft->gridTo($bottomRight),
+                function(Position $position) use ($placedPositions) {
+                    return !F\contains($placedPositions, $position, false);
+                }
+            )
         );
     }
 
@@ -67,25 +69,19 @@ class Battlefield
     }
 
     /**
-     * @return string[]
-     */
-    private function getPositionStrings()
-    {
-        return F\map($this->getPositions(), function(Position $position) { return (string) $position; });
-    }
-
-    /**
      * @param int $myId
      * @return Position[]
      */
     public function getPositionsOfOpponent($myId)
     {
         return F\map(
-            F\filter(
-                $this->placements,
-                function(CardPlacement $placement) use ($myId) {
-                    return $placement->getPlayerId() !== null && $placement->getPlayerId() !== $myId;
-                }
+            array_values(
+                F\filter(
+                    $this->placements,
+                    function(CardPlacement $placement) use ($myId) {
+                        return $placement->getPlayerId() !== null && $placement->getPlayerId() !== $myId;
+                    }
+                )
             ),
             function(CardPlacement $placement) { return $placement->getPosition(); }
         );
@@ -110,36 +106,37 @@ class Battlefield
      */
     public function getAllowedPositions($playerId, array $supplyOffsets)
     {
-        $allPlacedStrings = $this->getPositionStrings();
-
+        $placedPositions = $this->getPositions();
         $basePosition = $this->getBasePosition($playerId);
-        if (!F\contains($allPlacedStrings, (string) $basePosition, true)) {
+        if (!F\contains($placedPositions, $basePosition, false)) {
             return array($basePosition);
         }
 
-        return F\unique(
-            F\filter(
-                F\flat_map(
-                    F\filter(
-                        $this->placements,
-                        function(CardPlacement $placement) use ($playerId) {
-                            return $placement->getPlayerId() === $playerId;
+        return array_values(
+            F\unique(
+                F\filter(
+                    F\flat_map(
+                        F\filter(
+                            $this->placements,
+                            function(CardPlacement $placement) use ($playerId) {
+                                return $placement->getPlayerId() === $playerId;
+                            }
+                        ),
+                        function(CardPlacement $placement) use ($supplyOffsets) {
+                            return F\map(
+                                $supplyOffsets,
+                                function(SupplyOffset $offset) use ($placement) {
+                                    return $placement->getPosition()->offset(-$offset->getX(), -$offset->getY());
+                                }
+                            );
                         }
                     ),
-                    function(CardPlacement $placement) use ($supplyOffsets) {
-                        return F\map(
-                            $supplyOffsets,
-                            function(SupplyOffset $offset) use ($placement) {
-                                return $placement->getPosition()->offset(-$offset->getX(), -$offset->getY());
-                            }
-                        );
+                    function(Position $position) use ($placedPositions) {
+                        return !F\contains($placedPositions, $position, false);
                     }
                 ),
-                function(Position $position) use ($allPlacedStrings) {
-                    return !F\contains($allPlacedStrings, (string) $position);
-                }
-            ),
-            function(Position $position) { return (string) $position; }
+                function(Position $position) { return (string) $position; }
+            )
         );
     }
 }

@@ -11,4 +11,12 @@ class HillCard implements BattlefieldCard
     {
         return 'hill';
     }
+
+    /**
+     * @inheritdoc
+     */
+    public function getTypeName()
+    {
+        return 'Hill';
+    }
 }

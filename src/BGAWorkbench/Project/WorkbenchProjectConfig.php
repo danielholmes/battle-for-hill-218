@@ -26,7 +26,7 @@ class WorkbenchProjectConfig
     /**
      * @var string
      */
-    private $testDbName;
+    private $testDbNamePrefix;
 
     /**
      * @var string
@@ -47,7 +47,7 @@ class WorkbenchProjectConfig
      * @param \SplFileInfo $directory
      * @param boolean $useComposer
      * @param ImmArray $extraSrcPaths
-     * @param string $testDbName
+     * @param string $testDbNamePrefix
      * @param string $testDbUsername
      * @param string $testDbPassword
      * @param string $linterPhpBin
@@ -56,7 +56,7 @@ class WorkbenchProjectConfig
         \SplFileInfo $directory,
         $useComposer,
         ImmArray $extraSrcPaths,
-        $testDbName,
+        $testDbNamePrefix,
         $testDbUsername,
         $testDbPassword,
         $linterPhpBin
@@ -65,7 +65,7 @@ class WorkbenchProjectConfig
         $this->directory = $directory;
         $this->useComposer = $useComposer;
         $this->extraSrcPaths = $extraSrcPaths;
-        $this->testDbName = $testDbName;
+        $this->testDbNamePrefix = $testDbNamePrefix;
         $this->testDbUsername = $testDbUsername;
         $this->testDbPassword = $testDbPassword;
         $this->linterPhpBin = $linterPhpBin;
@@ -74,9 +74,9 @@ class WorkbenchProjectConfig
     /**
      * @return string
      */
-    public function getTestDbName()
+    public function getTestDbNamePrefix()
     {
-        return $this->testDbName;
+        return $this->testDbNamePrefix;
     }
 
     /**
@@ -154,7 +154,7 @@ class WorkbenchProjectConfig
             $directory,
             $processed['useComposer'],
             ImmArray::fromArray($processed['extraSrc']),
-            $processed['testDb']['name'],
+            $processed['testDb']['namePrefix'],
             $processed['testDb']['user'],
             $processed['testDb']['pass'],
             $processed['linterPhpBin']

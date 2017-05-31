@@ -96,11 +96,7 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domGeom, fx) {
         },
 
         setupBattlefield: function(data) {
-            array.forEach(data, lang.hitch(this, function(card) {
-                var position = this.getOrCreatePlacementPosition(card.x, card.y);
-                console.log('position', position);
-                dojo.place(this.createBattlefieldCard(card, ''), position);
-            }));
+            array.forEach(data, lang.hitch(this, this.placeBattlefieldCard));
 
             this.battlefieldMap.create(
                 $('map_container'),
@@ -136,6 +132,7 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domGeom, fx) {
         },
 
         onEnterPlayCard: function(possiblePlacementsByCardId) {
+            console.log('onEnterPlayCard', possiblePlacementsByCardId);
             this.possiblePlacementsByCardId = possiblePlacementsByCardId;
             this.enablePlayableCardsClick(this.onHandCardPlayClick);
 
@@ -254,6 +251,11 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domGeom, fx) {
         createBattlefieldCard: function(card, color) {
             var coloredCard = lang.mixin({}, card, {color: color});
             return domConstruct.toDom(this.format_block('jstpl_battlefield_card', coloredCard));
+        },
+
+        placeBattlefieldCard: function(card) {
+            var position = this.getOrCreatePlacementPosition(card.x, card.y);
+            dojo.place(this.createBattlefieldCard(card, card.playerColor || ''), position);
         },
 
         ///////////////////////////////////////////////////
@@ -452,6 +454,7 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domGeom, fx) {
 
             var cardId = selectedIds.pop();
             var possiblePlacements = this.possiblePlacementsByCardId[cardId];
+            console.log('possiblePlacements', this.possiblePlacementsByCardId, cardId, possiblePlacements);
             array.forEach(possiblePlacements, lang.hitch(this, this.activatePossiblePlacementPosition));
         },
 
@@ -464,7 +467,6 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domGeom, fx) {
             var position = query(e.target);
             var x = position.attr('data-x').pop();
             var y = position.attr('data-y').pop();
-            console.log('click', id, x, y);
             this.ajaxcall(
                 "/battleforhilldhau/battleforhilldhau/playCard.html",
                 {
@@ -504,6 +506,22 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domGeom, fx) {
             dojo.subscribe('returnedToDeck', lang.hitch(this, this.notif_returnedToDeck));
             dojo.subscribe('cardsDrawn', lang.hitch(this, this.notif_cardsDrawn));
             dojo.subscribe('myCardsDrawn', lang.hitch(this, this.notif_myCardsDrawn));
+            dojo.subscribe('iPlacedCard', lang.hitch(this, this.notif_iPlacedCard));
+        },
+
+        notif_iPlacedCard: function(notification) {
+            var cardId = notification.args.cardId;
+            var cardNode = this.getCurrentPlayerHandCardNodeByCardId(cardId);
+            var x = notification.args.x;
+            var y = notification.args.y;
+            var type = query(cardNode).attr('data-type').pop();
+            var color = query(cardNode).attr('data-color').pop();
+
+            var position = this.getOrCreatePlacementPosition(x, y);
+
+            console.log('notif_iPlacedCard', cardId, cardNode, x, y, type, color, position);
+            this.slideToObject(this.prepareForAnimation(cardNode), position, SLIDE_ANIMATION_DURATION)
+                .on("End", lang.hitch(this, function() { console.log('end, TODO: Place') }));
         },
 
         notif_cardsDrawn: function(notification) {

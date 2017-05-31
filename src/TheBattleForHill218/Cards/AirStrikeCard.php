@@ -46,6 +46,14 @@ class AirStrikeCard implements PlayerCard
     /**
      * @inheritdoc
      */
+    public function getTypeName()
+    {
+        return 'Air Strike';
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function alwaysStartsInHand()
     {
         return true;

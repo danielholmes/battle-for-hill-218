@@ -18,7 +18,7 @@ class ConfigFileConfiguration implements ConfigurationInterface
                 ->arrayNode('testDb')
                     ->isRequired()
                     ->children()
-                        ->scalarNode('name')->isRequired()->end()
+                        ->scalarNode('namePrefix')->isRequired()->end()
                         ->scalarNode('user')->isRequired()->end()
                         ->scalarNode('pass')->isRequired()->end()
                     ->end()
