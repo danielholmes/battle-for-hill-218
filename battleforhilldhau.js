@@ -114,7 +114,6 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domGeom, fx) {
         ///////////////////////////////////////////////////
         //// Game & client states
         onEnteringState: function(stateName, event) {
-            console.log('Entering state', stateName, event);
             switch (stateName) {
                 case 'returnToDeck':
                     this.onEnterReturnToDeck();
@@ -132,7 +131,6 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domGeom, fx) {
         },
 
         onEnterPlayCard: function(possiblePlacementsByCardId) {
-            console.log('onEnterPlayCard', possiblePlacementsByCardId);
             this.possiblePlacementsByCardId = possiblePlacementsByCardId;
             this.enablePlayableCardsClick(this.onHandCardPlayClick);
 
@@ -147,18 +145,24 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domGeom, fx) {
         //                 You can use this method to perform some user interface changes at this moment.
         //
         onLeavingState: function(stateName) {
-            console.log( 'Leaving state: '+stateName );
+            console.log('Leaving state', stateName);
+            switch (stateName) {
+                case 'playCard':
+                    if (this.isCurrentPlayerActive()) {
+                        this.onLeavePlayCard();
+                    }
+                    break;
+            }
+        },
 
-            /* Example:
-            
-            case 'myGameState':
-            
-                // Hide the HTML block we are displaying only during this game state
-                dojo.style( 'my_html_block_id', 'display', 'none' );
-                
-                break;
-           */
-        }, 
+        onLeavePlayCard: function() {
+            if (this.attackPositionClickSignal) {
+                this.attackPositionClickSignal.remove();
+                this.attackPositionClickSignal = null;
+            }
+            this.deactivateAllPlacementPositions();
+            this.disablePlayableCardsClick();
+        },
 
         // onUpdateActionButtons: in this method you can manage "action buttons" that are displayed in the
         //                        action status bar (ie: the HTML links in the status bar).
@@ -507,6 +511,18 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domGeom, fx) {
             dojo.subscribe('cardsDrawn', lang.hitch(this, this.notif_cardsDrawn));
             dojo.subscribe('myCardsDrawn', lang.hitch(this, this.notif_myCardsDrawn));
             dojo.subscribe('iPlacedCard', lang.hitch(this, this.notif_iPlacedCard));
+            dojo.subscribe('placedCard', lang.hitch(this, this.notif_placedCard));
+        },
+
+        notif_placedCard: function(notification) {
+            var playerId = notification.args.playerId;
+            if (playerId === this.player_id) {
+                return;
+            }
+
+            // TODO: Remove one random card from player's hand cards
+            // TODO: Create battlefield card
+            // TODO: slide battlefield card from player's hand to position
         },
 
         notif_iPlacedCard: function(notification) {
@@ -520,8 +536,10 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domGeom, fx) {
             var position = this.getOrCreatePlacementPosition(x, y);
 
             console.log('notif_iPlacedCard', cardId, cardNode, x, y, type, color, position);
-            this.slideToObject(this.prepareForAnimation(cardNode), position, SLIDE_ANIMATION_DURATION)
-                .on("End", lang.hitch(this, function() { console.log('end, TODO: Place') }));
+            this.slideToObjectAndDestroy(this.prepareForAnimation(cardNode), position, SLIDE_ANIMATION_DURATION);
+            setTimeout(lang.hitch(this, function() {
+                this.placeBattlefieldCard({type: type, playerColor: color, x: x, y: y});
+            }), SLIDE_ANIMATION_DURATION);
         },
 
         notif_cardsDrawn: function(notification) {
