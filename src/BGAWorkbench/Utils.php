@@ -17,7 +17,7 @@ class Utils
     public static function getVariableNameFromFile(\SplFileInfo $file, $namePredicate)
     {
         return self::getVariableFromFile($file, $namePredicate)
-            ->map(function(array $variable) {
+            ->map(function (array $variable) {
                 list($name, $value) = $variable;
                 return $name;
             });
@@ -31,7 +31,7 @@ class Utils
     public static function getVariableValueFromFile(\SplFileInfo $file, $namePredicate)
     {
         return self::getVariableFromFile($file, $namePredicate)
-            ->map(function(array $variable) {
+            ->map(function (array $variable) {
                 list($name, $value) = $variable;
                 return $value;
             });
@@ -50,14 +50,16 @@ class Utils
 
         if (is_string($namePredicate)) {
             $stringNeedle = $namePredicate;
-            $namePredicate = function($name) use ($stringNeedle) { return $name === $stringNeedle; };
+            $namePredicate = function ($name) use ($stringNeedle) {
+                return $name === $stringNeedle;
+            };
         }
 
         include($file->getPathname());
         $definedVars = get_defined_vars();
         return ImmArray::fromArray(array_keys($definedVars))
             ->reduce(
-                function(Option $current, $name) use ($namePredicate, $definedVars) {
+                function (Option $current, $name) use ($namePredicate, $definedVars) {
                     if ($namePredicate($name)) {
                         return new Some([$name, $definedVars[$name]]);
                     }

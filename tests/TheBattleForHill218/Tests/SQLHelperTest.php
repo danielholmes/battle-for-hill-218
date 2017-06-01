@@ -29,7 +29,11 @@ class SQLHelperTest extends TestCase
                     'weight' => 1.65
                 ]
             ),
-            equalTo("INSERT INTO `game` (`name`, `category`, `fun`, `hard`, `year`, `weight`) VALUES ('Johnny\\'s Quest', NULL, 1, 0, 2017, 1.65)")
+            equalTo(<<<SQL
+INSERT INTO `game` (`name`, `category`, `fun`, `hard`, `year`, `weight`) VALUES 
+('Johnny\'s Quest', NULL, 1, 0, 2017, 1.65)
+SQL
+            )
         );
     }
 

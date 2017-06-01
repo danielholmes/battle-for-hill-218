@@ -1,5 +1,6 @@
 <?php
 
-function clienttranslate($name) {
+function clienttranslate($name)
+{
     return $name;
 }

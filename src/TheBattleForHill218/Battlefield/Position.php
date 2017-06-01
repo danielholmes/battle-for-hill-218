@@ -68,10 +68,12 @@ class Position
         $maxY = max($this->getY(), $other->getY());
         return F\flat_map(
             range($minX, $maxX),
-            function($x) use ($minY, $maxY) {
+            function ($x) use ($minY, $maxY) {
                 return F\flat_map(
                     range($minY, $maxY),
-                    function($y) use ($x) { return new Position($x, $y); }
+                    function ($y) use ($x) {
+                        return new Position($x, $y);
+                    }
                 );
             }
         );

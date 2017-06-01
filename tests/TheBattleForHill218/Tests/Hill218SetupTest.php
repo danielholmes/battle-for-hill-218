@@ -19,7 +19,9 @@ class Hill218SetupTest extends TestCase
         assertThat(array_keys($deck), equalTo(range(0, 18)));
         assertThat(
             ImmArray::fromArray($hand)
-                ->filter(function(PlayerCard $card) { return $card instanceof AirStrikeCard; })
+                ->filter(function (PlayerCard $card) {
+                    return $card instanceof AirStrikeCard;
+                })
                 ->toArray(),
             arrayWithSize(2)
         );

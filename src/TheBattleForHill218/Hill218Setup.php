@@ -28,7 +28,9 @@ class Hill218Setup
         shuffle($all);
         list($required, $remaining) = F\partition(
             $all,
-            function(PlayerCard $card) { return $card->alwaysStartsInHand(); }
+            function (PlayerCard $card) {
+                return $card->alwaysStartsInHand();
+            }
         );
 
         if (count($required) > self::HAND_SIZE) {
@@ -37,7 +39,9 @@ class Hill218Setup
 
         $hand = array_merge($required, array_slice($remaining, 0, self::HAND_SIZE - count($required)));
         $deck = array_values(
-            F\filter($all, function(PlayerCard $card) use ($hand) { return !F\contains($hand, $card); })
+            F\filter($all, function (PlayerCard $card) use ($hand) {
+                return !F\contains($hand, $card);
+            })
         );
         return array($hand, $deck);
     }
@@ -46,7 +50,8 @@ class Hill218Setup
      * @param int $playerId
      * @return PlayerCard[]
      */
-    private static function createAllStartingCards($playerId) {
+    private static function createAllStartingCards($playerId)
+    {
         return F\map(
             array_merge(
                 array_fill(0, 7, 'infantry'),
@@ -57,7 +62,9 @@ class Hill218Setup
                 array_fill(0, 3, 'paratroopers'),
                 array_fill(0, 2, 'air-strike')
             ),
-            function($typeKey) use ($playerId) { return CardFactory::createFromTypeKey($typeKey, $playerId); }
+            function ($typeKey) use ($playerId) {
+                return CardFactory::createFromTypeKey($typeKey, $playerId);
+            }
         );
     }
 }

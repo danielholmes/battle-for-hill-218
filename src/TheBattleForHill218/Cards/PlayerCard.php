@@ -11,15 +11,15 @@ interface PlayerCard extends Card
      * @param Battlefield $battlefield
      * @return Position[]
      */
-    function getPossiblePlacements(Battlefield $battlefield);
+    public function getPossiblePlacements(Battlefield $battlefield);
 
     /**
      * @return boolean
      */
-    function alwaysStartsInHand();
+    public function alwaysStartsInHand();
 
     /**
      * @return int
      */
-    function getPlayerId();
+    public function getPlayerId();
 }

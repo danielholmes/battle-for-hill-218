@@ -1,9 +1,9 @@
 <?php
 
 define('AT_int', 0);        //  an integer
-define('AT_posint', 1);     //  a positive integer 
+define('AT_posint', 1);     //  a positive integer
 define('AT_float', 2);      //  a float
-define('AT_email', 3);      //  an email  
+define('AT_email', 3);      //  an email
 define('AT_url', 4);        //  a URL
 define('AT_bool', 5);       //  1/0/true/false
 define('AT_enum', 6);       //  argTypeDetails list the possible values
@@ -28,6 +28,5 @@ abstract class APP_Action extends APP_DbObject
      */
     protected function getArg($argName, $argType, $mandatory = false, $default = null, $argTypeDetails = array(), $bCanFail = false)
     {
-
     }
 }

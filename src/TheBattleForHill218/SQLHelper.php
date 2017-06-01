@@ -28,7 +28,9 @@ class SQLHelper
         }
 
         $allValues = array_values($allValues);
-        $allKeys = F\map($allValues, function(array $values) { return array_keys($values); });
+        $allKeys = F\map($allValues, function (array $values) {
+            return array_keys($values);
+        });
         $uniqueKeys = F\unique($allKeys);
         if (count($uniqueKeys) !== 1) {
             $keysString = json_encode($allKeys);
@@ -42,7 +44,7 @@ class SQLHelper
             ', ',
             F\map(
                 $allValues,
-                function(array $values) {
+                function (array $values) {
                     return '(' . join(', ', F\map($values, array(__CLASS__, 'quoteValue'))) . ')';
                 }
             )

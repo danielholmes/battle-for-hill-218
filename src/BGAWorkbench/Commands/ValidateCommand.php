@@ -23,7 +23,11 @@ class ValidateCommand extends Command
         $this
             ->setName('validate')
             ->setDescription('Validates that the BGA project is valid')
-            ->setHelp('Runs various checks on the BGA project such as valid state configuration, valid php syntax and all required files');
+            ->setHelp(<<<HELP
+        Runs various checks on the BGA project such as valid state configuration, valid php syntax and all required 
+        files
+HELP
+            );
     }
 
     /**
@@ -47,9 +51,13 @@ class ValidateCommand extends Command
     private function validateRequiredFilesExist(Project $project)
     {
         $notFoundList = $project->getRequiredFiles()
-            ->filter(function (SplFileInfo $file) { return !$file->isFile(); })
+            ->filter(function (SplFileInfo $file) {
+                return !$file->isFile();
+            })
             ->sort()
-            ->map(function(SplFileInfo $file) { return $file->getRelativePathname(); })
+            ->map(function (SplFileInfo $file) {
+                return $file->getRelativePathname();
+            })
             ->join(', ');
         if (!empty($notFoundList)) {
             throw new \RuntimeException("Missing required files: {$notFoundList}");
@@ -64,13 +72,19 @@ class ValidateCommand extends Command
     private function validateFilesPhp(WorkbenchProjectConfig $config, Project $project, OutputInterface $output)
     {
         $invalid = $project->getDevelopmentPhpFiles()
-            ->map(function(SplFileInfo $file) use ($config) {
+            ->map(function (SplFileInfo $file) use ($config) {
                 return ProcessBuilder::create([$config->getLinterPhpBin(), '-l', $file->getPathname()])
                     ->getProcess();
             })
-            ->walk(function(Process $process) { $process->run(); })
-            ->filter(function(Process $process) { return !$process->isSuccessful(); })
-            ->map(function(Process $process) { return $process->getOutput(); });
+            ->walk(function (Process $process) {
+                $process->run();
+            })
+            ->filter(function (Process $process) {
+                return !$process->isSuccessful();
+            })
+            ->map(function (Process $process) {
+                return $process->getOutput();
+            });
         if ($invalid->count() > 0) {
             throw new \RuntimeException($invalid->join(', '));
         }
@@ -93,17 +107,17 @@ class ValidateCommand extends Command
 
         array_walk(
             $validated,
-            function(array $state) use ($stateIds) {
+            function (array $state) use ($stateIds) {
                 if (!isset($state['transitions'])) {
                     return;
                 }
                 $transitionToIds = array_values($state['transitions']);
                 $differentIds = array_diff($transitionToIds, $stateIds);
                 if (!empty($differentIds)) {
-                    $notFoundIdsList = join(', ', $differentIds);
-                    $stateIdsList = join(', ', $stateIds);
+                    $missingList = join(', ', $differentIds);
+                    $allList = join(', ', $stateIds);
                     throw new \RuntimeException(
-                        "State {$state['name']} has transition to non existent state id(s) {$notFoundIdsList}, ids present: {$stateIdsList}"
+                        "State {$state['name']} has transition to missing state ids {$missingList} / ({$allList})"
                     );
                 }
             }

@@ -3,13 +3,13 @@
 use BGAWorkbench\Test\Notification;
 use Doctrine\DBAL\Connection;
 
-
 class feException extends Exception
 {
 
 }
 
-class BgaSystemException extends feException {
+class BgaSystemException extends feException
+{
 
 }
 
@@ -127,16 +127,22 @@ class APP_GameClass extends APP_DbObject
 
 class Gamestate
 {
-    public function setAllPlayersMultiactive() { }
+    public function setAllPlayersMultiactive()
+    {
+    }
 
     public function setPlayerNonMultiactive($player_id, $next_state)
     {
         return false;
     }
 
-    public function nextState($action = '') { }
+    public function nextState($action = '')
+    {
+    }
 
-    public function changeActivePlayer($player_id) { }
+    public function changeActivePlayer($player_id)
+    {
+    }
 }
 
 abstract class Table extends APP_GameClass
@@ -153,13 +159,21 @@ abstract class Table extends APP_GameClass
 
     abstract protected function setupNewGame($players, $options = array());
 
-    public function initGameStateLabels($labels) { }
+    public function initGameStateLabels($labels)
+    {
+    }
 
-    public function reattributeColorsBasedOnPreferences($players, $colors) { }
+    public function reattributeColorsBasedOnPreferences($players, $colors)
+    {
+    }
 
-    public function reloadPlayersBasicInfos() { }
+    public function reloadPlayersBasicInfos()
+    {
+    }
 
-    protected function activeNextPlayer() { }
+    protected function activeNextPlayer()
+    {
+    }
 
     public function checkAction($actionName, $bThrowException = true)
     {
@@ -169,7 +183,9 @@ abstract class Table extends APP_GameClass
     /**
      * @return string
      */
-    public function getActivePlayerName() { }
+    public function getActivePlayerName()
+    {
+    }
 
     ////////////////////////////////////////////////////////////////////////
     // Testing methods

@@ -53,7 +53,9 @@ class TableInstanceBuilder
      */
     public function setPlayersWithIds(array $ids)
     {
-        return self::setPlayers(array_map(function($id) { return ['player_id' => $id]; }, $ids));
+        return self::setPlayers(array_map(function ($id) {
+            return ['player_id' => $id];
+        }, $ids));
     }
 
     /**

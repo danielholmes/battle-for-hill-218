@@ -49,9 +49,11 @@ class ProjectTest extends TestCase
                     'gameinfos.inc.php',
                     'dbmodel.sql',
                     'version.php'
-                ])->map(function($path) {
+                ])->map(function ($path) {
                     return $this->project->absoluteToProjectRelativeFile(
-                        new \SplFileInfo($this->project->getDirectory()->getPathname() . DIRECTORY_SEPARATOR . $path)
+                        new \SplFileInfo(
+                            $this->project->getDirectory()->getPathname() . DIRECTORY_SEPARATOR . $path
+                        )
                     );
                 })->toArray()
             )
@@ -83,9 +85,11 @@ class ProjectTest extends TestCase
                     'gameinfos.inc.php',
                     'dbmodel.sql',
                     'version.php'
-                ])->map(function($path) {
+                ])->map(function ($path) {
                     return $this->project->absoluteToProjectRelativeFile(
-                        new \SplFileInfo($this->project->getDirectory()->getPathname() . DIRECTORY_SEPARATOR . $path)
+                        new \SplFileInfo(
+                            $this->project->getDirectory()->getPathname() . DIRECTORY_SEPARATOR . $path
+                        )
                     );
                 })->toArray()
             )
@@ -116,9 +120,11 @@ class ProjectTest extends TestCase
                     'gameinfos.inc.php',
                     'dbmodel.sql',
                     'version.php'
-                ])->map(function($path) {
+                ])->map(function ($path) {
                     return $this->project->absoluteToProjectRelativeFile(
-                        new \SplFileInfo($this->project->getDirectory()->getPathname() . DIRECTORY_SEPARATOR . $path)
+                        new \SplFileInfo(
+                            $this->project->getDirectory()->getPathname() . DIRECTORY_SEPARATOR . $path
+                        )
                     );
                 })->toArray()
             )
@@ -135,7 +141,7 @@ class ProjectTest extends TestCase
 
     public function testAbsoluteToProjectRelativeFile()
     {
-        $fullPath = $this->project->getDirectory()->getPathname() . DIRECTORY_SEPARATOR . 'img' . DIRECTORY_SEPARATOR . 'cards.png';
+        $fullPath = join(DIRECTORY_SEPARATOR, [$this->project->getDirectory()->getPathname(), 'img', 'cards.png']);
         $versionFile = new \SplFileInfo($fullPath);
         assertThat(
             $this->project->absoluteToProjectRelativeFile($versionFile),

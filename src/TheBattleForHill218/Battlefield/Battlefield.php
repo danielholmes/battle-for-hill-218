@@ -24,7 +24,9 @@ class Battlefield
     public function __construct($downwardsPlayerId, array $placements)
     {
         $foundCoords = array_unique(
-            F\map($placements, function(CardPlacement $placement) { return (string) $placement->getPosition(); })
+            F\map($placements, function (CardPlacement $placement) {
+                return (string) $placement->getPosition();
+            })
         );
         if (count($foundCoords) < count($placements)) {
             throw new \InvalidArgumentException('Given placements that overlap');
@@ -44,8 +46,12 @@ class Battlefield
     public function getUnoccupiedWithExpansion($expansionAmount)
     {
         $placedPositions = $this->getPositions();
-        $xs = F\map($this->getPositions(), function(Position $position) { return $position->getX(); });
-        $ys = F\map($this->getPositions(), function(Position $position) { return $position->getY(); });
+        $xs = F\map($this->getPositions(), function (Position $position) {
+            return $position->getX();
+        });
+        $ys = F\map($this->getPositions(), function (Position $position) {
+            return $position->getY();
+        });
         $topLeft = new Position(F\minimum($xs), F\maximum($ys));
         $topLeft = $topLeft->offset(-$expansionAmount, $expansionAmount);
         $bottomRight = new Position(F\maximum($xs), F\minimum($ys));
@@ -53,7 +59,7 @@ class Battlefield
         return array_values(
             F\filter(
                 $topLeft->gridTo($bottomRight),
-                function(Position $position) use ($placedPositions) {
+                function (Position $position) use ($placedPositions) {
                     return !F\contains($placedPositions, $position, false);
                 }
             )
@@ -65,7 +71,9 @@ class Battlefield
      */
     private function getPositions()
     {
-        return F\map($this->placements, function(CardPlacement $placement) { return $placement->getPosition(); });
+        return F\map($this->placements, function (CardPlacement $placement) {
+            return $placement->getPosition();
+        });
     }
 
     /**
@@ -78,12 +86,14 @@ class Battlefield
             array_values(
                 F\filter(
                     $this->placements,
-                    function(CardPlacement $placement) use ($myId) {
+                    function (CardPlacement $placement) use ($myId) {
                         return $placement->getPlayerId() !== null && $placement->getPlayerId() !== $myId;
                     }
                 )
             ),
-            function(CardPlacement $placement) { return $placement->getPosition(); }
+            function (CardPlacement $placement) {
+                return $placement->getPosition();
+            }
         );
     }
 
@@ -118,24 +128,26 @@ class Battlefield
                     F\flat_map(
                         F\filter(
                             $this->placements,
-                            function(CardPlacement $placement) use ($playerId) {
+                            function (CardPlacement $placement) use ($playerId) {
                                 return $placement->getPlayerId() === $playerId;
                             }
                         ),
-                        function(CardPlacement $placement) use ($supplyOffsets) {
+                        function (CardPlacement $placement) use ($supplyOffsets) {
                             return F\map(
                                 $supplyOffsets,
-                                function(SupplyOffset $offset) use ($placement) {
+                                function (SupplyOffset $offset) use ($placement) {
                                     return $placement->getPosition()->offset(-$offset->getX(), -$offset->getY());
                                 }
                             );
                         }
                     ),
-                    function(Position $position) use ($placedPositions) {
+                    function (Position $position) use ($placedPositions) {
                         return !F\contains($placedPositions, $position, false);
                     }
                 ),
-                function(Position $position) { return (string) $position; }
+                function (Position $position) {
+                    return (string) $position;
+                }
             )
         );
     }

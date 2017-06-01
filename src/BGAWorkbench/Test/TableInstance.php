@@ -143,7 +143,9 @@ class TableInstance
      */
     public function createGameInstanceForCurrentPlayer($currentPlayerId)
     {
-        $playerIds = array_map(function(array $player) { return $player['player_id']; }, $this->players);
+        $playerIds = array_map(function (array $player) {
+            return $player['player_id'];
+        }, $this->players);
         if (!in_array($currentPlayerId, $playerIds, true)) {
             $playerIdsList = join(', ', $playerIds);
             throw new \InvalidArgumentException("Current player {$currentPlayerId} not in {$playerIdsList}");
@@ -160,7 +162,7 @@ class TableInstance
     private function createPlayersById()
     {
         $ids = array_map(
-            function($i, array $player) {
+            function ($i, array $player) {
                 if (isset($player['player_id'])) {
                     return $player['player_id'];
                 }

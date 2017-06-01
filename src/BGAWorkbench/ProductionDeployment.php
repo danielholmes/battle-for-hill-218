@@ -67,13 +67,13 @@ class ProductionDeployment
     {
         $remoteMTimes = $this->getMTimesByFilepath();
         $newerFiles = $files->filter(
-            function(SplFileInfo $file) use ($remoteMTimes) {
+            function (SplFileInfo $file) use ($remoteMTimes) {
                 return !isset($remoteMTimes[$file->getRelativePathname()]) ||
                     $remoteMTimes[$file->getRelativePathname()] < $file->getMTime();
             }
         );
         $total = $newerFiles->count();
-        $newerFiles->walk(function(SplFileInfo $file, $i) use ($callable, $total) {
+        $newerFiles->walk(function (SplFileInfo $file, $i) use ($callable, $total) {
             $num = $i + 1;
             call_user_func($callable, $num, $total, $file);
             $this->deployFile($file);
@@ -135,7 +135,9 @@ class ProductionDeployment
     {
         $parts = explode('/', $remoteDirpath);
         return ImmArray::fromArray(range(1, count($parts)))
-            ->map(function($i) use ($parts) { return join('/', array_slice($parts, 0, $i)); });
+            ->map(function ($i) use ($parts) {
+                return join('/', array_slice($parts, 0, $i));
+            });
     }
 
     /**
@@ -191,7 +193,9 @@ class ProductionDeployment
 
             $subDirectories = $this->rawListToDirectories($value);
             $directories = $directories->concat(ImmArray::fromArray([$key]))
-                ->concat($subDirectories->map(function($subDir) use ($key) { return $key . '/' . $subDir; }));
+                ->concat($subDirectories->map(function ($subDir) use ($key) {
+                    return $key . '/' . $subDir;
+                }));
         }
         return $directories;
     }

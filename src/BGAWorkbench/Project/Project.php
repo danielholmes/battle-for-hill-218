@@ -31,7 +31,8 @@ class Project
      * @param string $name
      * @param ImmArray $extraSrcPaths
      */
-    public function __construct(\SplFileInfo $directory, $name, ImmArray $extraSrcPaths) {
+    public function __construct(\SplFileInfo $directory, $name, ImmArray $extraSrcPaths)
+    {
         $this->directory = $directory;
         $this->name = $name;
         $this->extraSrcPaths = $extraSrcPaths;
@@ -109,7 +110,9 @@ class Project
             "img" . DIRECTORY_SEPARATOR . "game_box180.png",
             "img" . DIRECTORY_SEPARATOR . "game_icon.png",
             "img" . DIRECTORY_SEPARATOR . "publisher.png"
-        ])->map(function($name) { return $this->getProjectFile($name); });
+        ])->map(function ($name) {
+            return $this->getProjectFile($name);
+        });
     }
 
     /**
@@ -130,7 +133,7 @@ class Project
 
         return ImmArray::fromArray(array_values(iterator_to_array($finder)))
             ->map(
-                function(SplFileInfo $file) {
+                function (SplFileInfo $file) {
                     return $this->absoluteToProjectRelativeFile($file);
                 }
             );
@@ -151,7 +154,7 @@ class Project
     {
         return $this->getDevelopmentLocations()
             ->reduce(
-                function(ImmArray $current, SplFileInfo $file) {
+                function (ImmArray $current, SplFileInfo $file) {
                     if ($file->isFile()) {
                         return $current->concat(ImmArray::fromArray([$file]));
                     }
@@ -168,7 +171,9 @@ class Project
     public function getDevelopmentPhpFiles()
     {
         return $this->getBaseProjectFiles()
-            ->filter(function(SplFileInfo $file) { return $file->getExtension() === 'php'; });
+            ->filter(function (SplFileInfo $file) {
+                return $file->getExtension() === 'php';
+            });
     }
 
     /**
@@ -181,7 +186,9 @@ class Project
             ->concat(
                 $this->extraSrcPaths
                     ->concat(ImmArray::fromArray(['img']))
-                    ->map(function($path) { return $this->getProjectFile($path); })
+                    ->map(function ($path) {
+                        return $this->getProjectFile($path);
+                    })
             );
     }
 
@@ -245,8 +252,10 @@ class Project
         $gameFilepath = $this->getProjectFile($this->getGameProjectFileRelativePathname())->getPathname();
         require_once($gameFilepath);
         $tableClasses = ImmArray::fromArray(array_keys(AnnotationsParser::parsePhp(file_get_contents($gameFilepath))))
-            ->map(function($className) { return new \ReflectionClass($className); })
-            ->filter(function($refClass) {
+            ->map(function ($className) {
+                return new \ReflectionClass($className);
+            })
+            ->filter(function ($refClass) {
                 return $refClass->getParentClass()->getName() === 'Table';
             });
         $numTableClasses = $tableClasses->count();

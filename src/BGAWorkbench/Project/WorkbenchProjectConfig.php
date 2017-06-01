@@ -60,8 +60,8 @@ class WorkbenchProjectConfig
         $testDbUsername,
         $testDbPassword,
         $linterPhpBin
-    )
-    {
+    ) {
+    
         $this->directory = $directory;
         $this->useComposer = $useComposer;
         $this->extraSrcPaths = $extraSrcPaths;
@@ -113,10 +113,12 @@ class WorkbenchProjectConfig
         $GAME_VERSION_PREFIX = 'game_version_';
         $variableName = Utils::getVariableNameFromFile(
             $versionFile,
-            function($name) use ($GAME_VERSION_PREFIX) { return strpos($name, $GAME_VERSION_PREFIX) === 0; }
+            function ($name) use ($GAME_VERSION_PREFIX) {
+                return strpos($name, $GAME_VERSION_PREFIX) === 0;
+            }
         )->getOrThrow(
             new \InvalidArgumentException(
-                "File {$versionFile->getPathname()} doesn't have expected version variable {$GAME_VERSION_PREFIX}_%%project_name%%"
+                "File {$versionFile->getPathname()} missing version variable {$GAME_VERSION_PREFIX}_%%project_name%%"
             )
         );
         $projectName = substr($variableName, strlen($GAME_VERSION_PREFIX));

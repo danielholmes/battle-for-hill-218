@@ -52,7 +52,7 @@ class WatchCommand extends Command
         );
 
         $output->writeln('Watching for changes');
-        $changeHandler = function($resource, $path) use ($project, $deployment, $output) {
+        $handler = function ($resource, $path) use ($project, $deployment, $output) {
             // TODO: Run tests and validate before transfer?
             $file = $project->absoluteToProjectRelativeFile(new \SplFileInfo($path));
             $output->write("-> {$file->getRelativePathname()}");
@@ -62,17 +62,19 @@ class WatchCommand extends Command
         $files = new Filesystem();
         $tracker = new Tracker();
         $watcher = new Watcher($tracker, $files);
-        $project->getDevelopmentLocations()->walk(function(SplFileInfo $file) use ($watcher, $project, $deployment, $changeHandler, $output) {
-            $listener = $watcher->watch($file->getPathname());
-            $listener->onCreate($changeHandler);
-            $listener->onModify($changeHandler);
-            $listener->onDelete(function($resource, $path) use ($project, $deployment, $output) {
-                $file = $project->absoluteToProjectRelativeFile(new \SplFileInfo($path));
-                $output->write(">< {$file->getRelativePathname()}");
-                $deployment->remove($file);
-                $output->writeln(' <info>✓</info>');
-            });
-        });
+        $project->getDevelopmentLocations()->walk(
+            function (SplFileInfo $file) use ($watcher, $project, $deployment, $handler, $output) {
+                $listener = $watcher->watch($file->getPathname());
+                $listener->onCreate($handler);
+                $listener->onModify($handler);
+                $listener->onDelete(function ($resource, $path) use ($project, $deployment, $output) {
+                    $file = $project->absoluteToProjectRelativeFile(new \SplFileInfo($path));
+                    $output->write(">< {$file->getRelativePathname()}");
+                    $deployment->remove($file);
+                    $output->writeln(' <info>✓</info>');
+                });
+            }
+        );
         $watcher->start(500000);
     }
 }
