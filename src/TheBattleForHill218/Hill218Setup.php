@@ -15,7 +15,8 @@ use TheBattleForHill218\Cards\TankCard;
 
 class Hill218Setup
 {
-    const HAND_SIZE = 7;
+    const PLAYABLE_CARDS_SIZE = 7;
+
     const NUMBER_OF_INITIAL_CARDS_TO_RETURN = 2;
 
     /**
@@ -33,11 +34,11 @@ class Hill218Setup
             }
         );
 
-        if (count($required) > self::HAND_SIZE) {
+        if (count($required) > self::PLAYABLE_CARDS_SIZE) {
             throw new \LogicException('More required cards than initial hand size');
         }
 
-        $hand = array_merge($required, array_slice($remaining, 0, self::HAND_SIZE - count($required)));
+        $hand = array_merge($required, array_slice($remaining, 0, self::PLAYABLE_CARDS_SIZE - count($required)));
         $deck = array_values(
             F\filter($all, function (PlayerCard $card) use ($hand) {
                 return !F\contains($hand, $card);
@@ -66,5 +67,21 @@ class Hill218Setup
                 return CardFactory::createFromTypeKey($typeKey, $playerId);
             }
         );
+    }
+
+    /**
+     * @return int
+     */
+    private static function getStartingDeckSize()
+    {
+        return count(self::createAllStartingCards(0));
+    }
+
+    /**
+     * @return int
+     */
+    public static function getDeckSizeAfterInitialReturn()
+    {
+        return self::getStartingDeckSize() + self::NUMBER_OF_INITIAL_CARDS_TO_RETURN - self::PLAYABLE_CARDS_SIZE;
     }
 }

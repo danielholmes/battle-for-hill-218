@@ -13,9 +13,14 @@ class BgaSystemException extends feException
 
 }
 
-class APP_Object
+class BgaUserException extends feException
 {
 
+}
+
+class APP_Object
+{
+    public function debug($message) { }
 }
 
 class APP_DbObject extends APP_Object

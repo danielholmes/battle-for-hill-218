@@ -5,6 +5,7 @@ namespace TheBattleForHill218\Tests;
 use BGAWorkbench\Test\HamcrestMatchers as M;
 use PHPUnit\Framework\TestCase;
 use BGAWorkbench\Test\TestHelp;
+use Functional as F;
 
 class PlayCardTest extends TestCase
 {
@@ -16,22 +17,17 @@ class PlayCardTest extends TestCase
             ->setPlayersWithIds([66, 77]);
     }
 
-    /**
-     * @param int $playerId
-     * @return array
-     */
-    private function getNonAirStrikePlayableCardForPlayer($playerId)
+    public function testArgPlayCard()
     {
-        return $this->table
-            ->createDbQueryBuilder()
-            ->select('*')
-            ->from('playable_card')
-            ->where('player_id = :playerId')
-            ->setParameter(':playerId', 66)
-            ->andWhere('type != :airStrikeType')
-            ->setParameter(':airStrikeType', 'air-strike')
-            ->execute()
-            ->fetch();
+        $game = $this->table
+            ->setupNewGame()
+            ->createGameInstanceForCurrentPlayer(66)
+            ->stubActivePlayerId(66);
+
+        $datas = $game->argPlayCard();
+
+        $handCardIds = F\pluck($this->table->fetchDbRows('playable_card', ['player_id' => 66]), 'id');
+        assertThat($datas['_private']['active'], allOf(M::hasKeys($handCardIds), everyItem(arrayValue())));
     }
 
     public function testPlayCardValid()
@@ -66,8 +62,10 @@ class PlayCardTest extends TestCase
                     'type' => 'placedCard',
                     'log' => '${playerName} placed a ${typeName} card at ${x},${y}',
                     'args' => M::hasEntries([
+                        'playerId' => 66,
                         'playerName' => nonEmptyString(),
                         'typeName' => nonEmptyString(),
+                        'typeKey' => nonEmptyString(),
                         'x' => 0,
                         'y' => 1
                     ])
@@ -88,7 +86,7 @@ class PlayCardTest extends TestCase
 
     public function testPlayCardThatDoesntExist()
     {
-        $this->expectException('BgaSystemException');
+        $this->expectException('BgaUserException');
 
         $game = $this->table
             ->setupNewGame()
@@ -99,7 +97,7 @@ class PlayCardTest extends TestCase
 
     public function testPlayCardInInvalidPosition()
     {
-        $this->expectException('BgaSystemException');
+        $this->expectException('BgaUserException');
 
         $game = $this->table
             ->setupNewGame()
@@ -110,4 +108,22 @@ class PlayCardTest extends TestCase
     }
 
     // TODO: Airstrike card
+
+    /**
+     * @param int $playerId
+     * @return array
+     */
+    private function getNonAirStrikePlayableCardForPlayer($playerId)
+    {
+        return $this->table
+            ->createDbQueryBuilder()
+            ->select('*')
+            ->from('playable_card')
+            ->where('player_id = :playerId')
+            ->setParameter(':playerId', $playerId)
+            ->andWhere('type != :airStrikeType')
+            ->setParameter(':airStrikeType', 'air-strike')
+            ->execute()
+            ->fetch();
+    }
 }

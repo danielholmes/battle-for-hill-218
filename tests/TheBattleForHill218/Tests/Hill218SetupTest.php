@@ -26,4 +26,9 @@ class Hill218SetupTest extends TestCase
             arrayWithSize(2)
         );
     }
+
+    public function testGetStartingDeckSize()
+    {
+        assertThat(Hill218Setup::getDeckSizeAfterInitialReturn(), equalTo(21));
+    }
 }

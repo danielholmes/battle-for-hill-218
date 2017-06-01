@@ -58,7 +58,7 @@ class Position
      */
     public function gridTo(Position $other)
     {
-        if ($this->equals($other)) {
+        if ($this == $other) {
             return array($this);
         }
 
@@ -77,15 +77,6 @@ class Position
                 );
             }
         );
-    }
-
-    /**
-     * @param Position $other
-     * @return boolean
-     */
-    public function equals(Position $other)
-    {
-        return $this->x === $other->getX() && $this->y === $other->getY();
     }
 
     /**

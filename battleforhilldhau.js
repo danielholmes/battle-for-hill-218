@@ -120,7 +120,7 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domGeom, fx) {
                     break;
                 case 'playCard':
                     if (this.isCurrentPlayerActive()) {
-                        this.onEnterPlayCard(event.args);
+                        this.onEnterPlayCard(event.args._private);
                     }
                     break;
             }
@@ -131,6 +131,7 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domGeom, fx) {
         },
 
         onEnterPlayCard: function(possiblePlacementsByCardId) {
+            console.log('onEnterPlayCard', possiblePlacementsByCardId);
             this.possiblePlacementsByCardId = possiblePlacementsByCardId;
             this.enablePlayableCardsClick(this.onHandCardPlayClick);
 
@@ -141,11 +142,9 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domGeom, fx) {
             );
         },
 
+        ///////////////////////////////////////////////////
         // onLeavingState: this method is called each time we are leaving a game state.
-        //                 You can use this method to perform some user interface changes at this moment.
-        //
         onLeavingState: function(stateName) {
-            console.log('Leaving state', stateName);
             switch (stateName) {
                 case 'playCard':
                     if (this.isCurrentPlayerActive()) {
@@ -191,9 +190,9 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domGeom, fx) {
             return this.getPlayerCardsNodeById(this.player_id);
         },
         
-        getPlayerHandCardsNodeList: function(id) {
+        getPlayerHandCardsNodeList: function(playerId) {
             // Note: .hand-card not needed since have .hand-cards container?
-            return query(this.getPlayerCardsNodeById(id)).query('.hand-card');
+            return query(this.getPlayerCardsNodeById(playerId)).query('.hand-card');
         },
         
         getCurrentPlayerHandCardsNodeList: function() {
@@ -294,13 +293,13 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domGeom, fx) {
         },
 
         slideNewElementTo: function(from, newElement, target, offset) {
-            if (from === null) {
+            if (!from) {
                 throw new Error('slideNewElementTo: from element is null');
             }
-            if (newElement === null) {
+            if (!newElement) {
                 throw new Error('slideNewElementTo: newElement is null');
             }
-            if (target === null) {
+            if (!target) {
                 throw new Error('slideNewElementTo: target element is null');
             }
 
@@ -458,7 +457,6 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domGeom, fx) {
 
             var cardId = selectedIds.pop();
             var possiblePlacements = this.possiblePlacementsByCardId[cardId];
-            console.log('possiblePlacements', this.possiblePlacementsByCardId, cardId, possiblePlacements);
             array.forEach(possiblePlacements, lang.hitch(this, this.activatePossiblePlacementPosition));
         },
 
@@ -520,9 +518,19 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domGeom, fx) {
                 return;
             }
 
-            // TODO: Remove one random card from player's hand cards
-            // TODO: Create battlefield card
-            // TODO: slide battlefield card from player's hand to position
+            var x = notification.args.x;
+            var y = notification.args.y;
+            var cardType = notification.args.typeKey;
+            var color = notification.args.playerColor;
+            var cardNode = this.createBattlefieldCard({type: cardType}, color);
+            var handCardsNode = this.getPlayerHandCardsNodeById(playerId);
+            var position = this.getOrCreatePlacementPosition(x, y);
+
+            dojo.destroy(this.getPlayerHandCardsNodeList(playerId).pop());
+            this.slideNewElementTo(handCardsNode, cardNode, position)
+                .on("End", lang.hitch(this, function() {
+                    dojo.place(this.recoverFromAnimation(cardNode), position);
+                }));
         },
 
         notif_iPlacedCard: function(notification) {
@@ -534,8 +542,6 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domGeom, fx) {
             var color = query(cardNode).attr('data-color').pop();
 
             var position = this.getOrCreatePlacementPosition(x, y);
-
-            console.log('notif_iPlacedCard', cardId, cardNode, x, y, type, color, position);
             this.slideToObjectAndDestroy(this.prepareForAnimation(cardNode), position, SLIDE_ANIMATION_DURATION);
             setTimeout(lang.hitch(this, function() {
                 this.placeBattlefieldCard({type: type, playerColor: color, x: x, y: y});
@@ -548,16 +554,14 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domGeom, fx) {
                 return;
             }
 
-            // Take numCards from deck then slide to hand
             var playerColor = notification.args.playerColor;
             var numCards = notification.args.numCards;
             array.forEach(
                 array.map(
                     new Array(numCards),
-                    lang.hitch(
-                        this,
-                        function() { return this.createHiddenPlayerHandCard({type: 'back'}, playerColor); }
-                    )
+                    lang.hitch(this, function() {
+                        return this.createHiddenPlayerHandCard({type: 'back'}, playerColor);
+                    })
                 ),
                 lang.hitch(this, function (cardDisplay, i) {
                     var offset = i * 20;
