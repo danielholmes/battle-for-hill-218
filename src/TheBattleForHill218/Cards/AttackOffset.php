@@ -2,7 +2,7 @@
 
 namespace TheBattleForHill218\Cards;
 
-class SupplyOffset
+class AttackOffset
 {
     /**
      * @var int
@@ -20,15 +20,27 @@ class SupplyOffset
      */
     public function __construct($xOffset, $yOffset)
     {
-        $this->x = $this->validateOffset($xOffset);
-        $this->y = $this->validateOffset($yOffset);
+        $this->x = $this->validateXOffset($xOffset);
+        $this->y = $this->validateYOffset($yOffset);
     }
 
     /**
      * @param int $offset
      * @return int
      */
-    private function validateOffset($offset)
+    private function validateXOffset($offset)
+    {
+        if (!in_array($offset, array(3, 2, 1, 0, -1), true)) {
+            throw new \InvalidArgumentException('Offsets must be 3, 2, 1, 0, -1');
+        }
+        return $offset;
+    }
+
+    /**
+     * @param int $offset
+     * @return int
+     */
+    private function validateYOffset($offset)
     {
         if (!in_array($offset, array(1, 0, -1), true)) {
             throw new \InvalidArgumentException('Offsets must be 1, 0, -1');
@@ -50,6 +62,14 @@ class SupplyOffset
     public function getY()
     {
         return $this->y;
+    }
+
+    /**
+     * @return self
+     */
+    public function flipY()
+    {
+        return new self($this->getX(), -$this->getY());
     }
 
     /**
@@ -75,6 +95,19 @@ class SupplyOffset
             new self(1, -1),
             new self(-1, -1),
             new self(-1, 1)
+        );
+    }
+
+    /**
+     * @return self[]
+     */
+    public static function arrowPattern()
+    {
+        return array(
+            new self(-1, 2),
+            new self(0, 2),
+            new self(1, 2),
+            new self(0, 3)
         );
     }
 }

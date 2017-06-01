@@ -7,10 +7,10 @@ use TheBattleForHill218\Battlefield\Battlefield;
 use TheBattleForHill218\Battlefield\CardPlacement;
 use TheBattleForHill218\Battlefield\Position;
 use TheBattleForHill218\Cards\HillCard;
-use TheBattleForHill218\Cards\InfantryCard;
-use TheBattleForHill218\Cards\ParatrooperCard;
+use TheBattleForHill218\Cards\InfantryBattlefieldCard;
+use TheBattleForHill218\Cards\ParatrooperBattlefieldCard;
 use TheBattleForHill218\Cards\SupplyOffset;
-use TheBattleForHill218\Cards\TankCard;
+use TheBattleForHill218\Cards\TankBattlefieldCard;
 
 class BattlefieldTest extends TestCase
 {
@@ -34,9 +34,9 @@ class BattlefieldTest extends TestCase
             2,
             [
                 new CardPlacement(new HillCard(), new Position(0, 0)),
-                new CardPlacement(new ParatrooperCard(1), new Position(0, 1)),
-                new CardPlacement(new InfantryCard(2), new Position(0, 2)),
-                new CardPlacement(new TankCard(1), new Position(0, 3))
+                new CardPlacement(new ParatrooperBattlefieldCard(1), new Position(0, 1)),
+                new CardPlacement(new InfantryBattlefieldCard(2), new Position(0, 2)),
+                new CardPlacement(new TankBattlefieldCard(1), new Position(0, 3))
             ]
         );
     }
@@ -69,7 +69,7 @@ class BattlefieldTest extends TestCase
     public function testGetAllowedPositionsWithNoBaseDownwards()
     {
         assertThat(
-            $this->emptyBattlefield->getAllowedPositions(2, SupplyOffset::createPlusConfig()),
+            $this->emptyBattlefield->getAllowedPositions(2, SupplyOffset::plusPattern()),
             contains(new Position(0, -1))
         );
     }
@@ -77,7 +77,7 @@ class BattlefieldTest extends TestCase
     public function testGetAllowedPositionsWithNoBaseUpwards()
     {
         assertThat(
-            $this->emptyBattlefield->getAllowedPositions(3, SupplyOffset::createPlusConfig()),
+            $this->emptyBattlefield->getAllowedPositions(3, SupplyOffset::plusPattern()),
             contains(new Position(0, 1))
         );
     }

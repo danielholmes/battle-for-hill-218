@@ -28,17 +28,17 @@ class CardFactory
     {
         switch ($key) {
             case 'infantry':
-                return new InfantryCard($playerId);
+                return new InfantryBattlefieldCard($playerId);
             case 'paratroopers':
-                return new ParatrooperCard($playerId);
+                return new ParatrooperBattlefieldCard($playerId);
             case 'heavy-weapons':
-                return new HeavyWeaponsCard($playerId);
+                return new HeavyWeaponsBattlefieldCard($playerId);
             case 'special-forces':
-                return new SpecialForcesCard($playerId);
+                return new SpecialForcesBattlefieldCard($playerId);
             case 'tank':
-                return new TankCard($playerId);
+                return new TankBattlefieldCard($playerId);
             case 'artillery':
-                return new ArtilleryCard($playerId);
+                return new ArtilleryBattlefieldCard($playerId);
             default:
                 throw new \InvalidArgumentException("Unknown type key {$key}");
         }

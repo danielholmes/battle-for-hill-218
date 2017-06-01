@@ -2,7 +2,7 @@
 
 namespace TheBattleForHill218\Cards;
 
-class SupplyOffset
+class SupportOffset
 {
     /**
      * @var int
@@ -68,13 +68,17 @@ class SupplyOffset
     /**
      * @return self[]
      */
-    public static function crossPattern()
+    public static function borderPattern()
     {
         return array(
+            new self(0, 1),
             new self(1, 1),
+            new self(1, 0),
             new self(1, -1),
+            new self(0, -1),
             new self(-1, -1),
-            new self(-1, 1)
+            new self(-1, 0),
+            new self(-1, 1),
         );
     }
 }

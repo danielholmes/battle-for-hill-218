@@ -2,7 +2,7 @@
 
 namespace TheBattleForHill218\Cards;
 
-abstract class BattlefieldPlayerCard implements PlayerCard, BattlefieldCard
+abstract class BasePlayerBattlefieldCard implements PlayerBattlefieldCard
 {
     /**
      * @var int

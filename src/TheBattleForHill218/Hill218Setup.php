@@ -3,15 +3,15 @@
 namespace TheBattleForHill218;
 
 use TheBattleForHill218\Cards\AirStrikeCard;
-use TheBattleForHill218\Cards\ArtilleryCard;
+use TheBattleForHill218\Cards\ArtilleryBattlefieldCard;
 use TheBattleForHill218\Cards\CardFactory;
-use TheBattleForHill218\Cards\HeavyWeaponsCard;
-use TheBattleForHill218\Cards\InfantryCard;
-use TheBattleForHill218\Cards\ParatrooperCard;
+use TheBattleForHill218\Cards\HeavyWeaponsBattlefieldCard;
+use TheBattleForHill218\Cards\InfantryBattlefieldCard;
+use TheBattleForHill218\Cards\ParatrooperBattlefieldCard;
 use TheBattleForHill218\Cards\PlayerCard;
 use Functional as F;
-use TheBattleForHill218\Cards\SpecialForcesCard;
-use TheBattleForHill218\Cards\TankCard;
+use TheBattleForHill218\Cards\SpecialForcesBattlefieldCard;
+use TheBattleForHill218\Cards\TankBattlefieldCard;
 
 class Hill218Setup
 {

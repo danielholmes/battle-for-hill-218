@@ -54,6 +54,14 @@ class AirStrikeCard implements PlayerCard
     /**
      * @inheritdoc
      */
+    public function attackRequiresSupport()
+    {
+        return false;
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function alwaysStartsInHand()
     {
         return true;

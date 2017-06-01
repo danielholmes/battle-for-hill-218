@@ -22,4 +22,9 @@ interface PlayerCard extends Card
      * @return int
      */
     public function getPlayerId();
+
+    /**
+     * @return boolean
+     */
+    public function attackRequiresSupport();
 }
