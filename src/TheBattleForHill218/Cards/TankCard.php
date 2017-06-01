@@ -4,7 +4,7 @@ namespace TheBattleForHill218\Cards;
 
 use TheBattleForHill218\Battlefield\Battlefield;
 
-class TankBattlefieldCard extends BasePlayerBattlefieldCard
+class TankCard extends BasePlayerBattlefieldCard
 {
     /**
      * @inheritdoc

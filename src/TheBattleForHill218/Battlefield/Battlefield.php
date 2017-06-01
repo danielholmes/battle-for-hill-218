@@ -3,7 +3,10 @@
 namespace TheBattleForHill218\Battlefield;
 
 use Functional as F;
+use TheBattleForHill218\Cards\PlayerBattlefieldCard;
+use TheBattleForHill218\Cards\PlayerCard;
 use TheBattleForHill218\Cards\SupplyOffset;
+use TheBattleForHill218\Cards\SupportOffset;
 
 class Battlefield
 {
@@ -87,7 +90,7 @@ class Battlefield
                 F\filter(
                     $this->placements,
                     function (CardPlacement $placement) use ($myId) {
-                        return $placement->getPlayerId() !== null && $placement->getPlayerId() !== $myId;
+                        return $placement->getPlayerId()->reject($myId)->isDefined();
                     }
                 )
             ),
@@ -111,42 +114,136 @@ class Battlefield
 
     /**
      * @param int $playerId
-     * @param SupplyOffset[] $supplyOffsets
+     * @return bool
+     */
+    private function isBasePositionOccupied($playerId)
+    {
+        $basePosition = $this->getBasePosition($playerId);
+        return F\some($this->placements, function (CardPlacement $p) use ($basePosition) {
+            return $p->getPosition() == $basePosition;
+        });
+    }
+
+    /**
+     * @param int $playerId
+     * @param SupplyOffset[] $supplyPattern
      * @return Position[]
      */
-    public function getAllowedPositions($playerId, array $supplyOffsets)
+    public function getAllowedPositions($playerId, array $supplyPattern)
     {
         $placedPositions = $this->getPositions();
-        $basePosition = $this->getBasePosition($playerId);
-        if (!F\contains($placedPositions, $basePosition, false)) {
-            return array($basePosition);
+        return F\filter(
+            $this->getSuppliedPositionsByPlayerId($playerId, $supplyPattern),
+            function (Position $position) use ($placedPositions) {
+                return !F\contains($placedPositions, $position, false);
+            }
+        );
+    }
+
+    /**
+     * @param int $playerId
+     * @param SupplyOffset[] $supplyPattern
+     * @return Position[]
+     */
+    private function getSuppliedPositionsByPlayerId($playerId, array $supplyPattern)
+    {
+        if (!$this->isBasePositionOccupied($playerId)) {
+            return array($this->getBasePosition($playerId));
         }
 
         return array_values(
             F\unique(
-                F\filter(
-                    F\flat_map(
-                        F\filter(
-                            $this->placements,
-                            function (CardPlacement $placement) use ($playerId) {
-                                return $placement->getPlayerId() === $playerId;
-                            }
-                        ),
-                        function (CardPlacement $placement) use ($supplyOffsets) {
-                            return F\map(
-                                $supplyOffsets,
-                                function (SupplyOffset $offset) use ($placement) {
-                                    return $placement->getPosition()->offset(-$offset->getX(), -$offset->getY());
-                                }
-                            );
-                        }
-                    ),
-                    function (Position $position) use ($placedPositions) {
-                        return !F\contains($placedPositions, $position, false);
+                F\flat_map(
+                    $this->getSuppliedPlacementsByPlayerId($playerId),
+                    function (CardPlacement $placement) use ($supplyPattern) {
+                        return $placement->getSuppliedPositions($supplyPattern);
                     }
                 ),
-                function (Position $position) {
-                    return (string) $position;
+                null,
+                false
+            )
+        );
+    }
+
+    /**
+     * @param int $playerId
+     * @return CardPlacement[]
+     */
+    private function getSuppliedPlacementsByPlayerId($playerId)
+    {
+        $basePosition = $this->getBasePosition($playerId);
+        list($basePlacements, $nonBasePlacements) = F\partition(
+            $this->getPlacementsByPlayerId($playerId),
+            function (CardPlacement $p) use ($basePosition) {
+                return $p->getPosition() == $basePosition;
+            }
+        );
+        if (empty($basePlacements)) {
+            return array();
+        }
+
+        return $this->step($basePlacements[0], $nonBasePlacements);
+    }
+
+    /**
+     * @todo refactor this, it's a mess
+     * @param CardPlacement $placement
+     * @param CardPlacement[] $checkPlacements
+     * @return CardPlacement[]
+     */
+    private function step(CardPlacement $placement, array $checkPlacements)
+    {
+        $position = $placement->getPosition();
+        $placementsSuppliedByThis = array_values(
+            F\filter(
+                $checkPlacements,
+                function (CardPlacement $p) use ($position) {
+                    return F\contains($p->canBeSuppliedFrom(), $position, false);
+                }
+            )
+        );
+        $allPlacementsSupplied = array_merge(array($placement), $placementsSuppliedByThis);
+
+        $remainingPlacements = array_values(
+            F\filter(
+                $checkPlacements,
+                function (CardPlacement $p) use ($allPlacementsSupplied) {
+                    return !F\contains($allPlacementsSupplied, $p, false);
+                }
+            )
+        );
+
+        $returnPlacements = array_slice($allPlacementsSupplied, 0);
+        foreach ($placementsSuppliedByThis as $suppliedPlacement) {
+            $checkRemainingPlacements = F\filter(
+                $remainingPlacements,
+                function (CardPlacement $p) use ($returnPlacements) {
+                    return !F\contains($returnPlacements, $p, false);
+                }
+            );
+            $newPlacements = $this->step($suppliedPlacement, $checkRemainingPlacements);
+            $remainingPlacements = F\filter(
+                $remainingPlacements,
+                function (CardPlacement $p) use ($newPlacements) {
+                    return !F\contains($newPlacements, $p, false);
+                }
+            );
+            $returnPlacements = array_merge($returnPlacements, $newPlacements);
+        }
+        return $returnPlacements;
+    }
+
+    /**
+     * @param int $playerId
+     * @return CardPlacement[]
+     */
+    private function getPlacementsByPlayerId($playerId)
+    {
+        return array_values(
+            F\filter(
+                $this->placements,
+                function (CardPlacement $p) use ($playerId) {
+                    return $p->getPlayerId()->select($playerId)->isDefined();
                 }
             )
         );

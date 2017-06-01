@@ -19,6 +19,7 @@
   "bin": ["bin/bgawb"],
   "require": {
     "php": ">=5.3.2",
+    "phpoption/phpoption": "1.5.0",
     "lstrojny/functional-php": "1.0.0"
   },
   "require-dev": {

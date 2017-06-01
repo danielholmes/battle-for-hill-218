@@ -7,8 +7,8 @@ use TheBattleForHill218\Battlefield\Battlefield;
 use TheBattleForHill218\Battlefield\CardPlacement;
 use TheBattleForHill218\Battlefield\Position;
 use TheBattleForHill218\Cards\HillCard;
-use TheBattleForHill218\Cards\InfantryBattlefieldCard;
-use TheBattleForHill218\Cards\ParatrooperBattlefieldCard;
+use TheBattleForHill218\Cards\InfantryCard;
+use TheBattleForHill218\Cards\ParatroopersCard;
 
 class ParatroopersCardTest extends TestCase
 {
@@ -18,11 +18,11 @@ class ParatroopersCardTest extends TestCase
             2,
             [
                 new CardPlacement(new HillCard(), new Position(0, 0)),
-                new CardPlacement(new InfantryBattlefieldCard(2), new Position(0, -1)),
-                new CardPlacement(new InfantryBattlefieldCard(1), new Position(0, 1))
+                new CardPlacement(new InfantryCard(2), new Position(0, -1)),
+                new CardPlacement(new InfantryCard(1), new Position(0, 1))
             ]
         );
-        $card = new ParatrooperBattlefieldCard(1);
+        $card = new ParatroopersCard(1);
 
         assertThat(
             $card->getPossiblePlacements($battlefield),

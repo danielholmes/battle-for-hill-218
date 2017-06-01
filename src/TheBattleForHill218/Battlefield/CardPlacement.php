@@ -2,8 +2,14 @@
 
 namespace TheBattleForHill218\Battlefield;
 
+use PhpOption\None;
+use PhpOption\Option;
+use PhpOption\Some;
 use TheBattleForHill218\Cards\BattlefieldCard;
+use TheBattleForHill218\Cards\PlayerBattlefieldCard;
 use TheBattleForHill218\Cards\PlayerCard;
+use TheBattleForHill218\Cards\SupplyOffset;
+use Functional as F;
 
 class CardPlacement
 {
@@ -28,14 +34,14 @@ class CardPlacement
     }
 
     /**
-     * @return int|null
+     * @return Option
      */
     public function getPlayerId()
     {
         if ($this->card instanceof PlayerCard) {
-            return $this->card->getPlayerId();
+            return new Some($this->card->getPlayerId());
         }
-        return null;
+        return None::create();
     }
 
     /**
@@ -52,5 +58,46 @@ class CardPlacement
     public function getPosition()
     {
         return $this->position;
+    }
+
+    /**
+     * @return Position[]
+     */
+    public function canBeSuppliedFrom()
+    {
+        if ($this->card instanceof PlayerBattlefieldCard) {
+            $position = $this->getPosition();
+            return F\map(
+                $this->card->getSupplyPattern(),
+                function (SupplyOffset $o) use ($position) {
+                    return $position->offset(-$o->getX(), $o->getY());
+                }
+            );
+        }
+
+        return array();
+    }
+
+    /**
+     * @param SupplyOffset[] $supplyPattern
+     * @return Position[]
+     */
+    public function getSuppliedPositions(array $supplyPattern)
+    {
+        $position = $this->getPosition();
+        return F\map(
+            $supplyPattern,
+            function (SupplyOffset $offset) use ($position) {
+                return $position->offset(-$offset->getX(), -$offset->getY());
+            }
+        );
+    }
+
+    /**
+     * @return string
+     */
+    public function __toString()
+    {
+        return "CardPlacement(card={$this->card}, position={$this->position})";
     }
 }

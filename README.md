@@ -24,7 +24,7 @@ vagrant up
 vagrant ssh
 phpunit
 bgawb validate
-phpcs --standard=PSR2 --tab-width=4 --ignore=src/BGAWorkbench/Stubs,tests/bootstrap.php -q -p tests src
+phpcbf --standard=PSR2 --tab-width=4 --ignore=src/BGAWorkbench/Stubs,tests/bootstrap.php -q -p tests src
 ```
 
 

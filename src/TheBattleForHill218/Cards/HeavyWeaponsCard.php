@@ -4,14 +4,14 @@ namespace TheBattleForHill218\Cards;
 
 use TheBattleForHill218\Battlefield\Battlefield;
 
-class ParatrooperBattlefieldCard extends BasePlayerBattlefieldCard
+class HeavyWeaponsCard extends BasePlayerBattlefieldCard
 {
     /**
      * @inheritdoc
      */
     public function getTypeKey()
     {
-        return 'paratroopers';
+        return 'heavy-weapons';
     }
 
     /**
@@ -19,7 +19,7 @@ class ParatrooperBattlefieldCard extends BasePlayerBattlefieldCard
      */
     public function getTypeName()
     {
-        return 'Paratroopers';
+        return 'Heavy Weapons';
     }
 
     /**
@@ -43,7 +43,7 @@ class ParatrooperBattlefieldCard extends BasePlayerBattlefieldCard
      */
     public function getSupportPattern()
     {
-        return SupportOffset::plusPattern();
+        return SupportOffset::borderPattern();
     }
 
     /**
@@ -51,7 +51,7 @@ class ParatrooperBattlefieldCard extends BasePlayerBattlefieldCard
      */
     public function getAttackPattern()
     {
-        return AttackOffset::plusPattern();
+        return AttackOffset::crossPattern();
     }
 
     /**
@@ -59,6 +59,6 @@ class ParatrooperBattlefieldCard extends BasePlayerBattlefieldCard
      */
     public function getPossiblePlacements(Battlefield $battlefield)
     {
-        return $battlefield->getUnoccupiedWithExpansion(1);
+        return $battlefield->getAllowedPositions($this->getPlayerId(), $this->getSupplyPattern());
     }
 }

@@ -4,14 +4,14 @@ namespace TheBattleForHill218\Cards;
 
 use TheBattleForHill218\Battlefield\Battlefield;
 
-class InfantryBattlefieldCard extends BasePlayerBattlefieldCard
+class SpecialForcesCard extends BasePlayerBattlefieldCard
 {
     /**
      * @inheritdoc
      */
     public function getTypeKey()
     {
-        return 'infantry';
+        return 'special-forces';
     }
 
     /**
@@ -19,15 +19,7 @@ class InfantryBattlefieldCard extends BasePlayerBattlefieldCard
      */
     public function getTypeName()
     {
-        return 'Infantry';
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function attackRequiresSupport()
-    {
-        return true;
+        return 'Special Forces';
     }
 
     /**
@@ -35,7 +27,7 @@ class InfantryBattlefieldCard extends BasePlayerBattlefieldCard
      */
     public function getSupplyPattern()
     {
-        return SupplyOffset::plusPattern();
+        return SupplyOffset::crossPattern();
     }
 
     /**
@@ -44,6 +36,14 @@ class InfantryBattlefieldCard extends BasePlayerBattlefieldCard
     public function getSupportPattern()
     {
         return SupportOffset::plusPattern();
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function attackRequiresSupport()
+    {
+        return true;
     }
 
     /**

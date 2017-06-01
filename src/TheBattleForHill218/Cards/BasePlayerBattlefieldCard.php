@@ -32,4 +32,13 @@ abstract class BasePlayerBattlefieldCard implements PlayerBattlefieldCard
     {
         return false;
     }
+
+    /**
+     * @return string
+     */
+    public function __toString()
+    {
+        $refClass = new \ReflectionClass($this);
+        return $refClass->getShortName() . '()';
+    }
 }
