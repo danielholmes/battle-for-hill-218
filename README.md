@@ -45,9 +45,15 @@ bgawb watch
 ```
 
 
-## TODO
+## Notes on VM Compatibility
 
- - provide php532 bin in vm and put its path in config so runs the PHP code through linter
+ - The BGA Workbench requires PHP 5.6+
+ - The BGA production environment uses Ubuntu 10.04, PHP 5.3.2 and MySQL 5.1
+ - The VM we're currently using is a newer version of Ubuntu (16.04) with PHP 5.6 and MySQL 5.1 (built from source)
+ - I've attempted to use a 10.04 VM which conveniently has the correct production MySQL and PHP versions, but couldn't 
+   get a PHP 5.6 installation
+ - Would be nice to at least provide a PHP 5.3.2 bin in vm to put all production deployable code through its linter
+ - Building this stuff from source takes a long time though
 
 
 ## Known Workbench Issues
