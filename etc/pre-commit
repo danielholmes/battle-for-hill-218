@@ -1,5 +1,3 @@
 #!/bin/sh
 
-ls -la /cdab/dfsd
-
 vendor/bin/phpcs --standard=PSR2 --tab-width=4 --ignore=src/BGAWorkbench/Stubs,tests/bootstrap.php -q -p tests src
