@@ -112,7 +112,8 @@ class PlayCardTest extends TestCase
         $game = $this->table
             ->setupNewGame()
             ->createGameInstanceForCurrentPlayer(66);
-        $airStrikeId = $this->table->fetchValue('SELECT id FROM playable_card WHERE type = "air-strike" AND player_id = 66');
+        $airStrikeId = $this->table
+            ->fetchValue('SELECT id FROM playable_card WHERE type = "air-strike" AND player_id = 66');
         $this->table
             ->getDbConnection()
             ->insert('battlefield_card', ['type' => 'infantry', 'player_id' => 77, 'x' => 0, 'y' => -1]);
@@ -162,7 +163,8 @@ class PlayCardTest extends TestCase
         $game = $this->table
             ->setupNewGame()
             ->createGameInstanceForCurrentPlayer(66);
-        $airStrikeId = $this->table->fetchValue('SELECT id FROM playable_card WHERE type = "air-strike" AND player_id = 66');
+        $airStrikeId = $this->table
+            ->fetchValue('SELECT id FROM playable_card WHERE type = "air-strike" AND player_id = 66');
 
         $game->playCard($airStrikeId, 6, 6);
     }
@@ -174,7 +176,8 @@ class PlayCardTest extends TestCase
         $game = $this->table
             ->setupNewGame()
             ->createGameInstanceForCurrentPlayer(66);
-        $airStrikeId = $this->table->fetchValue('SELECT id FROM playable_card WHERE type = "air-strike" AND player_id = 66');
+        $airStrikeId = $this->table
+            ->fetchValue('SELECT id FROM playable_card WHERE type = "air-strike" AND player_id = 66');
         $this->table
             ->getDbConnection()
             ->insert('battlefield_card', ['type' => 'infantry', 'player_id' => 66, 'x' => 0, 'y' => -1]);
