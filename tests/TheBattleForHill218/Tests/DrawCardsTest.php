@@ -16,22 +16,29 @@ class DrawCardsTest extends TestCase
     protected function createGameTableInstanceBuilder()
     {
         return $this->gameTableInstanceBuilder()
-            ->setPlayersWithIds([66, 77]);
+            ->setPlayers([
+                ['player_id' => 66, 'player_no' => 1],
+                ['player_id' => 77, 'player_no' => 2]
+            ]);
     }
 
     public function testDrawCardsOnFirstTurn()
     {
+        /** @var \BattleForHillDhau $game */
         $game = $this->table
             ->setupNewGame()
-            ->createGameInstanceWithNoBoundedPlayer()
-            ->stubActivePlayerId(66);
+            ->createGameInstanceWithNoBoundedPlayer();
 
-        $game->stDrawCards();
+        $game->stubCurrentPlayerId(66)->returnToDeck([1, 2]);
+        $game->stubCurrentPlayerId(77)->returnToDeck([8, 9]);
+        $game->resetNotifications();
 
-        assertThat($this->table->fetchDbRows('deck_card', ['player_id' => 66]), arrayWithSize(18));
-        assertThat($this->table->fetchDbRows('deck_card', ['player_id' => 77]), arrayWithSize(19));
-        assertThat($this->table->fetchDbRows('playable_card', ['player_id' => 66]), arrayWithSize(8));
-        assertThat($this->table->fetchDbRows('playable_card', ['player_id' => 77]), arrayWithSize(7));
+        $game->stubActivePlayerId(66)->stDrawCards();
+
+        assertThat($this->table->fetchDbRows('deck_card', ['player_id' => 66]), arrayWithSize(20));
+        assertThat($this->table->fetchDbRows('deck_card', ['player_id' => 77]), arrayWithSize(21));
+        assertThat($this->table->fetchDbRows('playable_card', ['player_id' => 66]), arrayWithSize(6));
+        assertThat($this->table->fetchDbRows('playable_card', ['player_id' => 77]), arrayWithSize(5));
         assertThat(
             $game->getNotifications(),
             containsInAnyOrder(
@@ -56,33 +63,35 @@ class DrawCardsTest extends TestCase
 
     public function testDrawCardsOnSecondTurn()
     {
-        $this->markTestSkipped('Not yet implemented');
-
+        /** @var \BattleForHillDhau $game */
         $game = $this->table
             ->setupNewGame()
-            ->createGameInstanceWithNoBoundedPlayer()
-            ->stubActivePlayerId(66);
+            ->createGameInstanceWithNoBoundedPlayer();
 
-        $game->stDrawCards();
+        $game->stubCurrentPlayerId(66)->returnToDeck([1, 2]);
+        $game->stubCurrentPlayerId(77)->returnToDeck([8, 9]);
+        $game->resetNotifications();
 
-        assertThat($this->table->fetchDbRows('deck_card', ['player_id' => 66]), arrayWithSize(18));
+        $game->stubActivePlayerId(77)->stDrawCards();
+
+        assertThat($this->table->fetchDbRows('deck_card', ['player_id' => 66]), arrayWithSize(21));
         assertThat($this->table->fetchDbRows('deck_card', ['player_id' => 77]), arrayWithSize(19));
-        assertThat($this->table->fetchDbRows('playable_card', ['player_id' => 66]), arrayWithSize(8));
+        assertThat($this->table->fetchDbRows('playable_card', ['player_id' => 66]), arrayWithSize(5));
         assertThat($this->table->fetchDbRows('playable_card', ['player_id' => 77]), arrayWithSize(7));
         assertThat(
             $game->getNotifications(),
             containsInAnyOrder(
                 M::hasEntries([
-                    'playerId' => 66,
+                    'playerId' => 77,
                     'type' => 'myCardsDrawn',
                     'log' => '',
-                    'args' => hasEntry('cards', contains(nonEmptyArray()))
+                    'args' => hasEntry('cards', arrayWithSize(2))
                 ]),
                 M::hasEntries([
                     'playerId' => 'all',
                     'type' => 'cardsDrawn',
-                    'log' => '${playerName} has drawn ${numCards} card',
-                    'args' => hasEntry('numCards', 1)
+                    'log' => '${playerName} has drawn ${numCards} cards',
+                    'args' => hasEntry('numCards', 2)
                 ])
             )
         );

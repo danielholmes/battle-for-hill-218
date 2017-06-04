@@ -497,7 +497,14 @@ class BattleForHillDhau extends Table
     public function stDrawCards()
     {
         $playerId = (int) $this->getActivePlayerId();
-        $numCards = 1; // TODO: Change based on turn
+        $numCards = 2;
+        $playerNumber = (int) self::getUniqueValueFromDB("SELECT player_no from player WHERE player_id = {$playerId}");
+        if ($playerNumber === 1) {
+            $deckSize = (int) self::getUniqueValueFromDB("SELECT COUNT(id) FROM deck_card WHERE player_id = {$playerId}");
+            if ($deckSize === Hill218Setup::getDeckSizeAfterInitialReturn()) {
+                $numCards = 1;
+            }
+        }
 
         $drawn = self::getObjectListFromDB("SELECT id, type FROM deck_card WHERE player_id = {$playerId} ORDER BY `order` DESC LIMIT {$numCards}");
         if (count($drawn) === 0) {
@@ -526,7 +533,6 @@ class BattleForHillDhau extends Table
 
         $players = self::loadPlayersBasicInfos();
         $playerColor = $players[$playerId]['player_color'];
-        $playerName = $players[$playerId]['player_name'];
         $this->notifyPlayer(
             $playerId,
             'myCardsDrawn',
@@ -542,7 +548,7 @@ class BattleForHillDhau extends Table
             clienttranslate($drawMessage),
             array(
                 'numCards' => count($drawn),
-                'playerName' => $playerName,
+                'playerName' => $players[$playerId]['player_name'],
                 'playerId' => $playerId,
                 'playerColor' => $playerColor
             )

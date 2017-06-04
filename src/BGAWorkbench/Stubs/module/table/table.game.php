@@ -277,10 +277,12 @@ abstract class Table extends APP_GameClass
 
     /**
      * @param int $currentPlayerId
+     * @return self
      */
     public function stubCurrentPlayerId($currentPlayerId)
     {
         $this->currentPlayerId = $currentPlayerId;
+        return $this;
     }
 
     /**
