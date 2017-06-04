@@ -3,8 +3,11 @@
 namespace BGAWorkbench\Project;
 
 use BGAWorkbench\Utils;
+use PhpOption\Option;
 use Qaribou\Collection\ImmArray;
 use Symfony\Component\Config\Definition\Processor;
+use Symfony\Component\Yaml\Exception\ParseException;
+use Symfony\Component\Yaml\Yaml;
 
 class WorkbenchProjectConfig
 {
@@ -44,6 +47,11 @@ class WorkbenchProjectConfig
     private $linterPhpBin;
 
     /**
+     * @var Option
+     */
+    private $sftpConfig;
+
+    /**
      * @param \SplFileInfo $directory
      * @param boolean $useComposer
      * @param ImmArray $extraSrcPaths
@@ -51,6 +59,7 @@ class WorkbenchProjectConfig
      * @param string $testDbUsername
      * @param string $testDbPassword
      * @param string $linterPhpBin
+     * @param Option $sftpConfig
      */
     public function __construct(
         \SplFileInfo $directory,
@@ -59,7 +68,8 @@ class WorkbenchProjectConfig
         $testDbNamePrefix,
         $testDbUsername,
         $testDbPassword,
-        $linterPhpBin
+        $linterPhpBin,
+        Option $sftpConfig
     ) {
     
         $this->directory = $directory;
@@ -69,6 +79,7 @@ class WorkbenchProjectConfig
         $this->testDbUsername = $testDbUsername;
         $this->testDbPassword = $testDbPassword;
         $this->linterPhpBin = $linterPhpBin;
+        $this->sftpConfig = $sftpConfig;
     }
 
     /**
@@ -101,6 +112,14 @@ class WorkbenchProjectConfig
     public function getLinterPhpBin()
     {
         return $this->linterPhpBin;
+    }
+
+    /**
+     * @return Option
+     */
+    public function getDeployConfig()
+    {
+        return $this->sftpConfig;
     }
 
     /**
@@ -143,13 +162,18 @@ class WorkbenchProjectConfig
      */
     public static function loadFrom(\SplFileInfo $directory)
     {
-        $filepath = $directory->getPathname() . DIRECTORY_SEPARATOR . 'bgaproject.json';
+        $filepath = $directory->getPathname() . DIRECTORY_SEPARATOR . 'bgaproject.yml';
         $rawContent = @file_get_contents($filepath);
         if ($rawContent === false) {
             throw new \InvalidArgumentException("Couldn't read project config {$filepath}");
         }
 
-        $rawConfig = @json_decode($rawContent, true);
+        try {
+            $rawConfig = Yaml::parse($rawContent);
+        } catch (ParseException $e) {
+            throw new \InvalidArgumentException("Invalid YAML in file {$filepath}", 0, $e);
+        }
+
         $processor = new Processor();
         $processed = $processor->processConfiguration(new ConfigFileConfiguration(), [$rawConfig]);
         return new WorkbenchProjectConfig(
@@ -159,7 +183,10 @@ class WorkbenchProjectConfig
             $processed['testDb']['namePrefix'],
             $processed['testDb']['user'],
             $processed['testDb']['pass'],
-            $processed['linterPhpBin']
+            $processed['linterPhpBin'],
+            Option::fromValue($processed['sftp'])->map(function (array $raw) {
+                return new DeployConfig($raw['host'], $raw['user'], $raw['pass']);
+            })
         );
     }
 }

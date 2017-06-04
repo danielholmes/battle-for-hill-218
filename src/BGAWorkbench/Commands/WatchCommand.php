@@ -3,7 +3,6 @@
 namespace BGAWorkbench\Commands;
 
 use BGAWorkbench\ProductionDeployment;
-use BGAWorkbench\Project\WorkbenchDeployConfig;
 use BGAWorkbench\Project\WorkbenchProjectConfig;
 use Illuminate\Filesystem\Filesystem;
 use JasonLewis\ResourceWatcher\Tracker;
@@ -23,7 +22,7 @@ class WatchCommand extends Command
         $this
             ->setName('watch')
             ->setDescription('Deploys the project to BGA as changes are made')
-            ->setHelp('Deploys each changing file using the information in bgaproject.json');
+            ->setHelp('Deploys each changing file using the information in the project config');
     }
 
     /**
@@ -31,12 +30,15 @@ class WatchCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $config = WorkbenchDeployConfig::loadFromCwd();
-        $project = WorkbenchProjectConfig::loadFromCwd()->loadProject();
+        $config = WorkbenchProjectConfig::loadFromCwd();
+        $deployConfig = $config->getDeployConfig()
+            ->getOrThrow(new \RuntimeException('No deploy config provided'));
+
+        $project = $config->loadProject();
         $deployment = new ProductionDeployment(
-            $config->getSftpHost(),
-            $config->getSftpUsername(),
-            $config->getSftpPassword(),
+            $deployConfig->getHost(),
+            $deployConfig->getUsername(),
+            $deployConfig->getPassword(),
             $project->getName()
         );
 

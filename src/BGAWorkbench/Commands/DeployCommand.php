@@ -3,7 +3,6 @@
 namespace BGAWorkbench\Commands;
 
 use BGAWorkbench\ProductionDeployment;
-use BGAWorkbench\Project\WorkbenchDeployConfig;
 use BGAWorkbench\Project\WorkbenchProjectConfig;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -20,7 +19,7 @@ class DeployCommand extends Command
         $this
             ->setName('deploy')
             ->setDescription('Deploys the project to BGA')
-            ->setHelp('Deploys all project files using the information in bgaproject.json');
+            ->setHelp('Deploys all project files using the information in the project config');
     }
 
     /**
@@ -28,13 +27,15 @@ class DeployCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $config = WorkbenchDeployConfig::loadFromCwd();
-        $project = WorkbenchProjectConfig::loadFromCwd()->loadProject();
+        $config = WorkbenchProjectConfig::loadFromCwd();
+        $deployConfig = $config->getDeployConfig()
+            ->getOrThrow(new \RuntimeException('No deploy config provided'));
 
+        $project = $config->loadProject();
         $deployment = new ProductionDeployment(
-            $config->getSftpHost(),
-            $config->getSftpUsername(),
-            $config->getSftpPassword(),
+            $deployConfig->getHost(),
+            $deployConfig->getUsername(),
+            $deployConfig->getPassword(),
             $project->getName()
         );
 

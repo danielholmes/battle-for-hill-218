@@ -31,6 +31,13 @@ class ConfigFileConfiguration implements ConfigurationInterface
                     ->defaultValue([])
                     ->prototype('scalar')->end()
                 ->end()
+                ->arrayNode('sftp')
+                    ->children()
+                        ->scalarNode('host')->isRequired()->end()
+                        ->scalarNode('user')->isRequired()->end()
+                        ->scalarNode('pass')->isRequired()->end()
+                    ->end()
+                ->end()
             ->end()
         ;
         return $treeBuilder;

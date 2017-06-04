@@ -1,0 +1,14 @@
+useComposer: true
+
+extraSrc:
+  - src/TheBattleForHill218
+
+testDb:
+  namePrefix: battleforhill_test_
+  user: root
+  pass: battle218pw
+
+sftp:
+  host: ""
+  user: ""
+  pass: ""

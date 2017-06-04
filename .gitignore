@@ -1,3 +1,4 @@
 /build
 /vendor
-/bgadeploy.json
+/bgaproject.yml
+!/bgaproject.yml.dist
