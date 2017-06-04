@@ -184,7 +184,8 @@ class Battlefield
             return array();
         }
 
-        return $this->suppliedPlacementsStep($basePlacements[0], $nonBasePlacements);
+        $basePlacements = array_values($basePlacements);
+        return $this->suppliedPlacementsStep($basePlacements[0], array_values($nonBasePlacements));
     }
 
     /**

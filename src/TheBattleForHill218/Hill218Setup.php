@@ -38,7 +38,10 @@ class Hill218Setup
             throw new \LogicException('More required cards than initial hand size');
         }
 
-        $hand = array_merge($required, array_slice($remaining, 0, self::PLAYABLE_CARDS_SIZE - count($required)));
+        $hand = array_merge(
+            array_values($required),
+            array_slice(array_values($remaining), 0, self::PLAYABLE_CARDS_SIZE - count($required))
+        );
         $deck = array_values(
             F\filter($all, function (PlayerCard $card) use ($hand) {
                 return !F\contains($hand, $card);

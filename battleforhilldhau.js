@@ -131,7 +131,6 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domGeom, fx) {
         },
 
         onEnterPlayCard: function(possiblePlacementsByCardId) {
-            console.log('onEnterPlayCard', possiblePlacementsByCardId);
             this.possiblePlacementsByCardId = possiblePlacementsByCardId;
             this.enablePlayableCardsClick(this.onHandCardPlayClick);
 
@@ -211,8 +210,16 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domGeom, fx) {
             return query(this.getCurrentPlayerHandCardsNodeList()).filter('[data-id=' + cardId + ']').pop();
         },
 
+        getCurrentPlayerPlayableCardNodeByCardId: function(cardId) {
+            return this.getCurrentPlayerPlayableCardNodeList().filter('[data-id=' + cardId + ']').pop();
+        },
+
         getPlayerDeckNodeById: function(id) {
             return query('#overall_player_board_' + id).query('.deck-icon').pop();
+        },
+
+        getRandomAirStrikeCardNodeByPlayerId: function(playerId) {
+            return query(this.getPlayerCardsNodeById(playerId)).query('.air-strikes .playable-card').pop();
         },
 
         getCurrentPlayerDeckNode: function() {
@@ -227,8 +234,12 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domGeom, fx) {
             this.placeInPlayerHand(this.player_id, card);
         },
 
+        getCurrentPlayerPlayableCardNodeList: function() {
+            return query(this.getCurrentPlayerCardsNode()).query('.playable-card');
+        },
+
         getCurrentPlayerSelectedPlayableCardNodeList: function() {
-            return query(this.getCurrentPlayerCardsNode()).query('.playable-card.selected');
+            return this.getCurrentPlayerPlayableCardNodeList().filter('.selected');
         },
 
         createHiddenPlayerAirStrikeCard: function(card, color) {
@@ -457,7 +468,6 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domGeom, fx) {
 
             var cardId = selectedIds.pop();
             var possiblePlacements = this.possiblePlacementsByCardId[cardId];
-            console.log('onHandCardPlayClick', cardId, possiblePlacements);
             array.forEach(possiblePlacements, lang.hitch(this, this.activatePossiblePlacementPosition));
         },
 
@@ -511,6 +521,8 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domGeom, fx) {
             dojo.subscribe('myCardsDrawn', lang.hitch(this, this.notif_myCardsDrawn));
             dojo.subscribe('iPlacedCard', lang.hitch(this, this.notif_iPlacedCard));
             dojo.subscribe('placedCard', lang.hitch(this, this.notif_placedCard));
+            dojo.subscribe('iPlayedAirStrike', lang.hitch(this, this.notif_iPlayedAirStrike));
+            dojo.subscribe('playedAirStrike', lang.hitch(this, this.notif_playedAirStrike));
         },
 
         notif_placedCard: function(notification) {
@@ -546,6 +558,36 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domGeom, fx) {
             this.slideToObjectAndDestroy(this.prepareForAnimation(cardNode), position, SLIDE_ANIMATION_DURATION);
             setTimeout(lang.hitch(this, function() {
                 this.placeBattlefieldCard({type: type, playerColor: color, x: x, y: y});
+            }), SLIDE_ANIMATION_DURATION);
+        },
+
+        notif_playedAirStrike: function(notification) {
+            var playerId = notification.args.playerId;
+            if (playerId === this.player_id) {
+                return;
+            }
+
+            var x = notification.args.x;
+            var y = notification.args.y;
+            var airStrikeCardNode = this.getRandomAirStrikeCardNodeByPlayerId(playerId);
+            var position = this.getOrCreatePlacementPosition(x, y);
+
+            this.slideToObjectAndDestroy(this.prepareForAnimation(airStrikeCardNode), position, SLIDE_ANIMATION_DURATION);
+            setTimeout(lang.hitch(this, function() {
+                dojo.destroy(position);
+            }), SLIDE_ANIMATION_DURATION);
+        },
+
+        notif_iPlayedAirStrike: function(notification) {
+            var cardId = notification.args.cardId;
+            var cardNode = this.getCurrentPlayerPlayableCardNodeByCardId(cardId);
+            var x = notification.args.x;
+            var y = notification.args.y;
+
+            var position = this.getOrCreatePlacementPosition(x, y);
+            this.slideToObjectAndDestroy(this.prepareForAnimation(cardNode), position, SLIDE_ANIMATION_DURATION);
+            setTimeout(lang.hitch(this, function() {
+                dojo.destroy(position);
             }), SLIDE_ANIMATION_DURATION);
         },
 

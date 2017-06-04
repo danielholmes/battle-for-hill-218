@@ -59,6 +59,6 @@ class ParatroopersCard extends BasePlayerBattlefieldCard
      */
     public function getPossiblePlacements(Battlefield $battlefield)
     {
-        return $battlefield->getUnoccupiedWithExpansion(1);
+        return $battlefield->getUnoccupiedWithExpansion(2);
     }
 }
