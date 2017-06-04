@@ -132,11 +132,13 @@ class Battlefield
     public function getAllowedPositions($playerId, array $supplyPattern)
     {
         $placedPositions = $this->getPositions();
-        return F\filter(
-            $this->getSuppliedPositionsByPlayerId($playerId, $supplyPattern),
-            function (Position $position) use ($placedPositions) {
-                return !F\contains($placedPositions, $position, false);
-            }
+        return array_values(
+            F\filter(
+                $this->getSuppliedPositionsByPlayerId($playerId, $supplyPattern),
+                function (Position $position) use ($placedPositions) {
+                    return !F\contains($placedPositions, $position, false);
+                }
+            )
         );
     }
 
@@ -182,7 +184,7 @@ class Battlefield
             return array();
         }
 
-        return $this->step($basePlacements[0], $nonBasePlacements);
+        return $this->suppliedPlacementsStep($basePlacements[0], $nonBasePlacements);
     }
 
     /**
@@ -191,7 +193,7 @@ class Battlefield
      * @param CardPlacement[] $checkPlacements
      * @return CardPlacement[]
      */
-    private function step(CardPlacement $placement, array $checkPlacements)
+    private function suppliedPlacementsStep(CardPlacement $placement, array $checkPlacements)
     {
         $position = $placement->getPosition();
         $placementsSuppliedByThis = array_values(
@@ -221,7 +223,7 @@ class Battlefield
                     return !F\contains($returnPlacements, $p, false);
                 }
             );
-            $newPlacements = $this->step($suppliedPlacement, $checkRemainingPlacements);
+            $newPlacements = $this->suppliedPlacementsStep($suppliedPlacement, $checkRemainingPlacements);
             $remainingPlacements = F\filter(
                 $remainingPlacements,
                 function (CardPlacement $p) use ($newPlacements) {

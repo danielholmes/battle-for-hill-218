@@ -35,6 +35,9 @@ class DrawCardsTest extends TestCase
 
         $game->stubActivePlayerId(66)->stDrawCards();
 
+        $lastInsertedPlayableId = $this->table->fetchValue(
+            'SELECT id FROM playable_card WHERE player_id = 66 ORDER BY id DESC LIMIT 1'
+        );
         assertThat(
             $this->table->fetchValue('SELECT turn_plays_remaining FROM player WHERE player_id = 66'),
             equalTo(1)
@@ -50,7 +53,7 @@ class DrawCardsTest extends TestCase
                     'playerId' => 66,
                     'type' => 'myCardsDrawn',
                     'log' => '',
-                    'args' => hasEntry('cards', contains(nonEmptyArray()))
+                    'args' => hasEntry('cards', contains(hasEntry('id', $lastInsertedPlayableId)))
                 ]),
                 M::hasEntries([
                     'playerId' => 'all',

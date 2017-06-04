@@ -506,15 +506,15 @@ class BattleForHillDhau extends Table
             }
         }
 
-        $drawn = self::getObjectListFromDB("SELECT id, type FROM deck_card WHERE player_id = {$playerId} ORDER BY `order` DESC LIMIT {$numCards}");
-        $numDrawn = count($drawn);
+        $drawnDeck = self::getObjectListFromDB("SELECT id, type FROM deck_card WHERE player_id = {$playerId} ORDER BY `order` DESC LIMIT {$numCards}");
+        $numDrawn = count($drawnDeck);
         if ($numDrawn === 0) {
             $this->gamestate->nextState('cardsDrawn');
             return;
         }
 
         // Remove drawn from the deck
-        $drawnIds = F\pluck($drawn, 'id');
+        $drawnIds = F\pluck($drawnDeck, 'id');
         $drawnIdsList = join(', ', $drawnIds);
         self::DBQuery("DELETE FROM deck_card WHERE id IN ({$drawnIdsList})");
 
@@ -523,7 +523,7 @@ class BattleForHillDhau extends Table
         $maxOrder = (int) self::getUniqueValueFromDB("SELECT MAX(`order`) FROM playable_card WHERE player_id = {$playerId}");
         self::DBQuery(SQLHelper::insertAll(
             'playable_card',
-            F\map($drawn, function(array $card, $i) use ($playerId, $maxOrder) {
+            F\map($drawnDeck, function(array $card, $i) use ($playerId, $maxOrder) {
                 return array(
                     'type' => $card['type'],
                     'order' => $maxOrder + $i + 1,
@@ -531,6 +531,7 @@ class BattleForHillDhau extends Table
                 );
             })
         ));
+        $drawnPlayable = self::getObjectListFromDB("SELECT id, type FROM playable_card WHERE player_id = {$playerId} ORDER BY id DESC LIMIT {$numDrawn}");
 
         $players = self::loadPlayersBasicInfos();
         $playerColor = $players[$playerId]['player_color'];
@@ -538,7 +539,7 @@ class BattleForHillDhau extends Table
             $playerId,
             'myCardsDrawn',
             '',
-            array('cards' => $drawn, 'playerColor' => $playerColor)
+            array('cards' => $drawnPlayable, 'playerColor' => $playerColor)
         );
         $drawMessage = '${playerName} has drawn ${numCards} card';
         if ($numDrawn > 1) {

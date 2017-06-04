@@ -457,6 +457,7 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domGeom, fx) {
 
             var cardId = selectedIds.pop();
             var possiblePlacements = this.possiblePlacementsByCardId[cardId];
+            console.log('onHandCardPlayClick', cardId, possiblePlacements);
             array.forEach(possiblePlacements, lang.hitch(this, this.activatePossiblePlacementPosition));
         },
 
