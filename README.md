@@ -61,4 +61,8 @@ bgawb watch
 
  - When using the watch command - a changed file during the initial deploy won't redeploy
  - SFTP disconnects after a while - should be intelligent enough to reconnect
- 
+
+
+## Git Pre-Commit Hook
+
+Available in `etc/pre-commit`. Runs an auto style detection + fixer.
