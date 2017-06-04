@@ -86,6 +86,17 @@ class DatabaseInstance
     }
 
     /**
+     * @param string $sql
+     * @return mixed
+     */
+    public function fetchValue($sql)
+    {
+        return $this->getOrCreateConnection()
+            ->executeQuery($sql)
+            ->fetchColumn();
+    }
+
+    /**
      * @return Connection
      */
     public function getOrCreateConnection()

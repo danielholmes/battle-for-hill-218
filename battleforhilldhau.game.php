@@ -507,7 +507,8 @@ class BattleForHillDhau extends Table
         }
 
         $drawn = self::getObjectListFromDB("SELECT id, type FROM deck_card WHERE player_id = {$playerId} ORDER BY `order` DESC LIMIT {$numCards}");
-        if (count($drawn) === 0) {
+        $numDrawn = count($drawn);
+        if ($numDrawn === 0) {
             $this->gamestate->nextState('cardsDrawn');
             return;
         }
@@ -540,19 +541,21 @@ class BattleForHillDhau extends Table
             array('cards' => $drawn, 'playerColor' => $playerColor)
         );
         $drawMessage = '${playerName} has drawn ${numCards} card';
-        if ($numCards > 1) {
+        if ($numDrawn > 1) {
             $drawMessage .= 's';
         }
         $this->notifyAllPlayers(
             'cardsDrawn',
             clienttranslate($drawMessage),
             array(
-                'numCards' => count($drawn),
+                'numCards' => $numDrawn,
                 'playerName' => $players[$playerId]['player_name'],
                 'playerId' => $playerId,
                 'playerColor' => $playerColor
             )
         );
+
+        self::DbQuery("UPDATE player SET turn_plays_remaining = {$numDrawn} WHERE player_id = {$playerId}");
 
         $this->gamestate->nextState('cardsDrawn');
     }
@@ -561,23 +564,28 @@ class BattleForHillDhau extends Table
     {
         $playerId = (int) $this->getActivePlayerId();
 
-        $playerIdsWithDeckCard = $this->getIntCollectionFromDB('SELECT DISTINCT player_id FROM deck_card');
-        $playerIdsWithPlayableCard = $this->getIntCollectionFromDB('SELECT DISTINCT player_id FROM playable_card');
-        if (empty($playerIdsWithDeckCard) && empty($playerIdsWithPlayableCard)) {
+        $haveDeckCards = (boolean) self::getUniqueValueFromDB('SELECT COUNT(id) FROM deck_card LIMIT 1');
+        $havePlayableCards = (boolean) self::getUniqueValueFromDB('SELECT COUNT(id) FROM playable_card LIMIT 1');
+        if (!$haveDeckCards && !$havePlayableCards) {
             $this->gamestate->nextState('noCardsLeft');
             return;
         }
 
-        $players = self::loadPlayersBasicInfos();
-        $opponentPlayerId = F\first(
-            array_keys($players),
-            function($checkId) use ($playerId) { return $checkId !== $playerId; }
-        );
+        self::DbQuery("UPDATE player SET turn_plays_remaining = turn_plays_remaining - 1 WHERE player_id = {$playerId}");
+        $remaining = (int) self::getUniqueValueFromDB("SELECT turn_plays_remaining FROM player WHERE player_id = {$playerId}");
+        if ($remaining <= 0) {
 
-        $this->debug('DANN about to change active player from ' . $playerId . ' (' . $this->getActivePlayerName() . ') to ' . $opponentPlayerId);
-        $this->gamestate->changeActivePlayer($opponentPlayerId);
-        $this->debug('DANN about to transition to nextPlayer');
-        $this->gamestate->nextState('nextPlayer');
+            $opponentPlayerId = F\first(
+                array_keys(self::loadPlayersBasicInfos()),
+                function($checkId) use ($playerId) { return $checkId !== $playerId; }
+            );
+            self::DbQuery("UPDATE player SET turn_plays_remaining = 2 WHERE player_id = {$opponentPlayerId}");
+            $this->gamestate->changeActivePlayer($opponentPlayerId);
+            $this->gamestate->nextState('nextPlayer');
+            return;
+        }
+
+        $this->gamestate->nextState('playAgain');
     }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -591,8 +599,7 @@ class BattleForHillDhau extends Table
         You can do whatever you want in order to make sure the turn of this player ends appropriately
         (ex: pass).
     */
-
-    function zombieTurn( $state, $active_player )
+    public function zombieTurn($state, $active_player)
     {
     	$statename = $state['name'];
     	

@@ -93,6 +93,15 @@ class TableInstance
     }
 
     /**
+     * @param string $sql
+     * @return mixed
+     */
+    public function fetchValue($sql)
+    {
+        return $this->database->fetchValue($sql);
+    }
+
+    /**
      * @return QueryBuilder
      */
     public function createDbQueryBuilder()

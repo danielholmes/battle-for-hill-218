@@ -20,7 +20,7 @@ class PlayersConfiguration implements ConfigurationInterface
             ->prototype('array')
                 ->children()
                     ->scalarNode('player_id')->end()
-                    ->scalarNode('player_no')->end()
+                    ->scalarNode('player_no')->defaultValue(1)->end()
                     ->scalarNode('player_canal')->defaultValue(md5(time()))->end()
                     ->scalarNode('player_color')->defaultValue('ff0000')->end()
                     ->scalarNode('player_name')->defaultValue($faker->firstName)->end()

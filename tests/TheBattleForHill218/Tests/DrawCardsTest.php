@@ -35,6 +35,10 @@ class DrawCardsTest extends TestCase
 
         $game->stubActivePlayerId(66)->stDrawCards();
 
+        assertThat(
+            $this->table->fetchValue('SELECT turn_plays_remaining FROM player WHERE player_id = 66'),
+            equalTo(1)
+        );
         assertThat($this->table->fetchDbRows('deck_card', ['player_id' => 66]), arrayWithSize(20));
         assertThat($this->table->fetchDbRows('deck_card', ['player_id' => 77]), arrayWithSize(21));
         assertThat($this->table->fetchDbRows('playable_card', ['player_id' => 66]), arrayWithSize(6));
@@ -74,6 +78,10 @@ class DrawCardsTest extends TestCase
 
         $game->stubActivePlayerId(77)->stDrawCards();
 
+        assertThat(
+            $this->table->fetchValue('SELECT turn_plays_remaining FROM player WHERE player_id = 66'),
+            equalTo(2)
+        );
         assertThat($this->table->fetchDbRows('deck_card', ['player_id' => 66]), arrayWithSize(21));
         assertThat($this->table->fetchDbRows('deck_card', ['player_id' => 77]), arrayWithSize(19));
         assertThat($this->table->fetchDbRows('playable_card', ['player_id' => 66]), arrayWithSize(5));

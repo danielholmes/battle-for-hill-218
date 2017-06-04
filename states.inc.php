@@ -116,8 +116,4 @@ $machinestates = array(
         "action" => "stGameEnd",
         "args" => "argGameEnd"
     )
-
 );
-
-
-

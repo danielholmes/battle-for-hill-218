@@ -39,5 +39,6 @@ ALTER TABLE `battlefield_card`
   ADD CONSTRAINT `battlefield_card_ibfk_1` FOREIGN KEY (`player_id`) REFERENCES `player` (`player_id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 
+ALTER TABLE player ADD COLUMN `turn_plays_remaining` TINYINT(1) UNSIGNED NOT NULL DEFAULT 2;
 ALTER TABLE player ADD COLUMN `base_side` enum('1','-1') NOT NULL;
 ALTER TABLE player ADD UNIQUE KEY `base_side` (`base_side`);

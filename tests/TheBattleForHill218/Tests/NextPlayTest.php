@@ -13,30 +13,72 @@ class NextPlayTest extends TestCase
     protected function createGameTableInstanceBuilder()
     {
         return $this->gameTableInstanceBuilder()
-            ->setPlayersWithIds([66, 77]);
+            ->setPlayers([
+                ['player_id' => 66, 'player_no' => 1],
+                ['player_id' => 77, 'player_no' => 2]
+            ]);
     }
 
-    // TODO: Play again/another play for current player
-
-    public function testNextPlaySwitchPlayer()
+    /**
+     * @return \BattleForHillDhau
+     */
+    private function createGameReadyForNext()
     {
         $game = $this->table
             ->setupNewGame()
-            ->createGameInstanceWithNoBoundedPlayer()
-            ->stubActivePlayerId(66);
+            ->createGameInstanceWithNoBoundedPlayer();
 
-        $game->stNextPlay();
+        $game->stubCurrentPlayerId(66)->returnToDeck([1, 2]);
+        $game->stubCurrentPlayerId(77)->returnToDeck([8, 9]);
+        $game->stubActivePlayerId(77)->stDrawCards();
+        return $game;
+    }
+
+    public function testNextPlaySwitchPlayer()
+    {
+        $game = $this->createGameReadyForNext();
+        $this->table->getDbConnection()
+            ->exec('UPDATE player SET turn_plays_remaining = 1 WHERE player_id = 66');
+        $this->table->getDbConnection()
+            ->exec('UPDATE player SET turn_plays_remaining = 0 WHERE player_id = 77');
+
+        $game->stubActivePlayerId(66)->stNextPlay();
+
+        assertThat(
+            $this->table->fetchDbRows('player'),
+            containsInAnyOrder([
+                M::hasEntries(['player_id' => 66, 'turn_plays_remaining' => 0]),
+                M::hasEntries(['player_id' => 77, 'turn_plays_remaining' => 2])
+            ])
+        );
+    }
+
+    public function testNextPlaySamePlayer()
+    {
+        $game = $this->createGameReadyForNext();
+        $this->table->getDbConnection()
+            ->exec('UPDATE player SET turn_plays_remaining = 2 WHERE player_id = 66');
+        $this->table->getDbConnection()
+            ->exec('UPDATE player SET turn_plays_remaining = 0 WHERE player_id = 77');
+
+        $game->stubActivePlayerId(66)->stNextPlay();
+
+        assertThat(
+            $this->table->fetchDbRows('player'),
+            containsInAnyOrder([
+                M::hasEntries(['player_id' => 66, 'turn_plays_remaining' => 1]),
+                M::hasEntries(['player_id' => 77, 'turn_plays_remaining' => 0])
+            ])
+        );
     }
 
     public function testNextPlayNoCardsLeft()
     {
-        $game = $this->table
-            ->setupNewGame()
-            ->createGameInstanceWithNoBoundedPlayer()
-            ->stubActivePlayerId(66);
+        $game = $this->createGameReadyForNext();
+
         $this->table->getDbConnection()->exec('DELETE FROM deck_card WHERE 1');
         $this->table->getDbConnection()->exec('DELETE FROM playable_card WHERE 1');
 
-        $game->stNextPlay();
+        $game->stubActivePlayerId(66)->stNextPlay();
     }
 }
