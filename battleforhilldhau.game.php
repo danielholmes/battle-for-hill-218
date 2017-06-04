@@ -28,9 +28,11 @@ use Functional as F;
 use TheBattleForHill218\Battlefield\Battlefield;
 use TheBattleForHill218\Battlefield\CardPlacement;
 use TheBattleForHill218\Battlefield\Position;
+use TheBattleForHill218\Cards\AirStrikeCard;
 use TheBattleForHill218\Cards\BattlefieldCard;
 use TheBattleForHill218\Cards\CardFactory;
 use TheBattleForHill218\Cards\HillCard;
+use TheBattleForHill218\Cards\PlayerBattlefieldCard;
 use TheBattleForHill218\Cards\PlayerCard;
 use TheBattleForHill218\Hill218Setup;
 use TheBattleForHill218\SQLHelper;
@@ -407,6 +409,73 @@ class BattleForHillDhau extends Table
             throw new BgaUserException('Card no longer playable');
         }
 
+        if ($card instanceof AirStrikeCard) {
+            $this->playAirStrikeCard($card, $cardId, $position);
+            return;
+        }
+
+        $this->playBattlefieldCard($card, $cardId, $position);
+    }
+
+    /**
+     * @param AirStrikeCard $card
+     * @param int $cardId
+     * @param Position $position
+     * @throws BgaUserException
+     */
+    private function playAirStrikeCard(AirStrikeCard $card, $cardId, Position $position)
+    {
+        $foundInPosition = self::getObjectListFromDB("SELECT id, player_id FROM battlefield_card WHERE x = {$position->getX()} AND y = {$position->getY()}");
+        if (empty($foundInPosition)) {
+            throw new BgaUserException("Position {$position->getX()},{$position->getY()} doesn't have any opponent card");
+        }
+        $cardInPosition = $foundInPosition[0];
+        if ((int) $cardInPosition['player_id'] === $card->getPlayerId()) {
+            throw new BgaUserException("Can't Air Strike your own card");
+        }
+        if ($cardInPosition['player_id'] === null) {
+            throw new BgaUserException("Can't Air Strike hill");
+        }
+
+        // Remove from battlefield and playable
+        self::DbQuery("DELETE FROM playable_card WHERE id = {$cardId}");
+        self::DbQuery("DELETE FROM battlefield_card WHERE id = {$cardInPosition['id']}");
+
+        // Notifications
+        $players = self::loadPlayersBasicInfos();
+        $player = $players[$card->getPlayerId()];
+        $this->notifyAllPlayers(
+            'playedAirStrike',
+            '${playerName} played an air strike card at ${x},${y}',
+            array(
+                'playerId' => $card->getPlayerId(),
+                'playerName' => $player['player_name'],
+                'x' => $position->getX(),
+                'y' => $position->getY()
+            )
+        );
+        $this->notifyPlayer(
+            $card->getPlayerId(),
+            'iPlayedAirStrike',
+            '',
+            array(
+                'cardId' => $cardId,
+                'x' => $position->getX(),
+                'y' => $position->getY()
+            )
+        );
+
+        $this->gamestate->nextState('noAttackAvailable');
+    }
+
+    /**
+     * @param PlayerBattlefieldCard $card
+     * @param int $cardId
+     * @param Position $position
+     * @throws BgaUserException
+     */
+    private function playBattlefieldCard(PlayerBattlefieldCard $card, $cardId, Position $position)
+    {
         // Check if valid position
         $battlefield = $this->loadBattlefield();
         $possiblePositions = $card->getPossiblePlacements($battlefield);
@@ -421,7 +490,7 @@ class BattleForHillDhau extends Table
                 'battlefield_card',
                 array(
                     'type' => $card->getTypeKey(),
-                    'player_id' => $playerId,
+                    'player_id' => $card->getPlayerId(),
                     'x' => $position->getX(),
                     'y' => $position->getY()
                 )
@@ -430,28 +499,28 @@ class BattleForHillDhau extends Table
 
         // Notifications
         $players = self::loadPlayersBasicInfos();
-        $player = $players[$playerId];
+        $player = $players[$card->getPlayerId()];
         $this->notifyAllPlayers(
             'placedCard',
             '${playerName} placed a ${typeName} card at ${x},${y}',
             array(
-                'playerId' => $playerId,
+                'playerId' => $card->getPlayerId(),
                 'playerName' => $player['player_name'],
                 'playerColor' => $player['player_color'],
                 'typeName' => $card->getTypeName(),
                 'typeKey' => $card->getTypeKey(),
-                'x' => $x,
-                'y' => $y
+                'x' => $position->getX(),
+                'y' => $position->getY()
             )
         );
         $this->notifyPlayer(
-            $playerId,
+            $card->getPlayerId(),
             'iPlacedCard',
             '',
             array(
                 'cardId' => $cardId,
-                'x' => $x,
-                'y' => $y
+                'x' => $position->getX(),
+                'y' => $position->getY()
             )
         );
 
