@@ -9,6 +9,9 @@ interface PlayerBattlefieldCard extends PlayerCard, BattlefieldCard
      */
     public function getSupplyPattern();
 
+    /**
+     * @return AttackOffset[]
+     */
     public function getAttackPattern();
 
     /**

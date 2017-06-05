@@ -43,6 +43,16 @@ class BattlefieldTest extends TestCase
         );
     }
 
+    public function testConstructWithOverlapping()
+    {
+        $this->expectException('InvalidArgumentException');
+
+        new Battlefield(2, [
+            new CardPlacement(new InfantryCard(1), new Position(1, 0)),
+            new CardPlacement(new HeavyWeaponsCard(1), new Position(1, 0))
+        ]);
+    }
+
     public function testGetPositionsOfOpponent()
     {
         assertThat(
@@ -108,15 +118,74 @@ class BattlefieldTest extends TestCase
         );
     }
 
-    /*public function testGetAttackablePlacements()
+    public function testGetAttackablePlacementsSingleFound()
     {
+        $opponentInfantry = new CardPlacement(new InfantryCard(2), new Position(0, -1));
+        $tank = new CardPlacement(new TankCard(1), new Position(1, -1));
         $battlefield = new Battlefield(2, [
             new CardPlacement(new HillCard(), new Position(0, 0)),
-            // Opponent cards in straight line to the right
-            new CardPlacement(new InfantryCard(2), new Position(0, -1)),
-            new CardPlacement(new ArtilleryCard(2), new Position(1, -1)),
-            new CardPlacement(new TankCard(2), new Position(2, -1)),
-
+            $opponentInfantry,
+            $tank
         ]);
-    }*/
+
+        assertThat($battlefield->getAttackablePlacements($tank), contains($opponentInfantry));
+    }
+
+    public function testGetAttackablePlacementsSingleFoundButNoSupport()
+    {
+        $opponentInfantry = new CardPlacement(new InfantryCard(2), new Position(0, -1));
+        $infantry = new CardPlacement(new InfantryCard(1), new Position(1, -1));
+        $battlefield = new Battlefield(2, [
+            new CardPlacement(new HillCard(), new Position(0, 0)),
+            $opponentInfantry,
+            $infantry
+        ]);
+
+        assertThat($battlefield->getAttackablePlacements($infantry), emptyArray());
+    }
+
+    public function testGetAttackablePlacementsCantAttack()
+    {
+        $tank = new CardPlacement(new TankCard(1), new Position(1, -1));
+        $battlefield = new Battlefield(2, [
+            new CardPlacement(new HillCard(), new Position(0, 0)),
+            new CardPlacement(new InfantryCard(2), new Position(10, 10)),
+            $tank
+        ]);
+
+        assertThat($battlefield->getAttackablePlacements($tank), emptyArray());
+    }
+
+    public function testGetAttackablePlacementsWithSupport()
+    {
+        $opponent1 = new CardPlacement(new InfantryCard(2), new Position(-1, -2));
+        $opponent2 = new CardPlacement(new InfantryCard(2), new Position(0, -1));
+        $opponentMissing = new CardPlacement(new InfantryCard(2), new Position(-2, -1));
+
+        $supporter = new CardPlacement(new HeavyWeaponsCard(1), new Position(-1, -1));
+        $attacker = new CardPlacement(new InfantryCard(1), new Position(0, -2));
+
+        $battlefield = new Battlefield(2, [
+            new CardPlacement(new HillCard(), new Position(0, 0)),
+            $opponent1,
+            $opponent2,
+            $opponentMissing,
+            $attacker,
+            $supporter
+        ]);
+
+        assertThat($battlefield->getAttackablePlacements($attacker), containsInAnyOrder($opponent1, $opponent2));
+    }
+
+    public function testGetAttackablePlacementsNotPresent()
+    {
+        $this->expectException('InvalidArgumentException');
+
+        $battlefield = new Battlefield(2, [
+            new CardPlacement(new HillCard(), new Position(0, 0)),
+            new CardPlacement(new InfantryCard(2), new Position(0, -1))
+        ]);
+
+        $battlefield->getAttackablePlacements(new CardPlacement(new TankCard(1), new Position(1, -1)));
+    }
 }

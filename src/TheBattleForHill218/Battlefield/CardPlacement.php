@@ -5,11 +5,13 @@ namespace TheBattleForHill218\Battlefield;
 use PhpOption\None;
 use PhpOption\Option;
 use PhpOption\Some;
+use TheBattleForHill218\Cards\AttackOffset;
 use TheBattleForHill218\Cards\BattlefieldCard;
 use TheBattleForHill218\Cards\PlayerBattlefieldCard;
 use TheBattleForHill218\Cards\PlayerCard;
 use TheBattleForHill218\Cards\SupplyOffset;
 use Functional as F;
+use TheBattleForHill218\Cards\SupportOffset;
 
 class CardPlacement
 {
@@ -91,6 +93,42 @@ class CardPlacement
                 return $position->offset(-$offset->getX(), -$offset->getY());
             }
         );
+    }
+
+    /**
+     * @return Position[]
+     */
+    public function getAttackPositions()
+    {
+        if ($this->card instanceof PlayerBattlefieldCard) {
+            $position = $this->position;
+            return F\map(
+                $this->card->getAttackPattern(),
+                function (AttackOffset $o) use ($position) {
+                    return $position->offset($o->getX(), $o->getY());
+                }
+            );
+        }
+
+        return array();
+    }
+
+    /**
+     * @return Position[]
+     */
+    public function getSupportPositions()
+    {
+        if ($this->card instanceof PlayerBattlefieldCard) {
+            $position = $this->position;
+            return F\map(
+                $this->card->getSupportPattern(),
+                function (SupportOffset $o) use ($position) {
+                    return $position->offset($o->getX(), $o->getY());
+                }
+            );
+        }
+
+        return array();
     }
 
     /**

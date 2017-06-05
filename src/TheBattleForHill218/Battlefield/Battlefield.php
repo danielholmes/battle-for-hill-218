@@ -24,16 +24,21 @@ class Battlefield
      */
     public function __construct($downwardsPlayerId, array $placements)
     {
-        $foundCoords = array_unique(
-            F\map($placements, function (CardPlacement $placement) {
-                return (string) $placement->getPosition();
-            })
+        if (empty($placements)) {
+            throw new \InvalidArgumentException('Must provide some placements');
+        }
+        $foundCoords = F\unique(
+            F\map(
+                $placements,
+                function (CardPlacement $p) {
+                    return $p->getPosition();
+                }
+            ),
+            null,
+            false
         );
         if (count($foundCoords) < count($placements)) {
             throw new \InvalidArgumentException('Given placements that overlap');
-        }
-        if (empty($placements)) {
-            throw new \InvalidArgumentException('Must provide some placements');
         }
 
         $this->downwardsPlayerId = $downwardsPlayerId;
@@ -41,10 +46,61 @@ class Battlefield
     }
 
     /**
-     * @param int $expansionAmount
+     * @param CardPlacement $placement
+     * @return CardPlacement[]
+     */
+    public function getAttackablePlacements(CardPlacement $placement)
+    {
+        if (!F\contains($this->placements, $placement, false)) {
+            throw new \InvalidArgumentException('Placement not on battlefield');
+        }
+
+        $myId = $placement->getPlayerId()->getOrThrow(new \InvalidArgumentException('Not a player placement'));
+        $opponentPlacements = HF\filter_to_list($this->placements, function (CardPlacement $p) use ($myId) {
+            return $p->getPlayerId()->isDefined() && $p->getPlayerId()->select($myId)->isEmpty();
+        });
+
+        $attackPositions = $this->getAttackablePositions($placement);
+        return HF\filter_to_list(
+            $opponentPlacements,
+            function (CardPlacement $p) use ($attackPositions) {
+                return F\contains($attackPositions, $p->getPosition(), false);
+            }
+        );
+    }
+
+    /**
+     * @param CardPlacement $placement
      * @return Position[]
      */
-    public function getUnoccupiedWithExpansion($expansionAmount)
+    private function getAttackablePositions(CardPlacement $placement)
+    {
+        $myId = $placement->getPlayerId()->getOrThrow(new \InvalidArgumentException('Not a player placement'));
+        if (!$placement->getCard()->attackRequiresSupport()) {
+            return $placement->getAttackPositions();
+        }
+
+        $myPlacements = HF\filter_to_list($this->placements, function (CardPlacement $p) use ($placement, $myId) {
+            return $p->getPlayerId()->select($myId)->isDefined() && $p != $placement;
+        });
+        $supportedPositions = HF\unique_list(
+            F\flat_map(
+                $myPlacements,
+                function (CardPlacement $p) {
+                    return $p->getSupportPositions();
+                }
+            ),
+            null,
+            false
+        );
+        return array_intersect($placement->getAttackPositions(), $supportedPositions);
+    }
+
+    /**
+     * @param int $expansion
+     * @return Position[]
+     */
+    public function getUnoccupiedWithExpansion($expansion)
     {
         $placedPositions = $this->getPositions();
         $xs = F\map($this->getPositions(), function (Position $position) {
@@ -54,9 +110,9 @@ class Battlefield
             return $position->getY();
         });
         $topLeft = new Position(F\minimum($xs), F\maximum($ys));
-        $topLeft = $topLeft->offset(-$expansionAmount, $expansionAmount);
+        $topLeft = $topLeft->offset(-$expansion, $expansion);
         $bottomRight = new Position(F\maximum($xs), F\minimum($ys));
-        $bottomRight = $bottomRight->offset($expansionAmount, -$expansionAmount);
+        $bottomRight = $bottomRight->offset($expansion, -$expansion);
         return HF\filter_to_list(
             $topLeft->gridTo($bottomRight),
             function (Position $position) use ($placedPositions) {
