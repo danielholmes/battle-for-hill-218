@@ -123,6 +123,11 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domGeom, fx) {
                         this.onEnterPlayCard(event.args._private);
                     }
                     break;
+                case 'chooseAttack':
+                    if (this.isCurrentPlayerActive()) {
+                        this.onEnterChooseAttack(event.args._private);
+                    }
+                    break;
             }
         },
 
@@ -139,6 +144,10 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domGeom, fx) {
                 '.battlefield-position.clickable:click',
                 function() { lang.hitch(_this, _this.onAttackPositionClick)({target: this}); }
             );
+        },
+
+        onEnterChooseAttack: function(possiblePlacements) {
+            console.log('onEnterChooseAttack', possiblePlacements);
         },
 
         ///////////////////////////////////////////////////
