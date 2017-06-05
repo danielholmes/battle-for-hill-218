@@ -14,7 +14,8 @@
     "psr-4": {
       "BGAWorkbench\\": "src/BGAWorkbench",
       "TheBattleForHill218\\": "src/TheBattleForHill218"
-    }
+    },
+    "files": ["src/TheBattleForHill218/Functional.php"]
   },
   "bin": ["bin/bgawb"],
   "require": {

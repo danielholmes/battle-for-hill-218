@@ -3,10 +3,8 @@
 namespace TheBattleForHill218\Battlefield;
 
 use Functional as F;
-use TheBattleForHill218\Cards\PlayerBattlefieldCard;
-use TheBattleForHill218\Cards\PlayerCard;
+use TheBattleForHill218\Functional as HF;
 use TheBattleForHill218\Cards\SupplyOffset;
-use TheBattleForHill218\Cards\SupportOffset;
 
 class Battlefield
 {
@@ -59,13 +57,11 @@ class Battlefield
         $topLeft = $topLeft->offset(-$expansionAmount, $expansionAmount);
         $bottomRight = new Position(F\maximum($xs), F\minimum($ys));
         $bottomRight = $bottomRight->offset($expansionAmount, -$expansionAmount);
-        return array_values(
-            F\filter(
-                $topLeft->gridTo($bottomRight),
-                function (Position $position) use ($placedPositions) {
-                    return !F\contains($placedPositions, $position, false);
-                }
-            )
+        return HF\filter_to_list(
+            $topLeft->gridTo($bottomRight),
+            function (Position $position) use ($placedPositions) {
+                return !F\contains($placedPositions, $position, false);
+            }
         );
     }
 
@@ -86,13 +82,11 @@ class Battlefield
     public function getPositionsOfOpponent($myId)
     {
         return F\map(
-            array_values(
-                F\filter(
-                    $this->placements,
-                    function (CardPlacement $placement) use ($myId) {
-                        return $placement->getPlayerId()->reject($myId)->isDefined();
-                    }
-                )
+            HF\filter_to_list(
+                $this->placements,
+                function (CardPlacement $placement) use ($myId) {
+                    return $placement->getPlayerId()->reject($myId)->isDefined();
+                }
             ),
             function (CardPlacement $placement) {
                 return $placement->getPosition();
@@ -132,13 +126,11 @@ class Battlefield
     public function getAllowedPositions($playerId, array $supplyPattern)
     {
         $placedPositions = $this->getPositions();
-        return array_values(
-            F\filter(
-                $this->getSuppliedPositionsByPlayerId($playerId, $supplyPattern),
-                function (Position $position) use ($placedPositions) {
-                    return !F\contains($placedPositions, $position, false);
-                }
-            )
+        return HF\filter_to_list(
+            $this->getSuppliedPositionsByPlayerId($playerId, $supplyPattern),
+            function (Position $position) use ($placedPositions) {
+                return !F\contains($placedPositions, $position, false);
+            }
         );
     }
 
@@ -153,17 +145,15 @@ class Battlefield
             return array($this->getBasePosition($playerId));
         }
 
-        return array_values(
-            F\unique(
-                F\flat_map(
-                    $this->getSuppliedPlacementsByPlayerId($playerId),
-                    function (CardPlacement $placement) use ($supplyPattern) {
-                        return $placement->getSuppliedPositions($supplyPattern);
-                    }
-                ),
-                null,
-                false
-            )
+        return HF\unique_list(
+            F\flat_map(
+                $this->getSuppliedPlacementsByPlayerId($playerId),
+                function (CardPlacement $placement) use ($supplyPattern) {
+                    return $placement->getSuppliedPositions($supplyPattern);
+                }
+            ),
+            null,
+            false
         );
     }
 
@@ -174,7 +164,7 @@ class Battlefield
     private function getSuppliedPlacementsByPlayerId($playerId)
     {
         $basePosition = $this->getBasePosition($playerId);
-        list($basePlacements, $nonBasePlacements) = F\partition(
+        list($basePlacements, $nonBasePlacements) = HF\partition_to_lists(
             $this->getPlacementsByPlayerId($playerId),
             function (CardPlacement $p) use ($basePosition) {
                 return $p->getPosition() == $basePosition;
@@ -184,8 +174,7 @@ class Battlefield
             return array();
         }
 
-        $basePlacements = array_values($basePlacements);
-        return $this->suppliedPlacementsStep($basePlacements[0], array_values($nonBasePlacements));
+        return $this->suppliedPlacementsStep($basePlacements[0], $nonBasePlacements);
     }
 
     /**
@@ -197,35 +186,31 @@ class Battlefield
     private function suppliedPlacementsStep(CardPlacement $placement, array $checkPlacements)
     {
         $position = $placement->getPosition();
-        $placementsSuppliedByThis = array_values(
-            F\filter(
-                $checkPlacements,
-                function (CardPlacement $p) use ($position) {
-                    return F\contains($p->canBeSuppliedFrom(), $position, false);
-                }
-            )
+        $placementsSuppliedByThis = HF\filter_to_list(
+            $checkPlacements,
+            function (CardPlacement $p) use ($position) {
+                return F\contains($p->canBeSuppliedFrom(), $position, false);
+            }
         );
         $allPlacementsSupplied = array_merge(array($placement), $placementsSuppliedByThis);
 
-        $remainingPlacements = array_values(
-            F\filter(
-                $checkPlacements,
-                function (CardPlacement $p) use ($allPlacementsSupplied) {
-                    return !F\contains($allPlacementsSupplied, $p, false);
-                }
-            )
+        $remainingPlacements = HF\filter_to_list(
+            $checkPlacements,
+            function (CardPlacement $p) use ($allPlacementsSupplied) {
+                return !F\contains($allPlacementsSupplied, $p, false);
+            }
         );
 
         $returnPlacements = array_slice($allPlacementsSupplied, 0);
         foreach ($placementsSuppliedByThis as $suppliedPlacement) {
-            $checkRemainingPlacements = F\filter(
+            $checkRemainingPlacements = HF\filter_to_list(
                 $remainingPlacements,
                 function (CardPlacement $p) use ($returnPlacements) {
                     return !F\contains($returnPlacements, $p, false);
                 }
             );
             $newPlacements = $this->suppliedPlacementsStep($suppliedPlacement, $checkRemainingPlacements);
-            $remainingPlacements = F\filter(
+            $remainingPlacements = HF\filter_to_list(
                 $remainingPlacements,
                 function (CardPlacement $p) use ($newPlacements) {
                     return !F\contains($newPlacements, $p, false);
@@ -242,13 +227,11 @@ class Battlefield
      */
     private function getPlacementsByPlayerId($playerId)
     {
-        return array_values(
-            F\filter(
-                $this->placements,
-                function (CardPlacement $p) use ($playerId) {
-                    return $p->getPlayerId()->select($playerId)->isDefined();
-                }
-            )
+        return HF\filter_to_list(
+            $this->placements,
+            function (CardPlacement $p) use ($playerId) {
+                return $p->getPlayerId()->select($playerId)->isDefined();
+            }
         );
     }
 }

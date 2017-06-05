@@ -2,16 +2,10 @@
 
 namespace TheBattleForHill218;
 
-use TheBattleForHill218\Cards\AirStrikeCard;
-use TheBattleForHill218\Cards\ArtilleryCard;
 use TheBattleForHill218\Cards\CardFactory;
-use TheBattleForHill218\Cards\HeavyWeaponsCard;
-use TheBattleForHill218\Cards\InfantryCard;
-use TheBattleForHill218\Cards\ParatroopersCard;
 use TheBattleForHill218\Cards\PlayerCard;
 use Functional as F;
-use TheBattleForHill218\Cards\SpecialForcesCard;
-use TheBattleForHill218\Cards\TankCard;
+use TheBattleForHill218\Functional as HF;
 
 class Hill218Setup
 {
@@ -27,7 +21,7 @@ class Hill218Setup
     {
         $all = self::createAllStartingCards($playerId);
         shuffle($all);
-        list($required, $remaining) = F\partition(
+        list($required, $remaining) = HF\partition_to_lists(
             $all,
             function (PlayerCard $card) {
                 return $card->alwaysStartsInHand();
@@ -39,14 +33,12 @@ class Hill218Setup
         }
 
         $hand = array_merge(
-            array_values($required),
-            array_slice(array_values($remaining), 0, self::PLAYABLE_CARDS_SIZE - count($required))
+            $required,
+            array_slice($remaining, 0, self::PLAYABLE_CARDS_SIZE - count($required))
         );
-        $deck = array_values(
-            F\filter($all, function (PlayerCard $card) use ($hand) {
-                return !F\contains($hand, $card);
-            })
-        );
+        $deck = HF\filter_to_list($all, function (PlayerCard $card) use ($hand) {
+            return !F\contains($hand, $card);
+        });
         return array($hand, $deck);
     }
 

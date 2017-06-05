@@ -3,6 +3,7 @@
 namespace TheBattleForHill218;
 
 use Functional as F;
+use TheBattleForHill218\Functional as HF;
 
 class SQLHelper
 {
@@ -31,14 +32,14 @@ class SQLHelper
         $allKeys = F\map($allValues, function (array $values) {
             return array_keys($values);
         });
-        $uniqueKeys = F\unique($allKeys);
+        $uniqueKeys = HF\unique_list($allKeys);
         if (count($uniqueKeys) !== 1) {
             $keysString = json_encode($allKeys);
             throw new \InvalidArgumentException("Must provide unique keys (got {$keysString})");
         }
 
         $quotedTable = self::quoteField($table);
-        $keys = array_values($allKeys[0]);
+        $keys = array_values($uniqueKeys[0]);
         $quotedKeys = join(', ', F\map($keys, array(__CLASS__, 'quoteField')));
         $valuesList = join(
             ', ',

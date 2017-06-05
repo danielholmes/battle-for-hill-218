@@ -111,6 +111,7 @@ HELP
                 if (!isset($state['transitions'])) {
                     return;
                 }
+
                 $transitionToIds = array_values($state['transitions']);
                 $differentIds = array_diff($transitionToIds, $stateIds);
                 if (!empty($differentIds)) {
