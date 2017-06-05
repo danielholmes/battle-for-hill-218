@@ -47,9 +47,6 @@
                             method).
 */
 
-//    !! It is not a good idea to modify this file when a game is running !!
-
-
 $machinestates = array(
 
     // The initial state. Please do not modify.

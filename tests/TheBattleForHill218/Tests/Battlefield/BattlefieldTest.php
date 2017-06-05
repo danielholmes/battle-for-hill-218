@@ -188,4 +188,18 @@ class BattlefieldTest extends TestCase
 
         $battlefield->getAttackablePlacements(new CardPlacement(new TankCard(1), new Position(1, -1)));
     }
+
+    public function testFlipsAttackPatternForAttackingDownwards()
+    {
+        $opponent = new CardPlacement(new InfantryCard(1), new Position(0, -1));
+        $attackArtillery = new CardPlacement(new ArtilleryCard(2), new Position(0, 1));
+        $battlefield = new Battlefield(1, [
+            new CardPlacement(new HillCard(), new Position(0, 0)),
+            // Opponent
+            $opponent,
+            $attackArtillery
+        ]);
+
+        assertThat($battlefield->getAttackablePlacements($attackArtillery), contains($opponent));
+    }
 }

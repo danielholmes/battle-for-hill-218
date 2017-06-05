@@ -3,6 +3,7 @@
 namespace TheBattleForHill218\Battlefield;
 
 use Functional as F;
+use PhpOption\Option;
 use TheBattleForHill218\Functional as HF;
 use TheBattleForHill218\Cards\SupplyOffset;
 
@@ -46,6 +47,24 @@ class Battlefield
     }
 
     /**
+     * @param Position $placementPosition
+     * @return boolean
+     */
+    public function hasAttackablePlacement(Position $placementPosition)
+    {
+        $placement = Option::fromValue(
+            F\first(
+                $this->placements,
+                function (CardPlacement $p) use ($placementPosition) {
+                    return $p->getPosition() == $placementPosition;
+                }
+            )
+        )->getOrThrow(new \InvalidArgumentException('No placement found'));
+        $attackable = $this->getAttackablePlacements($placement);
+        return !empty($attackable);
+    }
+
+    /**
      * @param CardPlacement $placement
      * @return CardPlacement[]
      */
@@ -76,8 +95,13 @@ class Battlefield
     private function getAttackablePositions(CardPlacement $placement)
     {
         $myId = $placement->getPlayerId()->getOrThrow(new \InvalidArgumentException('Not a player placement'));
+        if ($myId === $this->downwardsPlayerId) {
+            $attackPositions = $placement->getAttackPositions();
+        } else {
+            $attackPositions = $placement->getYFlippedAttackPositions();
+        }
         if (!$placement->getCard()->attackRequiresSupport()) {
-            return $placement->getAttackPositions();
+            return $attackPositions;
         }
 
         $myPlacements = HF\filter_to_list($this->placements, function (CardPlacement $p) use ($placement, $myId) {
@@ -93,7 +117,7 @@ class Battlefield
             null,
             false
         );
-        return array_intersect($placement->getAttackPositions(), $supportedPositions);
+        return array_intersect($attackPositions, $supportedPositions);
     }
 
     /**

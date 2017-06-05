@@ -524,6 +524,11 @@ class BattleForHillDhau extends Table
             )
         );
 
+        $updatedBattlefield = $this->loadBattlefield();
+        if ($updatedBattlefield->hasAttackablePlacement($position)) {
+            $this->gamestate->nextState('attackAvailable');
+            return;
+        }
         $this->gamestate->nextState('noAttackAvailable');
     }
     

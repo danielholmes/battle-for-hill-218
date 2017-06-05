@@ -20,30 +20,18 @@ class AttackOffset
      */
     public function __construct($xOffset, $yOffset)
     {
-        $this->x = $this->validateXOffset($xOffset);
-        $this->y = $this->validateYOffset($yOffset);
+        $this->x = $this->validateOffset($xOffset);
+        $this->y = $this->validateOffset($yOffset);
     }
 
     /**
      * @param int $offset
      * @return int
      */
-    private function validateXOffset($offset)
+    private function validateOffset($offset)
     {
-        if (!in_array($offset, array(3, 2, 1, 0, -1), true)) {
-            throw new \InvalidArgumentException('Offsets must be 3, 2, 1, 0, -1');
-        }
-        return $offset;
-    }
-
-    /**
-     * @param int $offset
-     * @return int
-     */
-    private function validateYOffset($offset)
-    {
-        if (!in_array($offset, array(1, 0, -1), true)) {
-            throw new \InvalidArgumentException('Offsets must be 1, 0, -1');
+        if (!in_array($offset, array(3, 2, 1, 0, -1, -2, -3), true)) {
+            throw new \InvalidArgumentException('Offsets must be 3, 2, 1, 0, -1, -2, -3');
         }
         return $offset;
     }

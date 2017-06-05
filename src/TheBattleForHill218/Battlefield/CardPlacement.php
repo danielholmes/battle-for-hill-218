@@ -101,16 +101,44 @@ class CardPlacement
     public function getAttackPositions()
     {
         if ($this->card instanceof PlayerBattlefieldCard) {
-            $position = $this->position;
-            return F\map(
-                $this->card->getAttackPattern(),
-                function (AttackOffset $o) use ($position) {
-                    return $position->offset($o->getX(), $o->getY());
-                }
+            return $this->getAttackPositionsByPattern($this->card->getAttackPattern());
+        }
+
+        return array();
+    }
+
+    /**
+     * @return Position[]
+     */
+    public function getYFlippedAttackPositions()
+    {
+        if ($this->card instanceof PlayerBattlefieldCard) {
+            return $this->getAttackPositionsByPattern(
+                F\map(
+                    $this->card->getAttackPattern(),
+                    function (AttackOffset $o) {
+                        return $o->flipY();
+                    }
+                )
             );
         }
 
         return array();
+    }
+
+    /**
+     * @param AttackOffset[] $pattern
+     * @return Position[]
+     */
+    private function getAttackPositionsByPattern(array $pattern)
+    {
+        $position = $this->position;
+        return F\map(
+            $pattern,
+            function (AttackOffset $o) use ($position) {
+                return $position->offset($o->getX(), $o->getY());
+            }
+        );
     }
 
     /**
