@@ -52,6 +52,21 @@ class Battlefield
      */
     public function hasAttackablePlacement(Position $placementPosition)
     {
+        try {
+            $attackable = $this->getAttackablePlacements($placementPosition);
+            return !empty($attackable);
+        } catch (\InvalidArgumentException $e) {
+            return false;
+        }
+    }
+
+    /**
+     * @param Position $placementPosition
+     * @return CardPlacement[]
+     * @throws \InvalidArgumentException
+     */
+    public function getAttackablePlacements(Position $placementPosition)
+    {
         $placement = Option::fromValue(
             F\first(
                 $this->placements,
@@ -60,16 +75,7 @@ class Battlefield
                 }
             )
         )->getOrThrow(new \InvalidArgumentException('No placement found'));
-        $attackable = $this->getAttackablePlacements($placement);
-        return !empty($attackable);
-    }
 
-    /**
-     * @param CardPlacement $placement
-     * @return CardPlacement[]
-     */
-    public function getAttackablePlacements(CardPlacement $placement)
-    {
         if (!F\contains($this->placements, $placement, false)) {
             throw new \InvalidArgumentException('Placement not on battlefield');
         }

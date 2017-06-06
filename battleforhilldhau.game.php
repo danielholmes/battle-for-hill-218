@@ -568,9 +568,29 @@ class BattleForHillDhau extends Table
      */
     public function argChooseAttack()
     {
+        $playerId = (int) $this->getActivePlayerId();
+        $battlefield = $this->loadBattlefield();
+
+        // TODO: placed_at timestamp would be better
+        $mostRecentList = self::getObjectListFromDB(
+            "SELECT x, y, player_id FROM battlefield_card ORDER BY id DESC LIMIT 1"
+        );
+        if (empty($mostRecentList)) {
+            throw new BgaSystemException('Choosing attack when no battlefield card');
+        }
+        $mostRecent = $mostRecentList[0];
+        if ((int) $mostRecent['player_id'] !== $playerId) {
+            throw new BgaSystemException('Choosing attack when active player hasn\'t placed most recent card');
+        }
+
         return array(
             '_private' => array(
-                'active' => array() // TODO:
+                'active' => F\map(
+                    $battlefield->getAttackablePlacements(new Position((int) $mostRecent['x'], $mostRecent['y'])),
+                    function (CardPlacement $p) {
+                        return array('x' => $p->getPosition()->getX(), 'y' => $p->getPosition()->getY());
+                    }
+                )
             )
         );
     }

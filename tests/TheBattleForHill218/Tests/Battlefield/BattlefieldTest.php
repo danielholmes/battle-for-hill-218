@@ -128,7 +128,7 @@ class BattlefieldTest extends TestCase
             $tank
         ]);
 
-        assertThat($battlefield->getAttackablePlacements($tank), contains($opponentInfantry));
+        assertThat($battlefield->getAttackablePlacements($tank->getPosition()), contains($opponentInfantry));
     }
 
     public function testGetAttackablePlacementsSingleFoundButNoSupport()
@@ -141,7 +141,7 @@ class BattlefieldTest extends TestCase
             $infantry
         ]);
 
-        assertThat($battlefield->getAttackablePlacements($infantry), emptyArray());
+        assertThat($battlefield->getAttackablePlacements($infantry->getPosition()), emptyArray());
     }
 
     public function testGetAttackablePlacementsCantAttack()
@@ -153,7 +153,7 @@ class BattlefieldTest extends TestCase
             $tank
         ]);
 
-        assertThat($battlefield->getAttackablePlacements($tank), emptyArray());
+        assertThat($battlefield->getAttackablePlacements($tank->getPosition()), emptyArray());
     }
 
     public function testGetAttackablePlacementsWithSupport()
@@ -174,7 +174,10 @@ class BattlefieldTest extends TestCase
             $supporter
         ]);
 
-        assertThat($battlefield->getAttackablePlacements($attacker), containsInAnyOrder($opponent1, $opponent2));
+        assertThat(
+            $battlefield->getAttackablePlacements($attacker->getPosition()),
+            containsInAnyOrder($opponent1, $opponent2)
+        );
     }
 
     public function testGetAttackablePlacementsNotPresent()
@@ -186,7 +189,7 @@ class BattlefieldTest extends TestCase
             new CardPlacement(new InfantryCard(2), new Position(0, -1))
         ]);
 
-        $battlefield->getAttackablePlacements(new CardPlacement(new TankCard(1), new Position(1, -1)));
+        $battlefield->getAttackablePlacements(new Position(1, -1));
     }
 
     public function testFlipsAttackPatternForAttackingDownwards()
@@ -200,6 +203,6 @@ class BattlefieldTest extends TestCase
             $attackArtillery
         ]);
 
-        assertThat($battlefield->getAttackablePlacements($attackArtillery), contains($opponent));
+        assertThat($battlefield->getAttackablePlacements($attackArtillery->getPosition()), contains($opponent));
     }
 }
