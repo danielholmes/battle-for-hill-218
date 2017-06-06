@@ -5,6 +5,7 @@ namespace TheBattleForHill218\Tests;
 use BGAWorkbench\Test\HamcrestMatchers as M;
 use PHPUnit\Framework\TestCase;
 use BGAWorkbench\Test\TestHelp;
+use TheBattleForHill218\Battlefield\Position;
 use TheBattleForHill218\SQLHelper;
 
 class ChooseAttackTest extends TestCase
@@ -57,5 +58,82 @@ class ChooseAttackTest extends TestCase
                 ])
             )
         );
+    }
+
+    public function testChooseAttackValid()
+    {
+        $game = $this->table
+            ->setupNewGame()
+            ->createGameInstanceForCurrentPlayer(66)
+            ->stubActivePlayerId(66);
+        $this->table->getDbConnection()->exec(SQLHelper::insertAll(
+            'battlefield_card', [
+                [
+                    'player_id' => 77,
+                    'type' => 'infantry',
+                    'x' => 0,
+                    'y' => -1
+                ],
+                [
+                    'player_id' => 66,
+                    'type' => 'infantry',
+                    'x' => 0,
+                    'y' => 1
+                ],
+                [
+                    'player_id' => 66,
+                    'type' => 'artillery',
+                    'x' => 1,
+                    'y' => 1
+                ]
+            ]
+        ));
+
+        $game->chooseAttack(0, -1);
+
+        assertThat(
+            $this->table->fetchDbRows('battlefield_card'),
+            allOf(
+                not(hasItem(M::hasEntries([
+                    'x' => 0,
+                    'y' => -1
+                ]))),
+                arrayWithSize(3)
+            )
+        );
+    }
+
+    public function testChooseAttackInvalid()
+    {
+        $this->expectException('BgaUserException');
+
+        $game = $this->table
+            ->setupNewGame()
+            ->createGameInstanceForCurrentPlayer(66)
+            ->stubActivePlayerId(66);
+        $this->table->getDbConnection()->exec(SQLHelper::insertAll(
+            'battlefield_card', [
+                [
+                    'player_id' => 77,
+                    'type' => 'infantry',
+                    'x' => 0,
+                    'y' => -1
+                ],
+                [
+                    'player_id' => 66,
+                    'type' => 'infantry',
+                    'x' => 0,
+                    'y' => 1
+                ],
+                [
+                    'player_id' => 66,
+                    'type' => 'artillery',
+                    'x' => 1,
+                    'y' => 1
+                ]
+            ]
+        ));
+
+        $game->chooseAttack(5, 5);
     }
 }

@@ -531,6 +531,32 @@ class BattleForHillDhau extends Table
         }
         $this->gamestate->nextState('noAttackAvailable');
     }
+
+    /**
+     * @param int $x
+     * @param int $y
+     * @throws BgaUserException
+     */
+    public function chooseAttack($x, $y)
+    {
+        $attackPosition = new Position($x, $y);
+        $battlefield = $this->loadBattlefield();
+        $fromPosition = $this->getChooseAttackFromPosition();
+        $isAttackablePosition = F\some(
+            $battlefield->getAttackablePlacements($fromPosition),
+            function (CardPlacement $p) use ($attackPosition) {
+                return $p->getPosition() == $attackPosition;
+            }
+        );
+
+        if (!$isAttackablePosition) {
+            throw new BgaUserException('Position not attackable');
+        }
+
+        self::DbQuery("DELETE FROM battlefield_card WHERE x = {$x} AND y = {$y} LIMIT 1");
+
+        $this->gamestate->nextState('attackChosen');
+    }
     
 //////////////////////////////////////////////////////////////////////////////
 //////////// Game state arguments
@@ -565,12 +591,32 @@ class BattleForHillDhau extends Table
 
     /**
      * @return array
+     * @throws BgaSystemException
      */
     public function argChooseAttack()
     {
-        $playerId = (int) $this->getActivePlayerId();
         $battlefield = $this->loadBattlefield();
+        $fromPosition = $this->getChooseAttackFromPosition();
 
+        return array(
+            '_private' => array(
+                'active' => F\map(
+                    $battlefield->getAttackablePlacements($fromPosition),
+                    function (CardPlacement $p) {
+                        return array('x' => $p->getPosition()->getX(), 'y' => $p->getPosition()->getY());
+                    }
+                )
+            )
+        );
+    }
+
+    /**
+     * @return Position
+     * @throws BgaSystemException
+     */
+    private function getChooseAttackFromPosition()
+    {
+        $playerId = (int) $this->getActivePlayerId();
         // TODO: placed_at timestamp would be better
         $mostRecentList = self::getObjectListFromDB(
             "SELECT x, y, player_id FROM battlefield_card ORDER BY id DESC LIMIT 1"
@@ -583,16 +629,7 @@ class BattleForHillDhau extends Table
             throw new BgaSystemException('Choosing attack when active player hasn\'t placed most recent card');
         }
 
-        return array(
-            '_private' => array(
-                'active' => F\map(
-                    $battlefield->getAttackablePlacements(new Position((int) $mostRecent['x'], $mostRecent['y'])),
-                    function (CardPlacement $p) {
-                        return array('x' => $p->getPosition()->getX(), 'y' => $p->getPosition()->getY());
-                    }
-                )
-            )
-        );
+        return new Position((int) $mostRecent['x'], $mostRecent['y']);
     }
 
 //////////////////////////////////////////////////////////////////////////////

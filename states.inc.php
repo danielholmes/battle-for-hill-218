@@ -93,7 +93,7 @@ $machinestates = array(
         "type" => "activeplayer",
         "args" => "argChooseAttack",
         "possibleactions" => array("chooseAttack"),
-        "transitions" => array("playNextCard" => 30, "drawCards" => 50)
+        "transitions" => array("attackChosen" => 50)
     ),
 
     50 => array(
