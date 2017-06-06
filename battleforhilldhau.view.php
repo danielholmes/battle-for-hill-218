@@ -6,27 +6,27 @@ use Functional as F;
 
 class view_battleforhilldhau_battleforhilldhau extends game_view
 {
-    function getGameName()
+    public function getGameName()
     {
         return "battleforhilldhau";
     }
 
-  	function build_page($viewArgs)
-  	{
+    public function build_page($viewArgs)
+    {
         global $g_user;
         $currentPlayerId = (int) $g_user->get_id();
 
         $players = F\sort(
             F\map(
                 $this->game->loadPlayersBasicInfos(),
-                function(array $player) {
+                function (array $player) {
                     return array(
                         'id' => (int) $player['player_id'],
                         'name' => $player['player_name']
                     );
                 }
             ),
-            function(array $player1, array $player2) use ($currentPlayerId) {
+            function (array $player1, array $player2) use ($currentPlayerId) {
                 if ($player1['id'] === $currentPlayerId) {
                     return 1;
                 }
@@ -54,5 +54,5 @@ class view_battleforhilldhau_battleforhilldhau extends game_view
                 )
             );
         }
-  	}
+    }
 }

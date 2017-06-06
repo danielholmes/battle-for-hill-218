@@ -3,11 +3,11 @@
   *------
   * BGA framework: © Gregory Isabelli <gisabelli@boardgamearena.com> & Emmanuel Colin <ecolin@boardgamearena.com>
   * BattleForHillDhau implementation : © <Your name here> <Your email address here>
-  * 
+  *
   * This code has been produced on the BGA studio platform for use on http://boardgamearena.com.
   * See http://en.boardgamearena.com/#!doc/Studio for more information.
   * -----
-  * 
+  *
   * battleforhilldhau.game.php
   *
   * This is the main file for your game logic.
@@ -39,20 +39,20 @@ use TheBattleForHill218\SQLHelper;
 
 class BattleForHillDhau extends Table
 {
-	public function __construct()
-	{
+    public function __construct()
+    {
         parent::__construct();
 
         $this->initGameStateLabels(array());
-	}
+    }
 
     /**
      * @return string
      */
-    protected function getGameName( )
+    protected function getGameName()
     {
         return "battleforhilldhau";
-    }	
+    }
 
     /*
         setupNewGame:
@@ -134,7 +134,7 @@ class BattleForHillDhau extends Table
                 $table,
                 F\map(
                     $cards,
-                    function(PlayerCard $card, $i) {
+                    function (PlayerCard $card, $i) {
                         return array(
                             'player_id' => $card->getPlayerId(),
                             'type' => $card->getTypeKey(),
@@ -157,7 +157,9 @@ class BattleForHillDhau extends Table
         // Hands
         $allHandCards = F\group(
             self::getObjectListFromDB('SELECT id, player_id, type FROM playable_card ORDER BY `order` ASC'),
-            function(array $card) { return (int) $card['player_id']; }
+            function (array $card) {
+                return (int) $card['player_id'];
+            }
         );
 
         // Decks
@@ -165,11 +167,17 @@ class BattleForHillDhau extends Table
             F\map(
                 F\group(
                     self::getObjectListFromDB('SELECT COUNT(id) as size, player_id FROM deck_card GROUP BY player_id'),
-                    function(array $count) { return (int) $count['player_id']; }
+                    function (array $count) {
+                        return (int) $count['player_id'];
+                    }
                 ),
-                function(array $counts) { return F\head($counts); }
+                function (array $counts) {
+                    return F\head($counts);
+                }
             ),
-            function(array $count) { return (int) $count['size']; }
+            function (array $count) {
+                return (int) $count['size'];
+            }
         );
 
         // Players
@@ -177,7 +185,7 @@ class BattleForHillDhau extends Table
         $_this = $this;
         $players = F\map(
             self::getCollectionFromDb('SELECT player_id id, player_score score, player_color color FROM player'),
-            function(array $player) use ($_this, $allHandCards, $allDeckSizes, $currentPlayerId) {
+            function (array $player) use ($_this, $allHandCards, $allDeckSizes, $currentPlayerId) {
                 $player = array_merge($player, array('id' => (int) $player['id'], 'score' => (int) $player['score']));
                 $handCards = array_values($allHandCards[$player['id']]);
                 $deckSize = $allDeckSizes[$player['id']];
@@ -208,7 +216,9 @@ class BattleForHillDhau extends Table
             array(
                 'cards' => F\map(
                     $cards,
-                    function(array $card) { return array('id' => (int) $card['id'], 'type' => $card['type']); }
+                    function (array $card) {
+                        return array('id' => (int) $card['id'], 'type' => $card['type']);
+                    }
                 )
             )
         );
@@ -224,7 +234,9 @@ class BattleForHillDhau extends Table
         $numAirStrikes = count(
             F\filter(
                 F\pluck($cards, 'type'),
-                function($type) { return $type === 'air-strike'; }
+                function ($type) {
+                    return $type === 'air-strike';
+                }
             )
         );
         return array(
@@ -242,7 +254,7 @@ class BattleForHillDhau extends Table
         $players = self::loadPlayersBasicInfos();
         return F\map(
             self::getObjectListFromDB('SELECT player_id AS playerId, type, x, y FROM battlefield_card'),
-            function(array $card) use ($players) {
+            function (array $card) use ($players) {
                 $playerId = $card['playerId'];
                 $playerColor = null;
                 if ($playerId !== null) {
@@ -327,11 +339,11 @@ class BattleForHillDhau extends Table
 
     /**
      * @param string $sql
-     * @return array
+     * @return int
      */
-    private function getIntCollectionFromDB($sql)
+    private static function getIntUniqueValueFromDB($sql)
     {
-        return F\map($this->getCollectionFromDB($sql), function($value) { return (int) $value; });
+        return (int) self::getUniqueValueFromDB($sql);
     }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -354,17 +366,21 @@ class BattleForHillDhau extends Table
 
         // Remove cards from hand
         $idList = join(', ', $cardIds);
-        $returnCards = self::getObjectListFromDB("SELECT id, type FROM playable_card WHERE player_id = {$playerId} AND id IN ({$idList})");
+        $returnCards = self::getObjectListFromDB(
+            "SELECT id, type FROM playable_card WHERE player_id = {$playerId} AND id IN ({$idList})"
+        );
         if (count($returnCards) !== Hill218Setup::NUMBER_OF_INITIAL_CARDS_TO_RETURN) {
             throw new BgaUserException("Card no longer playable");
         }
         self::DBQuery("DELETE FROM playable_card WHERE id IN ({$idList})");
 
         // Put removed cards into deck
-        self::DBQuery("UPDATE deck_card SET `order` = `order` + {$numCards} WHERE player_id = {$playerId} ORDER BY `order` DESC");
+        self::DBQuery(
+            "UPDATE deck_card SET `order` = `order` + {$numCards} WHERE player_id = {$playerId} ORDER BY `order` DESC"
+        );
         self::DBQuery(SQLHelper::insertAll(
             'deck_card',
-            F\map($returnCards, function(array $handCard, $i) use ($playerId) {
+            F\map($returnCards, function (array $handCard, $i) use ($playerId) {
                 return array(
                     'type' => $handCard['type'],
                     'order' => $i,
@@ -403,7 +419,9 @@ class BattleForHillDhau extends Table
         $card = null;
         try {
             $card = self::parsePlayableCard(
-                self::getNonEmptyObjectFromDB("SELECT * FROM playable_card WHERE id = {$cardId} AND player_id = {$playerId}")
+                self::getNonEmptyObjectFromDB(
+                    "SELECT * FROM playable_card WHERE id = {$cardId} AND player_id = {$playerId}"
+                )
             );
         } catch (BgaSystemException $e) {
             throw new BgaUserException('Card no longer playable');
@@ -425,9 +443,11 @@ class BattleForHillDhau extends Table
      */
     private function playAirStrikeCard(AirStrikeCard $card, $cardId, Position $position)
     {
-        $foundInPosition = self::getObjectListFromDB("SELECT id, player_id FROM battlefield_card WHERE x = {$position->getX()} AND y = {$position->getY()}");
+        $foundInPosition = self::getObjectListFromDB(
+            "SELECT id, player_id FROM battlefield_card WHERE x = {$position->getX()} AND y = {$position->getY()}"
+        );
         if (empty($foundInPosition)) {
-            throw new BgaUserException("Position {$position->getX()},{$position->getY()} doesn't have any opponent card");
+            throw new BgaUserException("Position {$position->getX()},{$position->getY()} doesn't have opponent card");
         }
         $cardInPosition = $foundInPosition[0];
         if ((int) $cardInPosition['player_id'] === $card->getPlayerId()) {
@@ -575,10 +595,10 @@ class BattleForHillDhau extends Table
                     F\pluck($playableCards, 'id'),
                     F\map(
                         F\map($playableCards, array('BattleForHillDhau', 'parsePlayableCard')),
-                        function(PlayerCard $card) use ($battlefield) {
+                        function (PlayerCard $card) use ($battlefield) {
                             return F\map(
                                 $card->getPossiblePlacements($battlefield),
-                                function(Position $position) {
+                                function (Position $position) {
                                     return array('x' => $position->getX(), 'y' => $position->getY());
                                 }
                             );
@@ -639,15 +659,17 @@ class BattleForHillDhau extends Table
     {
         $playerId = (int) $this->getActivePlayerId();
         $numCards = 2;
-        $playerNumber = (int) self::getUniqueValueFromDB("SELECT player_no from player WHERE player_id = {$playerId}");
+        $playerNumber = self::getIntUniqueValueFromDB("SELECT player_no from player WHERE player_id = {$playerId}");
         if ($playerNumber === 1) {
-            $deckSize = (int) self::getUniqueValueFromDB("SELECT COUNT(id) FROM deck_card WHERE player_id = {$playerId}");
+            $deckSize = self::getIntUniqueValueFromDB("SELECT COUNT(id) FROM deck_card WHERE player_id = {$playerId}");
             if ($deckSize === Hill218Setup::getDeckSizeAfterInitialReturn()) {
                 $numCards = 1;
             }
         }
 
-        $drawnDeck = self::getObjectListFromDB("SELECT id, type FROM deck_card WHERE player_id = {$playerId} ORDER BY `order` DESC LIMIT {$numCards}");
+        $drawnDeck = self::getObjectListFromDB(
+            "SELECT id, type FROM deck_card WHERE player_id = {$playerId} ORDER BY `order` DESC LIMIT {$numCards}"
+        );
         $numDrawn = count($drawnDeck);
         if ($numDrawn === 0) {
             $this->gamestate->nextState('cardsDrawn');
@@ -661,10 +683,12 @@ class BattleForHillDhau extends Table
 
         // Put drawn cards into hand
         // Leaves holes in `order`, but is more efficient this way and doesn't matter
-        $maxOrder = (int) self::getUniqueValueFromDB("SELECT MAX(`order`) FROM playable_card WHERE player_id = {$playerId}");
+        $maxOrder = self::getIntUniqueValueFromDB(
+            "SELECT MAX(`order`) FROM playable_card WHERE player_id = {$playerId}"
+        );
         self::DBQuery(SQLHelper::insertAll(
             'playable_card',
-            F\map($drawnDeck, function(array $card, $i) use ($playerId, $maxOrder) {
+            F\map($drawnDeck, function (array $card, $i) use ($playerId, $maxOrder) {
                 return array(
                     'type' => $card['type'],
                     'order' => $maxOrder + $i + 1,
@@ -672,7 +696,9 @@ class BattleForHillDhau extends Table
                 );
             })
         ));
-        $drawnPlayable = self::getObjectListFromDB("SELECT id, type FROM playable_card WHERE player_id = {$playerId} ORDER BY id DESC LIMIT {$numDrawn}");
+        $drawnPlayable = self::getObjectListFromDB(
+            "SELECT id, type FROM playable_card WHERE player_id = {$playerId} ORDER BY id DESC LIMIT {$numDrawn}"
+        );
 
         $players = self::loadPlayersBasicInfos();
         $playerColor = $players[$playerId]['player_color'];
@@ -713,13 +739,18 @@ class BattleForHillDhau extends Table
             return;
         }
 
-        self::DbQuery("UPDATE player SET turn_plays_remaining = turn_plays_remaining - 1 WHERE player_id = {$playerId}");
-        $remaining = (int) self::getUniqueValueFromDB("SELECT turn_plays_remaining FROM player WHERE player_id = {$playerId}");
+        self::DbQuery(
+            "UPDATE player SET turn_plays_remaining = turn_plays_remaining - 1 WHERE player_id = {$playerId}"
+        );
+        $remaining = self::getIntUniqueValueFromDB(
+            "SELECT turn_plays_remaining FROM player WHERE player_id = {$playerId}"
+        );
         if ($remaining <= 0) {
-
             $opponentPlayerId = F\first(
                 array_keys(self::loadPlayersBasicInfos()),
-                function($checkId) use ($playerId) { return $checkId !== $playerId; }
+                function ($checkId) use ($playerId) {
+                    return $checkId !== $playerId;
+                }
             );
             self::DbQuery("UPDATE player SET turn_plays_remaining = 2 WHERE player_id = {$opponentPlayerId}");
             $this->gamestate->changeActivePlayer($opponentPlayerId);
@@ -743,13 +774,13 @@ class BattleForHillDhau extends Table
     */
     public function zombieTurn($state, $active_player)
     {
-    	$statename = $state['name'];
-    	
+        $statename = $state['name'];
+        
         if ($state['type'] == "activeplayer") {
             switch ($statename) {
                 default:
                     $this->gamestate->nextState( "zombiePass" );
-                	break;
+                    break;
             }
 
             return;
@@ -785,8 +816,7 @@ class BattleForHillDhau extends Table
         update the game database and allow the game to continue to run with your new version.
     
     */
-    
-    function upgradeTableDb( $from_version )
+    public function upgradeTableDb($from_version)
     {
         // $from_version is the current version of this game database, in numerical form.
         // For example, if the game was running with a release of your game named "140430-1345",
@@ -806,7 +836,5 @@ class BattleForHillDhau extends Table
 //        // Please add your future database scheme changes here
 //
 //
-
-
-    }    
+    }
 }

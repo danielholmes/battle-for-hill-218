@@ -12,9 +12,9 @@
  * gameoptions.inc.php
  *
  * BattleForHillDhau game options description
- * 
+ *
  * In this file, you can define your game options (= game variants).
- *   
+ *
  * Note: If your game has no variant, you don't have to modify this file.
  *
  * Note²: All options defined in this file should have a corresponding "game state labels"
@@ -51,5 +51,3 @@ $game_options = array(
     */
 
 );
-
-

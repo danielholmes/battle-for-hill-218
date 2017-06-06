@@ -24,7 +24,9 @@ class action_battleforhilldhau extends APP_GameAction
         $this->setAjaxMode();
 
         $joinedIds = $this->getArg('ids', AT_numberlist, true);
-        $ids = F\map(explode(',', $joinedIds), function($id) { return intval($id); });
+        $ids = F\map(explode(',', $joinedIds), function ($id) {
+            return intval($id);
+        });
         $this->game->returnToDeck($ids);
 
         $this->ajaxResponse();
@@ -53,5 +55,3 @@ class action_battleforhilldhau extends APP_GameAction
         $this->ajaxResponse();
     }
 }
-  
-

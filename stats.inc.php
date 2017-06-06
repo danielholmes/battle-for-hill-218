@@ -42,7 +42,8 @@
     * Statistics IDs must be >=10
     * Two table statistics can't share the same ID, two player statistics can't share the same ID
     * A table statistic can have the same ID than a player statistics
-    * Statistics ID is the reference used by BGA website. If you change the ID, you lost all historical statistic data. Do NOT re-use an ID of a deleted statistic
+    * Statistics ID is the reference used by BGA website. If you change the ID, you lost all historical statistic data.
+      Do NOT re-use an ID of a deleted statistic
     * Statistic name is the English description of the statistic as shown to players
     
 */
@@ -67,7 +68,7 @@ $stats_type = array(
         "table_teststat2" => array(   "id"=> 11,
                                 "name" => totranslate("table test stat 2"), 
                                 "type" => "float" )
-*/  
+*/
     ),
     
     // Statistics existing for each player
@@ -89,7 +90,7 @@ $stats_type = array(
                                 "name" => totranslate("player test stat 2"), 
                                 "type" => "float" )
 
-*/    
+*/
     )
 
 );

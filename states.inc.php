@@ -25,7 +25,8 @@
    States types:
    _ activeplayer: in this type of state, we expect some action from the active player.
    _ multipleactiveplayer: in this type of state, we expect some action from multiple players (the active players)
-   _ game: this is an intermediary state where we don't expect any actions from players. Your game logic must decide what is the next game state.
+   _ game: this is an intermediary state where we don't expect any actions from players. Your game logic must decide
+     what is the next game state.
    _ manager: special type for initial and final state
 
    Arguments of game states:
