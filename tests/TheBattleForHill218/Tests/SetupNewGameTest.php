@@ -33,8 +33,8 @@ class SetupNewGameTest extends TestCase
         assertThat(
             $this->table->fetchDbRows('player'),
             containsInAnyOrder([
-                M::hasEntries(['player_color' => '6f0f11']),
-                M::hasEntries(['player_color' => '04237b'])
+                M\hasEntries(['player_color' => '6f0f11']),
+                M\hasEntries(['player_color' => '04237b'])
             ])
         );
     }
@@ -44,7 +44,7 @@ class SetupNewGameTest extends TestCase
         assertThat(
             $this->table->fetchDbRows('battlefield_card'),
             containsInAnyOrder([
-                M::hasEntries([
+                M\hasEntries([
                     'player_id' => null,
                     'type' => 'hill',
                     'x' => 0,
@@ -64,13 +64,13 @@ class SetupNewGameTest extends TestCase
             allOf(
                 arrayWithSize(7),
                 containsInAnyOrder([
-                    M::hasEntries(['type' => 'air-strike', 'order' => 0]),
-                    M::hasEntries(['type' => 'air-strike', 'order' => 1]),
-                    M::hasEntries(['type' => not(equalTo('air-strike')), 'order' => 2]),
-                    M::hasEntries(['type' => not(equalTo('air-strike')), 'order' => 3]),
-                    M::hasEntries(['type' => not(equalTo('air-strike')), 'order' => 4]),
-                    M::hasEntries(['type' => not(equalTo('air-strike')), 'order' => 5]),
-                    M::hasEntries(['type' => not(equalTo('air-strike')), 'order' => 6])
+                    M\hasEntries(['type' => 'air-strike', 'order' => 0]),
+                    M\hasEntries(['type' => 'air-strike', 'order' => 1]),
+                    M\hasEntries(['type' => not(equalTo('air-strike')), 'order' => 2]),
+                    M\hasEntries(['type' => not(equalTo('air-strike')), 'order' => 3]),
+                    M\hasEntries(['type' => not(equalTo('air-strike')), 'order' => 4]),
+                    M\hasEntries(['type' => not(equalTo('air-strike')), 'order' => 5]),
+                    M\hasEntries(['type' => not(equalTo('air-strike')), 'order' => 6])
                 ])
             )
         );
@@ -85,7 +85,7 @@ class SetupNewGameTest extends TestCase
             $this->table->fetchDbRows('deck_card', ['player_id' => $playerId]),
             allOf(
                 arrayWithSize(19),
-                everyItem(M::hasEntries(['type' => not(equalTo('air-strike'))]))
+                everyItem(M\hasEntries(['type' => not(equalTo('air-strike'))]))
             )
         );
     }

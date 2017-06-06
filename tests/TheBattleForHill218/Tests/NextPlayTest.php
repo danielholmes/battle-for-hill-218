@@ -47,8 +47,8 @@ class NextPlayTest extends TestCase
         assertThat(
             $this->table->fetchDbRows('player'),
             containsInAnyOrder([
-                M::hasEntries(['player_id' => 66, 'turn_plays_remaining' => 0]),
-                M::hasEntries(['player_id' => 77, 'turn_plays_remaining' => 2])
+                M\hasEntries(['player_id' => 66, 'turn_plays_remaining' => 0]),
+                M\hasEntries(['player_id' => 77, 'turn_plays_remaining' => 2])
             ])
         );
     }
@@ -66,8 +66,8 @@ class NextPlayTest extends TestCase
         assertThat(
             $this->table->fetchDbRows('player'),
             containsInAnyOrder([
-                M::hasEntries(['player_id' => 66, 'turn_plays_remaining' => 1]),
-                M::hasEntries(['player_id' => 77, 'turn_plays_remaining' => 0])
+                M\hasEntries(['player_id' => 66, 'turn_plays_remaining' => 1]),
+                M\hasEntries(['player_id' => 77, 'turn_plays_remaining' => 0])
             ])
         );
     }

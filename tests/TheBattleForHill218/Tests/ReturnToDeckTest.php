@@ -40,10 +40,10 @@ class ReturnToDeckTest extends TestCase
         assertThat(
             $game->getNotifications(),
             containsInAnyOrder(
-                M::hasEntries([
+                M\hasEntries([
                     'playerId' => 'all',
                     'type' => 'returnedToDeck',
-                    'args' => M::hasEntries([
+                    'args' => M\hasEntries([
                         'playerId' => 66,
                         'numCards' => 2
                     ])

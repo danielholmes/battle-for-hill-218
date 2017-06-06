@@ -27,7 +27,7 @@ class PlayCardTest extends TestCase
         $datas = $game->argPlayCard();
 
         $handCardIds = F\pluck($this->table->fetchDbRows('playable_card', ['player_id' => 66]), 'id');
-        assertThat($datas['_private']['active'], allOf(M::hasKeys($handCardIds), everyItem(arrayValue())));
+        assertThat($datas['_private']['active'], allOf(M\hasKeys($handCardIds), everyItem(arrayValue())));
     }
 
     public function testPlayCardValid()
@@ -46,7 +46,7 @@ class PlayCardTest extends TestCase
         assertThat(
             $this->table->fetchDbRows('battlefield_card', ['x' => 0, 'y' => 1]),
             contains(
-                M::hasEntries([
+                M\hasEntries([
                     'type' => $card['type'],
                     'player_id' => 66,
                     'x' => 0,
@@ -57,11 +57,11 @@ class PlayCardTest extends TestCase
         assertThat(
             $game->getNotifications(),
             containsInAnyOrder(
-                M::hasEntries([
+                M\hasEntries([
                     'playerId' => 'all',
                     'type' => 'placedCard',
                     'log' => '${playerName} placed a ${typeName} card at ${x},${y}',
-                    'args' => M::hasEntries([
+                    'args' => M\hasEntries([
                         'playerId' => 66,
                         'playerName' => nonEmptyString(),
                         'typeName' => nonEmptyString(),
@@ -70,11 +70,11 @@ class PlayCardTest extends TestCase
                         'y' => 1
                     ])
                 ]),
-                M::hasEntries([
+                M\hasEntries([
                     'playerId' => 66,
                     'type' => 'iPlacedCard',
                     'log' => '',
-                    'args' => M::hasEntries([
+                    'args' => M\hasEntries([
                         'cardId' => $card['id'],
                         'x' => 0,
                         'y' => 1
@@ -131,22 +131,22 @@ class PlayCardTest extends TestCase
         assertThat(
             $game->getNotifications(),
             containsInAnyOrder(
-                M::hasEntries([
+                M\hasEntries([
                     'playerId' => 'all',
                     'type' => 'playedAirStrike',
                     'log' => '${playerName} played an air strike card at ${x},${y}',
-                    'args' => M::hasEntries([
+                    'args' => M\hasEntries([
                         'playerId' => 66,
                         'playerName' => nonEmptyString(),
                         'x' => 0,
                         'y' => -1
                     ])
                 ]),
-                M::hasEntries([
+                M\hasEntries([
                     'playerId' => 66,
                     'type' => 'iPlayedAirStrike',
                     'log' => '',
-                    'args' => M::hasEntries([
+                    'args' => M\hasEntries([
                         'cardId' => $airStrikeId,
                         'x' => 0,
                         'y' => -1

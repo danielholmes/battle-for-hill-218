@@ -27,9 +27,9 @@ class GetAllDatasTest extends TestCase
 
         assertThat(
             $datas,
-            M::hasEntries([
+            M\hasEntries([
                 'players' => containsInAnyOrder(
-                    M::hasEntries([
+                    M\hasEntries([
                         'id' => 66,
                         'cards' => arrayWithSize(7),
                         'numCards' => 7,
@@ -37,7 +37,7 @@ class GetAllDatasTest extends TestCase
                         'deckSize' => 19
                     ]),
                     allOf(
-                        M::hasEntries([
+                        M\hasEntries([
                             'id' => 77,
                             'numCards' => 7,
                             'numAirStrikes' => 2,
@@ -47,7 +47,7 @@ class GetAllDatasTest extends TestCase
                     )
                 ),
                 'battlefield' => contains(
-                    M::hasEntries([
+                    M\hasEntries([
                         'playerId' => null,
                         'playerColor' => null,
                         'type' => 'hill',

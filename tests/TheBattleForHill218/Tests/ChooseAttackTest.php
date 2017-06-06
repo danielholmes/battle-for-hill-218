@@ -5,7 +5,6 @@ namespace TheBattleForHill218\Tests;
 use BGAWorkbench\Test\HamcrestMatchers as M;
 use PHPUnit\Framework\TestCase;
 use BGAWorkbench\Test\TestHelp;
-use TheBattleForHill218\Battlefield\Position;
 use TheBattleForHill218\SQLHelper;
 
 class ChooseAttackTest extends TestCase
@@ -52,7 +51,7 @@ class ChooseAttackTest extends TestCase
         assertThat(
             $datas['_private']['active'],
             contains(
-                M::hasEntries([
+                M\hasEntries([
                     'x' => 0,
                     'y' => -1
                 ])
@@ -94,7 +93,7 @@ class ChooseAttackTest extends TestCase
         assertThat(
             $this->table->fetchDbRows('battlefield_card'),
             allOf(
-                not(hasItem(M::hasEntries([
+                not(hasItem(M\hasEntries([
                     'x' => 0,
                     'y' => -1
                 ]))),

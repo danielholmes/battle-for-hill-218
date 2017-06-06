@@ -49,17 +49,17 @@ class DrawCardsTest extends TestCase
         assertThat(
             $game->getNotifications(),
             containsInAnyOrder(
-                M::hasEntries([
+                M\hasEntries([
                     'playerId' => 66,
                     'type' => 'myCardsDrawn',
                     'log' => '',
                     'args' => hasEntry('cards', contains(hasEntry('id', $lastInsertedPlayableId)))
                 ]),
-                M::hasEntries([
+                M\hasEntries([
                     'playerId' => 'all',
                     'type' => 'cardsDrawn',
                     'log' => '${playerName} has drawn ${numCards} card',
-                    'args' => M::hasEntries([
+                    'args' => M\hasEntries([
                         'numCards' => 1,
                         'playerId' => 66
                     ])
@@ -92,13 +92,13 @@ class DrawCardsTest extends TestCase
         assertThat(
             $game->getNotifications(),
             containsInAnyOrder(
-                M::hasEntries([
+                M\hasEntries([
                     'playerId' => 77,
                     'type' => 'myCardsDrawn',
                     'log' => '',
                     'args' => hasEntry('cards', arrayWithSize(2))
                 ]),
-                M::hasEntries([
+                M\hasEntries([
                     'playerId' => 'all',
                     'type' => 'cardsDrawn',
                     'log' => '${playerName} has drawn ${numCards} cards',

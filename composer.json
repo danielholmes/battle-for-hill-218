@@ -3,7 +3,7 @@
   "type": "project",
   "description": "The Battle for Hill 218 - BoardGameArena implementation",
   "minimum-stability": "stable",
-  "license": "proprietary",
+  "license": "MIT",
   "authors": [
     {
       "name": "Daniel Holmes",
@@ -15,7 +15,12 @@
       "BGAWorkbench\\": "src/BGAWorkbench",
       "TheBattleForHill218\\": "src/TheBattleForHill218"
     },
-    "files": ["src/TheBattleForHill218/Functional.php"]
+    "files": [
+      "src/TheBattleForHill218/Functional/functions.php"
+    ],
+    "_files_for_workbench": [
+      "src/BGAWorkbench/Test/HamcrestMatchers/functions.php"
+    ]
   },
   "bin": ["bin/bgawb"],
   "require": {
