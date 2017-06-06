@@ -29,4 +29,12 @@ abstract class APP_Action extends APP_DbObject
     protected function getArg($argName, $argType, $mandatory = false, $default = null, $argTypeDetails = array(), $bCanFail = false)
     {
     }
+
+    /**
+     * @param string $argName
+     * @return boolean
+     */
+    protected function isArg($argName) { return true; }
+
+    protected function setAjaxMode() {}
 }

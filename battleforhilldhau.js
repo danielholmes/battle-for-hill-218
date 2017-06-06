@@ -140,14 +140,23 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domGeom, fx) {
             this.enablePlayableCardsClick(this.onHandCardPlayClick);
 
             var _this = this;
-            this.attackPositionClickSignal = query(this.getBattlefieldNode()).on(
+            this.placePositionClickSignal = query(this.getBattlefieldNode()).on(
                 '.battlefield-position.clickable:click',
-                function() { lang.hitch(_this, _this.onAttackPositionClick)({target: this}); }
+                function() { lang.hitch(_this, _this.onPlacePositionClick)({target: this}); }
             );
         },
 
         onEnterChooseAttack: function(possiblePlacements) {
             console.log('onEnterChooseAttack', possiblePlacements);
+
+            query(this.getBattlefieldNode()).addClass('state-choose-attack');
+            array.forEach(possiblePlacements, lang.hitch(this, this.activatePossiblePlacementPosition));
+            
+            var _this = this;
+            this.attackPositionClickSignal = query(this.getBattlefieldNode()).on(
+                '.battlefield-position.clickable:click',
+                function() { lang.hitch(_this, _this.onAttackPositionClick)({target: this}); }
+            );
         },
 
         ///////////////////////////////////////////////////
@@ -159,16 +168,30 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domGeom, fx) {
                         this.onLeavePlayCard();
                     }
                     break;
+                case 'chooseAttack':
+                    if (this.isCurrentPlayerActive()) {
+                        this.onLeaveChooseAttack();
+                    }
+                    break;
             }
         },
 
         onLeavePlayCard: function() {
+            if (this.placePositionClickSignal) {
+                this.placePositionClickSignal.remove();
+                this.placePositionClickSignal = null;
+            }
+            this.deactivateAllPlacementPositions();
+            this.disablePlayableCardsClick();
+        },
+
+        onLeaveChooseAttack: function() {
             if (this.attackPositionClickSignal) {
                 this.attackPositionClickSignal.remove();
                 this.attackPositionClickSignal = null;
             }
+            query(this.getBattlefieldNode()).removeClass('state-choose-attack');
             this.deactivateAllPlacementPositions();
-            this.disablePlayableCardsClick();
         },
 
         // onUpdateActionButtons: in this method you can manage "action buttons" that are displayed in the
@@ -480,7 +503,7 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domGeom, fx) {
             array.forEach(possiblePlacements, lang.hitch(this, this.activatePossiblePlacementPosition));
         },
 
-        onAttackPositionClick: function(e) {
+        onPlacePositionClick: function(e) {
             if (!this.checkAction('playCard')) {
                 return;
             }
@@ -494,6 +517,26 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domGeom, fx) {
                 {
                     lock: true,
                     id: id,
+                    x: x,
+                    y: y
+                },
+                function() {},
+                function() {}
+            );
+        },
+
+        onAttackPositionClick: function(e) {
+            if (!this.checkAction('chooseAttack')) {
+                return;
+            }
+
+            var position = query(e.target);
+            var x = position.attr('data-x').pop();
+            var y = position.attr('data-y').pop();
+            this.ajaxcall(
+                "/battleforhilldhau/battleforhilldhau/chooseAttack.html",
+                {
+                    lock: true,
                     x: x,
                     y: y
                 },

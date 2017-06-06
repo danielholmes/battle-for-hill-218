@@ -12,7 +12,7 @@ class action_battleforhilldhau extends APP_GameAction
     {
         if (self::isArg('notifwindow')) {
             $this->view = "common_notifwindow";
-            $this->viewArgs['table'] = self::getArg("table", AT_posint, true);
+            $this->viewArgs['table'] = $this->getArg("table", AT_posint, true);
         } else {
             $this->view = "battleforhilldhau_battleforhilldhau";
             self::trace("Complete reinitialization of board game");
@@ -21,25 +21,36 @@ class action_battleforhilldhau extends APP_GameAction
 
     public function returnToDeck()
     {
-        self::setAjaxMode();
+        $this->setAjaxMode();
 
-        $joinedIds = self::getArg('ids', AT_numberlist, true);
+        $joinedIds = $this->getArg('ids', AT_numberlist, true);
         $ids = F\map(explode(',', $joinedIds), function($id) { return intval($id); });
         $this->game->returnToDeck($ids);
 
-        self::ajaxResponse();
+        $this->ajaxResponse();
     }
 
     public function playCard()
     {
-        self::setAjaxMode();
+        $this->setAjaxMode();
 
-        $cardId = self::getArg('id', AT_int, true);
-        $x = self::getArg('x', AT_int, true);
-        $y = self::getArg('y', AT_int, true);
+        $cardId = $this->getArg('id', AT_int, true);
+        $x = $this->getArg('x', AT_int, true);
+        $y = $this->getArg('y', AT_int, true);
         $this->game->playCard($cardId, $x, $y);
 
-        self::ajaxResponse();
+        $this->ajaxResponse();
+    }
+
+    public function chooseAttack()
+    {
+        $this->setAjaxMode();
+
+        $x = (int) $this->getArg('x', AT_int, true);
+        $y = (int) $this->getArg('y', AT_int, true);
+        $this->game->chooseAttack($x, $y);
+
+        $this->ajaxResponse();
     }
 }
   

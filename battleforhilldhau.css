@@ -114,6 +114,9 @@
     width: 80px;
     height: 112px;
 }
+.battlefield-position.clickable {
+    cursor: pointer;
+}
 .battlefield-position .clickable-indicator {
     display: none;
     position: absolute;
@@ -123,11 +126,11 @@
     background-position: -752px 0;
     background-repeat: no-repeat;
 }
-.battlefield-position.clickable {
-    cursor: pointer;
-}
 .battlefield-position.clickable .clickable-indicator {
     display: inline-block;
+}
+.state-choose-attack .battlefield-position.clickable .clickable-indicator {
+    background-position: -672px 0;
 }
 
 /* Battlefield map */
