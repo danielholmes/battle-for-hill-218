@@ -284,9 +284,23 @@ class BattleForHillDhau extends Table
     */
     public function getGameProgression()
     {
-        $deckCards = self::getIntUniqueValueFromDB('SELECT COUNT(id) FROM deck_card GROUP BY player_id');
-        $playableCards = self::getIntUniqueValueFromDB('SELECT COUNT(id) FROM playable_card GROUP BY player_id');
-        $totalCards = $deckCards + $playableCards;
+        // TODO: Look for a better implementation
+        $playerIds = array_keys(self::loadPlayersBasicInfos());
+        // Just choose a random player - it's close enough
+        $playerId = $playerIds[0];
+        $deckCards = self::getObjectListFromDB(
+            "SELECT COUNT(id) as num FROM deck_card WHERE player_id = {$playerId} GROUP BY player_id"
+        );
+        $playableCards = self::getObjectListFromDB(
+            "SELECT COUNT(id) as num FROM playable_card WHERE player_id = {$playerId} GROUP BY player_id"
+        );
+        $totalCards = 0;
+        if (!empty($deckCards)) {
+            $totalCards += (int) $deckCards[0]['num'];
+        }
+        if (!empty($playableCards)) {
+            $totalCards += (int) $playableCards[0]['num'];
+        }
 
         $percent = (Hill218Setup::getNumberOfStartingCards() - $totalCards) / Hill218Setup::getNumberOfStartingCards();
         return (int) round(100 * $percent);

@@ -97,7 +97,12 @@ class APP_DbObject extends APP_Object
      */
     protected static function getUniqueValueFromDB($sql)
     {
-        return self::getDbConnection()->fetchColumn($sql);
+        // TODO: Throw exception if not unique
+        $rows = self::getDbConnection()->fetchArray($sql);
+        if (count($rows) !== 1) {
+            throw new \RuntimeException('Non unique result');
+        }
+        return $rows[0];
     }
 
     /**
