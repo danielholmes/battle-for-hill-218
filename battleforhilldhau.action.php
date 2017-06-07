@@ -37,8 +37,8 @@ class action_battleforhilldhau extends APP_GameAction
         $this->setAjaxMode();
 
         $cardId = $this->getArg('id', AT_int, true);
-        $x = $this->getArg('x', AT_int, true);
-        $y = $this->getArg('y', AT_int, true);
+        $x = (int) $this->getArg('x', AT_int, true);
+        $y = (int) $this->getArg('y', AT_int, true);
         $this->game->playCard($cardId, $x, $y);
 
         $this->ajaxResponse();

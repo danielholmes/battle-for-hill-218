@@ -100,6 +100,21 @@ class ChooseAttackTest extends TestCase
                 arrayWithSize(3)
             )
         );
+        assertThat(
+            $game->getNotifications(),
+            contains(M\hasEntries([
+                'playerId' => 'all',
+                'type' => 'cardAttacked',
+                'log' => '${playerName} attacked ${x},${y}',
+                'args' => M\hasEntries([
+                    'playerName' => nonEmptyString(),
+                    'x' => 0,
+                    'y' => -1,
+                    'fromX' => 1,
+                    'fromY' => 1
+                ])
+            ]))
+        );
     }
 
     public function testChooseAttackInvalid()

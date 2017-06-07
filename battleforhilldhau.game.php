@@ -575,6 +575,18 @@ class BattleForHillDhau extends Table
 
         self::DbQuery("DELETE FROM battlefield_card WHERE x = {$x} AND y = {$y} LIMIT 1");
 
+        $this->notifyAllPlayers(
+            'cardAttacked',
+            '${playerName} attacked ${x},${y}',
+            array(
+                'playerName' => $this->getActivePlayerName(),
+                'x' => $attackPosition->getX(),
+                'y' => $attackPosition->getY(),
+                'fromX' => $fromPosition->getX(),
+                'fromY' => $fromPosition->getY()
+            )
+        );
+
         $this->gamestate->nextState('attackChosen');
     }
     
@@ -649,7 +661,7 @@ class BattleForHillDhau extends Table
             throw new BgaSystemException('Choosing attack when active player hasn\'t placed most recent card');
         }
 
-        return new Position((int) $mostRecent['x'], $mostRecent['y']);
+        return new Position((int) $mostRecent['x'], (int) $mostRecent['y']);
     }
 
 //////////////////////////////////////////////////////////////////////////////

@@ -190,6 +190,8 @@ abstract class Table extends APP_GameClass
      */
     public function getActivePlayerName()
     {
+        $players = self::loadPlayersBasicInfos();
+        return $players[$this->getActivePlayerId()]['player_name'];
     }
 
     ////////////////////////////////////////////////////////////////////////

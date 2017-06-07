@@ -22,8 +22,21 @@ class Position
      */
     public function __construct($x, $y)
     {
-        $this->x = $x;
-        $this->y = $y;
+        $this->x = $this->validateCoordinate($x);
+        $this->y = $this->validateCoordinate($y);
+    }
+
+    /**
+     * @param mixed $coord
+     * @return int
+     */
+    private function validateCoordinate($coord)
+    {
+        if (!is_int($coord)) {
+            $coordExport = var_export($coord, true);
+            throw new \InvalidArgumentException("Coord should be an int {$coordExport}");
+        }
+        return $coord;
     }
 
     /**

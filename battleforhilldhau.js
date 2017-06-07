@@ -575,6 +575,14 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domGeom, fx) {
             dojo.subscribe('placedCard', lang.hitch(this, this.notif_placedCard));
             dojo.subscribe('iPlayedAirStrike', lang.hitch(this, this.notif_iPlayedAirStrike));
             dojo.subscribe('playedAirStrike', lang.hitch(this, this.notif_playedAirStrike));
+            dojo.subscribe('cardAttacked', lang.hitch(this, this.notif_cardAttacked));
+        },
+
+        notif_cardAttacked: function(notification) {
+            var x = notification.args.x;
+            var y = notification.args.y;
+            var position = this.getOrCreatePlacementPosition(x, y);
+            this.fadeOutAndDestroy(query(position).query('.battlefield-card').pop());
         },
 
         notif_placedCard: function(notification) {
