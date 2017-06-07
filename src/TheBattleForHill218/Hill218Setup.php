@@ -67,7 +67,7 @@ class Hill218Setup
     /**
      * @return int
      */
-    private static function getStartingDeckSize()
+    public static function getNumberOfStartingCards()
     {
         return count(self::createAllStartingCards(0));
     }
@@ -77,6 +77,6 @@ class Hill218Setup
      */
     public static function getDeckSizeAfterInitialReturn()
     {
-        return self::getStartingDeckSize() + self::NUMBER_OF_INITIAL_CARDS_TO_RETURN - self::PLAYABLE_CARDS_SIZE;
+        return self::getNumberOfStartingCards() + self::NUMBER_OF_INITIAL_CARDS_TO_RETURN - self::PLAYABLE_CARDS_SIZE;
     }
 }

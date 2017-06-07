@@ -284,9 +284,12 @@ class BattleForHillDhau extends Table
     */
     public function getGameProgression()
     {
-        // TODO: compute and return the game progression
+        $deckCards = self::getIntUniqueValueFromDB('SELECT COUNT(id) FROM deck_card GROUP BY player_id');
+        $playableCards = self::getIntUniqueValueFromDB('SELECT COUNT(id) FROM playable_card GROUP BY player_id');
+        $totalCards = $deckCards + $playableCards;
 
-        return 0;
+        $percent = (Hill218Setup::getNumberOfStartingCards() - $totalCards) / Hill218Setup::getNumberOfStartingCards();
+        return (int) round(100 * $percent);
     }
 
 //////////////////////////////////////////////////////////////////////////////

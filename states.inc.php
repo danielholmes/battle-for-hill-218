@@ -83,6 +83,7 @@ $machinestates = array(
         "descriptionmyturn" => clienttranslate('${you} must place a card'),
         "type" => "activeplayer",
         "args" => "argPlayCard",
+        "updateGameProgression" => true,
         "possibleactions" => array("playCard"),
         "transitions" => array("attackAvailable" => 40, "noAttackAvailable" => 50, "occupyEnemyBase" => 99)
     ),
