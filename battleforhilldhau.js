@@ -8,6 +8,7 @@ define([
     "dojo/query",
     "dojo/_base/array",
     "dojo/dom-construct",
+    "dojo/dom-class",
     "dojo/dom-geometry",
     "dojo/fx",
     "dojo/NodeList-data",
@@ -16,7 +17,7 @@ define([
     "ebg/counter",
     "ebg/scrollmap"
 ],
-function (dojo, declare, lang, dom, query, array, domConstruct, domGeom, fx) {
+function (dojo, declare, lang, dom, query, array, domConstruct, domClass, domGeom, fx) {
     var CARD_WIDTH = 80;
     var CARD_HEIGHT = 112;
     var SLIDE_ANIMATION_DURATION = 700;
@@ -132,12 +133,16 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domGeom, fx) {
         },
 
         onEnterReturnToDeck: function() {
-            this.enableHandCardsClick(this.onHandCardReturnClick);
+            this.enableHandCardsClick(this.onHandCardReturnClick, 'Return this card', 'Don\'t return this card');
         },
 
         onEnterPlayCard: function(possiblePlacementsByCardId) {
             this.possiblePlacementsByCardId = possiblePlacementsByCardId;
-            this.enablePlayableCardsClick(this.onHandCardPlayClick);
+            this.enablePlayableCardsClick(
+                this.onHandCardPlayClick,
+                'Play this card on the battlefield',
+                'Deselect this card'
+            );
 
             var _this = this;
             this.placePositionClickSignal = query(this.getBattlefieldNode()).on(
@@ -147,10 +152,13 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domGeom, fx) {
         },
 
         onEnterChooseAttack: function(possiblePlacements) {
-            console.log('onEnterChooseAttack', possiblePlacements);
-
             query(this.getBattlefieldNode()).addClass('state-choose-attack');
-            array.forEach(possiblePlacements, lang.hitch(this, this.activatePossiblePlacementPosition));
+            array.forEach(
+                possiblePlacements,
+                lang.hitch(this, function(possiblePlacement) {
+                    this.activatePossiblePlacementPosition(possiblePlacement, 'Attack this card');
+                })
+            );
             
             var _this = this;
             this.attackPositionClickSignal = query(this.getBattlefieldNode()).on(
@@ -364,18 +372,23 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domGeom, fx) {
 
         ///////////////////////////////////////////////////
         // Interaction utility methods
-        enableHandCardsClick: function(handler) {
-            this.enableCardsClick(handler, '.hand-cards');
+        enableHandCardsClick: function(handler, tooltip, selectedTooltip) {
+            this.enableCardsClick(handler, '.hand-cards', tooltip, selectedTooltip);
         },
 
-        enablePlayableCardsClick: function(handler) {
-            this.enableCardsClick(handler);
+        enablePlayableCardsClick: function(handler, tooltip, selectedTooltip) {
+            this.enableCardsClick(handler, null, tooltip, selectedTooltip);
         },
 
-        enableCardsClick: function(handler, subSelector) {
+        enableCardsClick: function(handler, subSelector, tooltip, selectedTooltip) {
             var cardsContainer = this.getCurrentPlayerCardsNode();
             if (cardsContainer === null) {
                 return;
+            }
+
+            handler = lang.hitch(this, handler);
+            if (!selectedTooltip) {
+                selectedTooltip = tooltip;
             }
 
             this.disablePlayableCardsClick();
@@ -386,23 +399,49 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domGeom, fx) {
             }
             clickableContainer.addClass('clickable');
 
+            clickableContainer.query('.playable-card')
+                .forEach(lang.hitch(this, function(cardNode) {
+                    if (!cardNode.id) {
+                        console.error('Trying to add tooltip to node without id', cardNode);
+                    }
+                    this.addTooltip(cardNode.id, '', _(tooltip));
+                }));
+
             // TODO: Work out how to do this handling properly
             var _this = this;
             this.currentPlayerCardsClickSignal = query(cardsContainer).on(
                 '.playable-card:click',
-                function() { lang.hitch(_this, handler)({target: this}); }
+                function() {
+                    var cardNode = this;
+                    lang.hitch(_this, function() {
+                        handler({target: cardNode});
+                        this.removeTooltip(cardNode.id);
+                        if (domClass.contains(cardNode, 'selected')) {
+                            this.addTooltip(cardNode.id, '', _(selectedTooltip));
+                        } else {
+                            this.addTooltip(cardNode.id, '', _(tooltip));
+                        }
+                    })();
+                }
             );
         },
 
         removeClickableOnNodeAndChildren: function(node) {
             var nodeList = query(node);
             nodeList.removeClass('clickable');
-            array.forEach(nodeList.children(), lang.hitch(this, this.removeClickableOnNodeAndChildren));
+            array.forEach(
+                nodeList.children(),
+                lang.hitch(this, this.removeClickableOnNodeAndChildren)
+            );
         },
 
         disablePlayableCardsClick: function() {
             var cardsContainer = this.getCurrentPlayerCardsNode();
             if (cardsContainer !== null) {
+                query(cardsContainer).query('.playable-card')
+                    .forEach(lang.hitch(this, function(cardNode) {
+                        this.removeTooltip(cardNode.id);
+                    }));
                 this.removeClickableOnNodeAndChildren(cardsContainer);
                 query(cardsContainer).query('.selected').removeClass('selected');
             }
@@ -415,11 +454,17 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domGeom, fx) {
         ///////////////////////////////////////////////////
         //// Battlefield utility methods
         deactivateAllPlacementPositions: function(position) {
-            query(this.getBattlefieldNode()).query('.clickable').removeClass('clickable');
+            var clickablePositions = query(this.getBattlefieldNode()).query('.clickable');
+            clickablePositions.removeClass('clickable');
+            clickablePositions.forEach(lang.hitch(this, function(positionNode) {
+                this.removeTooltip(positionNode.id);
+            }));
         },
 
-        activatePossiblePlacementPosition: function(position) {
-            query(this.getOrCreatePlacementPosition(position.x, position.y)).addClass('clickable');
+        activatePossiblePlacementPosition: function(position, tooltip) {
+            var placementNode = this.getOrCreatePlacementPosition(position.x, position.y);
+            query(placementNode).addClass('clickable');
+            this.addTooltip(placementNode.id, '', _(tooltip));
         },
 
         getOrCreatePlacementPosition: function(x, y) {
@@ -500,7 +545,12 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domGeom, fx) {
 
             var cardId = selectedIds.pop();
             var possiblePlacements = this.possiblePlacementsByCardId[cardId];
-            array.forEach(possiblePlacements, lang.hitch(this, this.activatePossiblePlacementPosition));
+            array.forEach(
+                possiblePlacements,
+                lang.hitch(this, function(possiblePlacement) {
+                    this.activatePossiblePlacementPosition(possiblePlacement, 'Place card here');
+                })
+            );
         },
 
         onPlacePositionClick: function(e) {
