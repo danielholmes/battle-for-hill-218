@@ -61,10 +61,12 @@ class ChooseAttackTest extends TestCase
 
     public function testChooseAttackValid()
     {
-        $game = $this->table
+        $action = $this->table
             ->setupNewGame()
-            ->createGameInstanceForCurrentPlayer(66)
-            ->stubActivePlayerId(66);
+            ->createActionInstanceForCurrentPlayer(66)
+            ->stubActivePlayerId(66)
+            ->stubArgs(['x' => 0, 'y' => -1]);
+
         $this->table->getDbConnection()->exec(SQLHelper::insertAll(
             'battlefield_card', [
                 [
@@ -88,7 +90,7 @@ class ChooseAttackTest extends TestCase
             ]
         ));
 
-        $game->chooseAttack(0, -1);
+        $action->chooseAttack();
 
         assertThat(
             $this->table->fetchDbRows('battlefield_card'),
@@ -101,7 +103,7 @@ class ChooseAttackTest extends TestCase
             )
         );
         assertThat(
-            $game->getNotifications(),
+            $action->getGame()->getNotifications(),
             contains(M\hasEntries([
                 'playerId' => 'all',
                 'type' => 'cardAttacked',
@@ -121,10 +123,12 @@ class ChooseAttackTest extends TestCase
     {
         $this->expectException('BgaUserException');
 
-        $game = $this->table
+        $action = $this->table
             ->setupNewGame()
-            ->createGameInstanceForCurrentPlayer(66)
-            ->stubActivePlayerId(66);
+            ->createActionInstanceForCurrentPlayer(66)
+            ->stubActivePlayerId(66)
+            ->stubArgs(['x' => 5, 'y' => 5]);
+
         $this->table->getDbConnection()->exec(SQLHelper::insertAll(
             'battlefield_card', [
                 [
@@ -148,6 +152,6 @@ class ChooseAttackTest extends TestCase
             ]
         ));
 
-        $game->chooseAttack(5, 5);
+        $action->chooseAttack();
     }
 }

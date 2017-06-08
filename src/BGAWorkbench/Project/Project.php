@@ -65,6 +65,14 @@ class Project
     /**
      * @return string
      */
+    public function getActionProjectFileRelativePathname()
+    {
+        return "{$this->name}.action.php";
+    }
+
+    /**
+     * @return string
+     */
     public function getGameinfosProjectFileRelativePathname()
     {
         return "gameinfos.inc.php";
@@ -92,7 +100,7 @@ class Project
     public function getRequiredFiles()
     {
         return ImmArray::fromArray([
-            "{$this->name}.action.php",
+            $this->getActionProjectFileRelativePathname(),
             $this->getGameProjectFileRelativePathname(),
             "{$this->name}.view.php",
             "{$this->name}.css",
@@ -249,14 +257,32 @@ class Project
      */
     public function createGameTableInstance()
     {
-        $gameFilepath = $this->getProjectFile($this->getGameProjectFileRelativePathname())->getPathname();
+        return $this->createInstanceFromClassInFile($this->getGameProjectFileRelativePathname(), 'Table');
+    }
+
+    /**
+     * @return \APP_GameAction
+     */
+    public function createActionInstance()
+    {
+        return $this->createInstanceFromClassInFile($this->getActionProjectFileRelativePathname(), 'APP_GameAction');
+    }
+
+    /**
+     * @param string $relativePathname
+     * @param string $class
+     * @return mixed
+     */
+    private function createInstanceFromClassInFile($relativePathname, $class)
+    {
+        $gameFilepath = $this->getProjectFile($relativePathname)->getPathname();
         require_once($gameFilepath);
         $tableClasses = ImmArray::fromArray(array_keys(AnnotationsParser::parsePhp(file_get_contents($gameFilepath))))
             ->map(function ($className) {
                 return new \ReflectionClass($className);
             })
-            ->filter(function ($refClass) {
-                return $refClass->getParentClass()->getName() === 'Table';
+            ->filter(function ($refClass) use ($class) {
+                return $refClass->getParentClass()->getName() === $class;
             });
         $numTableClasses = $tableClasses->count();
         if ($numTableClasses !== 1) {

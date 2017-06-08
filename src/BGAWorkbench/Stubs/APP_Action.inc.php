@@ -18,6 +18,16 @@ define('AT_numberlist', 13);   //  exemple: 1,4;2,3;-1,2
 abstract class APP_Action extends APP_DbObject
 {
     /**
+     * @var array
+     */
+    private $args;
+
+    public function __construct()
+    {
+        $this->args = array();
+    }
+
+    /**
      * @param $argName
      * @param $argType
      * @param bool $mandatory
@@ -28,6 +38,36 @@ abstract class APP_Action extends APP_DbObject
      */
     protected function getArg($argName, $argType, $mandatory = false, $default = null, $argTypeDetails = array(), $bCanFail = false)
     {
+        if (isset($this->args[$argName])) {
+            return $this->args[$argName];
+        }
+
+        if (!$mandatory) {
+            return $default;
+        }
+
+        throw new \InvalidArgumentException("Arg {$argName} not found");
+    }
+
+    /**
+     * @param array $args
+     * @return self
+     */
+    public function stubArgs(array $args)
+    {
+        $this->args = array_merge($this->args, $args);
+        return $this;
+    }
+
+    /**
+     * @param string $name
+     * @param mixed $value
+     * @return $this
+     */
+    public function stubArg($name, $value)
+    {
+        $this->args[$name] = $value;
+        return $this;
     }
 
     /**

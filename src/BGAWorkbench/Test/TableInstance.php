@@ -166,6 +166,17 @@ class TableInstance
     }
 
     /**
+     * @param int $currentPlayerId
+     * @return \APP_GameAction
+     */
+    public function createActionInstanceForCurrentPlayer($currentPlayerId)
+    {
+        $action = $this->project->createActionInstance();
+        $action->stubGame($this->createGameInstanceForCurrentPlayer($currentPlayerId));
+        return $action;
+    }
+
+    /**
      * @return array
      */
     private function createPlayersById()

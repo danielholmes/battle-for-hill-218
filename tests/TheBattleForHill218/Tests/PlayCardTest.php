@@ -32,12 +32,16 @@ class PlayCardTest extends TestCase
 
     public function testPlayCardValid()
     {
-        $game = $this->table
+        $action = $this->table
             ->setupNewGame()
-            ->createGameInstanceForCurrentPlayer(66);
+            ->createActionInstanceForCurrentPlayer(66);
         $card = $this->getNonAirStrikePlayableCardForPlayer(66);
 
-        $game->playCard($card['id'], 0, 1);
+        $action->stubArgs([
+            'id' => $card['id'],
+            'x' => 0,
+            'y' => 1
+        ])->playCard();
 
         assertThat(
             $this->table->fetchDbRows('playable_card', ['player_id' => 66]),
@@ -55,7 +59,7 @@ class PlayCardTest extends TestCase
             )
         );
         assertThat(
-            $game->getNotifications(),
+            $action->getGame()->getNotifications(),
             containsInAnyOrder(
                 M\hasEntries([
                     'playerId' => 'all',
@@ -88,37 +92,50 @@ class PlayCardTest extends TestCase
     {
         $this->expectException('BgaUserException');
 
-        $game = $this->table
+        $action = $this->table
             ->setupNewGame()
-            ->createGameInstanceForCurrentPlayer(66);
+            ->createActionInstanceForCurrentPlayer(66)
+            ->stubArgs([
+                'id' => -999999,
+                'x' => 0,
+                'y' => 1
+            ]);
 
-        $game->playCard(-99999, 0, 1);
+        $action->playCard();
     }
 
     public function testPlayCardInInvalidPosition()
     {
         $this->expectException('BgaUserException');
 
-        $game = $this->table
+        $action = $this->table
             ->setupNewGame()
-            ->createGameInstanceForCurrentPlayer(66);
+            ->createActionInstanceForCurrentPlayer(66);
         $card = $this->getNonAirStrikePlayableCardForPlayer(66);
 
-        $game->playCard($card['id'], 10, 10);
+        $action->stubArgs([
+            'id' => $card['id'],
+            'x' => 10,
+            'y' => 10
+        ])->playCard();
     }
 
     public function testPlayAirStrike()
     {
-        $game = $this->table
+        $action = $this->table
             ->setupNewGame()
-            ->createGameInstanceForCurrentPlayer(66);
+            ->createActionInstanceForCurrentPlayer(66);
         $airStrikeId = $this->table
             ->fetchValue('SELECT id FROM playable_card WHERE type = "air-strike" AND player_id = 66');
         $this->table
             ->getDbConnection()
             ->insert('battlefield_card', ['type' => 'infantry', 'player_id' => 77, 'x' => 0, 'y' => -1]);
 
-        $game->playCard($airStrikeId, 0, -1);
+        $action->stubArgs([
+            'id' => $airStrikeId,
+            'x' => 0,
+            'y' => -1
+        ])->playCard();
 
         assertThat(
             $this->table->fetchDbRows('playable_card', ['player_id' => 66]),
@@ -129,7 +146,7 @@ class PlayCardTest extends TestCase
             emptyArray()
         );
         assertThat(
-            $game->getNotifications(),
+            $action->getGame()->getNotifications(),
             containsInAnyOrder(
                 M\hasEntries([
                     'playerId' => 'all',
@@ -160,29 +177,37 @@ class PlayCardTest extends TestCase
     {
         $this->expectException('BgaUserException');
 
-        $game = $this->table
+        $action = $this->table
             ->setupNewGame()
-            ->createGameInstanceForCurrentPlayer(66);
+            ->createActionInstanceForCurrentPlayer(66);
         $airStrikeId = $this->table
             ->fetchValue('SELECT id FROM playable_card WHERE type = "air-strike" AND player_id = 66');
 
-        $game->playCard($airStrikeId, 6, 6);
+        $action->stubArgs([
+            'id' => $airStrikeId,
+            'x' => 6,
+            'y' => 6
+        ])->playCard();
     }
 
     public function testPlayAirStrikeOnMyOwnCard()
     {
         $this->expectException('BgaUserException');
 
-        $game = $this->table
+        $action = $this->table
             ->setupNewGame()
-            ->createGameInstanceForCurrentPlayer(66);
+            ->createActionInstanceForCurrentPlayer(66);
         $airStrikeId = $this->table
             ->fetchValue('SELECT id FROM playable_card WHERE type = "air-strike" AND player_id = 66');
         $this->table
             ->getDbConnection()
             ->insert('battlefield_card', ['type' => 'infantry', 'player_id' => 66, 'x' => 0, 'y' => -1]);
 
-        $game->playCard($airStrikeId, 0, -1);
+        $action->stubArgs([
+            'id' => $airStrikeId,
+            'x' => 0,
+            'y' => -1
+        ])->playCard();
     }
 
     /**

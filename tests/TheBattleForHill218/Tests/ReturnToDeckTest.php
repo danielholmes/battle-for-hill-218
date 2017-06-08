@@ -18,11 +18,12 @@ class ReturnToDeckTest extends TestCase
 
     public function testReturnToDeck()
     {
-        $game = $this->table
+        $action = $this->table
             ->setupNewGame()
-            ->createGameInstanceForCurrentPlayer(66);
+            ->createActionInstanceForCurrentPlayer(66)
+            ->stubArg('ids', '3,4');
 
-        $game->returnToDeck([3, 4]);
+        $action->returnToDeck([3, 4]);
 
         assertThat(
             $this->table->fetchDbRows('deck_card', ['player_id' => 66]),
@@ -38,7 +39,7 @@ class ReturnToDeckTest extends TestCase
         );
 
         assertThat(
-            $game->getNotifications(),
+            $action->getGame()->getNotifications(),
             containsInAnyOrder(
                 M\hasEntries([
                     'playerId' => 'all',
