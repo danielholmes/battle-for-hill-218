@@ -36,3 +36,18 @@ function partition_to_lists($collection, $callback)
         return array_values($array);
     });
 }
+
+/**
+ * @param \Traversable|array $collection
+ * @param callable $callback
+ * @return array
+ */
+function group_to_lists($collection, $callback)
+{
+    return F\map(
+        F\group($collection, $callback),
+        function (array $map) {
+            return array_values($map);
+        }
+    );
+}

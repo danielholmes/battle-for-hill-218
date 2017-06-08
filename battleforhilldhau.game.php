@@ -25,11 +25,11 @@ foreach ($prevAutoloads as $prevAutoload) {
 }
 
 use Functional as F;
+use TheBattleForHill218\Functional as HF;
 use TheBattleForHill218\Battlefield\Battlefield;
 use TheBattleForHill218\Battlefield\CardPlacement;
 use TheBattleForHill218\Battlefield\Position;
 use TheBattleForHill218\Cards\AirStrikeCard;
-use TheBattleForHill218\Cards\BattlefieldCard;
 use TheBattleForHill218\Cards\CardFactory;
 use TheBattleForHill218\Cards\HillCard;
 use TheBattleForHill218\Cards\PlayerBattlefieldCard;
@@ -155,7 +155,7 @@ class BattleForHillDhau extends Table
     protected function getAllDatas()
     {
         // Hands
-        $allHandCards = F\group(
+        $allHandCards = HF\group_to_lists(
             self::getObjectListFromDB('SELECT id, player_id, type FROM playable_card ORDER BY `order` ASC'),
             function (array $card) {
                 return (int) $card['player_id'];
@@ -165,7 +165,7 @@ class BattleForHillDhau extends Table
         // Decks
         $allDeckSizes = F\map(
             F\map(
-                F\group(
+                HF\group_to_lists(
                     self::getObjectListFromDB('SELECT COUNT(id) as size, player_id FROM deck_card GROUP BY player_id'),
                     function (array $count) {
                         return (int) $count['player_id'];
@@ -180,14 +180,33 @@ class BattleForHillDhau extends Table
             }
         );
 
+        // Default values
+        $players = F\map(
+            self::getCollectionFromDb('SELECT player_id id, player_score score, player_color color FROM player'),
+            function (array $rawPlayer) {
+                return array_merge(
+                    $rawPlayer,
+                    array('id' => (int) $rawPlayer['id'], 'score' => (int) $rawPlayer['score'])
+                );
+            }
+        );
+        $playerIds = F\pluck($players, 'id');
+        foreach ($playerIds as $playerId) {
+            if (!isset($allHandCards[$playerId])) {
+                $allHandCards[$playerId] = array();
+            }
+            if (!isset($allDeckSizes[$playerId])) {
+                $allDeckSizes[$playerId] = 0;
+            }
+        }
+
         // Players
         $currentPlayerId = (int) self::getCurrentPlayerId();
         $_this = $this;
         $players = F\map(
-            self::getCollectionFromDb('SELECT player_id id, player_score score, player_color color FROM player'),
-            function (array $player) use ($_this, $allHandCards, $allDeckSizes, $currentPlayerId) {
-                $player = array_merge($player, array('id' => (int) $player['id'], 'score' => (int) $player['score']));
-                $handCards = array_values($allHandCards[$player['id']]);
+            $players,
+            function (array $player) use ($_this, $allHandCards, $allDeckSizes, $currentPlayerId) {;
+                $handCards = $allHandCards[$player['id']];
                 $deckSize = $allDeckSizes[$player['id']];
 
                 if ($player['id'] === $currentPlayerId) {
