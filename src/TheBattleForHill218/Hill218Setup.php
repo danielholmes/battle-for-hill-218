@@ -9,6 +9,8 @@ use TheBattleForHill218\Functional as HF;
 
 class Hill218Setup
 {
+    const NUMBER_OF_PLAYERS = 2;
+
     const PLAYABLE_CARDS_SIZE = 7;
 
     const NUMBER_OF_INITIAL_CARDS_TO_RETURN = 2;
@@ -67,7 +69,15 @@ class Hill218Setup
     /**
      * @return int
      */
-    public static function getNumberOfStartingCards()
+    public static function getTotalDeckSize()
+    {
+        return self::getNumberOfStartingCardsPerPlayer() * self::NUMBER_OF_PLAYERS;
+    }
+
+    /**
+     * @return int
+     */
+    public static function getNumberOfStartingCardsPerPlayer()
     {
         return count(self::createAllStartingCards(0));
     }
@@ -75,8 +85,9 @@ class Hill218Setup
     /**
      * @return int
      */
-    public static function getDeckSizeAfterInitialReturn()
+    public static function getPlayerDeckSizeAfterInitialReturn()
     {
-        return self::getNumberOfStartingCards() + self::NUMBER_OF_INITIAL_CARDS_TO_RETURN - self::PLAYABLE_CARDS_SIZE;
+        return self::getNumberOfStartingCardsPerPlayer() + self::NUMBER_OF_INITIAL_CARDS_TO_RETURN -
+            self::PLAYABLE_CARDS_SIZE;
     }
 }

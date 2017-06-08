@@ -29,6 +29,6 @@ class Hill218SetupTest extends TestCase
 
     public function testGetStartingDeckSize()
     {
-        assertThat(Hill218Setup::getDeckSizeAfterInitialReturn(), equalTo(21));
+        assertThat(Hill218Setup::getPlayerDeckSizeAfterInitialReturn(), equalTo(21));
     }
 }

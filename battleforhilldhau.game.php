@@ -284,25 +284,11 @@ class BattleForHillDhau extends Table
     */
     public function getGameProgression()
     {
-        // TODO: Look for a better implementation
-        $playerIds = array_keys(self::loadPlayersBasicInfos());
-        // Just choose a random player - it's close enough
-        $playerId = $playerIds[0];
-        $deckCards = self::getObjectListFromDB(
-            "SELECT COUNT(id) as num FROM deck_card WHERE player_id = {$playerId} GROUP BY player_id"
-        );
-        $playableCards = self::getObjectListFromDB(
-            "SELECT COUNT(id) as num FROM playable_card WHERE player_id = {$playerId} GROUP BY player_id"
-        );
-        $totalCards = 0;
-        if (!empty($deckCards)) {
-            $totalCards += (int) $deckCards[0]['num'];
-        }
-        if (!empty($playableCards)) {
-            $totalCards += (int) $playableCards[0]['num'];
-        }
+        $numDeckCards = self::getIntUniqueValueFromDB("SELECT COUNT(id) FROM deck_card");
+        $numPlayableCards = self::getIntUniqueValueFromDB("SELECT COUNT(id) FROM playable_card");
+        $totalCards = $numDeckCards + $numPlayableCards;
 
-        $percent = (Hill218Setup::getNumberOfStartingCards() - $totalCards) / Hill218Setup::getNumberOfStartingCards();
+        $percent = (Hill218Setup::getTotalDeckSize() - $totalCards) / Hill218Setup::getTotalDeckSize();
         return (int) round(100 * $percent);
     }
 
@@ -691,7 +677,7 @@ class BattleForHillDhau extends Table
         $playerNumber = self::getIntUniqueValueFromDB("SELECT player_no from player WHERE player_id = {$playerId}");
         if ($playerNumber === 1) {
             $deckSize = self::getIntUniqueValueFromDB("SELECT COUNT(id) FROM deck_card WHERE player_id = {$playerId}");
-            if ($deckSize === Hill218Setup::getDeckSizeAfterInitialReturn()) {
+            if ($deckSize === Hill218Setup::getPlayerDeckSizeAfterInitialReturn()) {
                 $numCards = 1;
             }
         }
