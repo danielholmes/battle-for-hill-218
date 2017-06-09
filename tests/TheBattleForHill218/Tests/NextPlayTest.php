@@ -53,6 +53,26 @@ class NextPlayTest extends TestCase
         );
     }
 
+    public function testNextPlaySwitchPlayerNoCardsLeftForOnePlayer()
+    {
+        $game = $this->createGameReadyForNext();
+        $this->table->getDbConnection()
+            ->exec('UPDATE player SET turn_plays_remaining = 2 WHERE player_id = 66');
+        $this->table->getDbConnection()->exec('DELETE FROM playable_card WHERE player_id = 66');
+        $this->table->getDbConnection()
+            ->exec('UPDATE player SET turn_plays_remaining = 0 WHERE player_id = 77');
+
+        $game->stubActivePlayerId(66)->stNextPlay();
+
+        assertThat(
+            $this->table->fetchDbRows('player'),
+            containsInAnyOrder([
+                M\hasEntries(['player_id' => 66, 'turn_plays_remaining' => 1]),
+                M\hasEntries(['player_id' => 77, 'turn_plays_remaining' => 2])
+            ])
+        );
+    }
+
     public function testNextPlaySamePlayer()
     {
         $game = $this->createGameReadyForNext();

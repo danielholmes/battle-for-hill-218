@@ -3,7 +3,9 @@
 namespace BGAWorkbench\Test;
 
 use BGAWorkbench\Project\WorkbenchProjectConfig;
-use Symfony\Component\Config\Definition\Processor;
+use Faker\Factory;
+use Faker\Generator;
+use Functional as F;
 
 class TableInstanceBuilder
 {
@@ -23,9 +25,9 @@ class TableInstanceBuilder
     private $options;
 
     /**
-     * @var Processor
+     * @var Generator
      */
-    private $configProcessor;
+    private $faker;
 
     /**
      * @param WorkbenchProjectConfig $config
@@ -34,7 +36,7 @@ class TableInstanceBuilder
     {
         $this->config = $config;
         $this->options = [];
-        $this->configProcessor = new Processor();
+        $this->faker = Factory::create();
     }
 
     /**
@@ -43,7 +45,25 @@ class TableInstanceBuilder
      */
     public function setPlayers(array $players)
     {
-        $this->players = $this->configProcessor->processConfiguration(new PlayersConfiguration(), [$players]);
+        $this->players = F\map(
+            $players,
+            function (array $player, $i) {
+                return array_merge(
+                    array(
+                        'player_no' => $i + 1,
+                        'player_canal' => md5($i + time()),
+                        'player_color' => substr($this->faker->hexColor, 1),
+                        'player_name' => $this->faker->firstName,
+                        'player_avatar' => '000000',
+                        'player_is_admin' => 0,
+                        'player_beginner' => 0,
+                        'player_is_ai' => 0,
+                        'player_table_order' => $i
+                    ),
+                    $player
+                );
+            }
+        );
         return $this;
     }
 
@@ -53,7 +73,7 @@ class TableInstanceBuilder
      */
     public function setPlayersWithIds(array $ids)
     {
-        return self::setPlayers(array_map(function ($id) {
+        return $this->setPlayers(array_map(function ($id) {
             return ['player_id' => $id];
         }, $ids));
     }

@@ -773,13 +773,16 @@ class BattleForHillDhau extends Table
             return;
         }
 
+        $activePlayerHasCards = (boolean) self::getUniqueValueFromDB(
+            "SELECT COUNT(id) FROM playable_card WHERE player_id = {$playerId} LIMIT 1"
+        );
         self::DbQuery(
             "UPDATE player SET turn_plays_remaining = turn_plays_remaining - 1 WHERE player_id = {$playerId}"
         );
         $remaining = self::getIntUniqueValueFromDB(
             "SELECT turn_plays_remaining FROM player WHERE player_id = {$playerId}"
         );
-        if ($remaining <= 0) {
+        if ($remaining <= 0 || !$activePlayerHasCards) {
             $opponentPlayerId = F\first(
                 array_keys(self::loadPlayersBasicInfos()),
                 function ($checkId) use ($playerId) {
