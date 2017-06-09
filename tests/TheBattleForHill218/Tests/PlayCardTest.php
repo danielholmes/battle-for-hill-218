@@ -98,8 +98,11 @@ class PlayCardTest extends TestCase
         $action = $this->table
             ->setupNewGame()
             ->createActionInstanceForCurrentPlayer(66);
-        // TODO: Insert special forces card into playable
-        $card = $this->getSpecialForcesCardForPlayer(66);
+        $this->table->getDbConnection()->insert(
+            'playable_card',
+            ['type' => 'special-forces', 'player_id' => 66, '`order`' => 8]
+        );
+        $specialForcesId = $this->table->getDbConnection()->lastInsertId();
         $this->table->getDbConnection()->exec(SQLHelper::insertAll(
             'battlefield_card',
             [
@@ -109,23 +112,23 @@ class PlayCardTest extends TestCase
         ));
 
         $action->stubArgs([
-            'id' => $card['id'],
+            'id' => $specialForcesId,
             'x' => 0,
             'y' => -1
         ])->playCard();
 
         assertThat(
             $this->table->fetchDbRows('playable_card', ['player_id' => 66]),
-            not(hasItem(hasEntry('id', $card['id'])))
+            not(hasItem(hasEntry('id', $specialForcesId)))
         );
         assertThat(
             $this->table->fetchDbRows('battlefield_card', ['x' => 0, 'y' => -1]),
             contains(
                 M\hasEntries([
-                    'type' => $card['type'],
+                    'type' => 'special-forces',
                     'player_id' => 66,
                     'x' => 0,
-                    'y' => 1
+                    'y' => -1
                 ])
             )
         );
@@ -142,7 +145,7 @@ class PlayCardTest extends TestCase
                         'typeName' => nonEmptyString(),
                         'typeKey' => nonEmptyString(),
                         'x' => 0,
-                        'y' => 1
+                        'y' => -1
                     ])
                 ]),
                 M\hasEntries([
@@ -150,9 +153,9 @@ class PlayCardTest extends TestCase
                     'type' => 'iPlacedCard',
                     'log' => '',
                     'args' => M\hasEntries([
-                        'cardId' => $card['id'],
+                        'cardId' => $specialForcesId,
                         'x' => 0,
-                        'y' => 1
+                        'y' => -1
                     ])
                 ])
             )
@@ -296,24 +299,6 @@ class PlayCardTest extends TestCase
             ->andWhere('type != :airStrikeType')
             ->setParameter(':playerId', $playerId)
             ->setParameter(':airStrikeType', 'air-strike')
-            ->execute()
-            ->fetch();
-    }
-
-    /**
-     * @param int $playerId
-     * @return array[]
-     */
-    private function getSpecialForcesCardForPlayer($playerId)
-    {
-        return $this->table
-            ->createDbQueryBuilder()
-            ->select('*')
-            ->from('deck_card')
-            ->where('player_id = :playerId')
-            ->andWhere('type = :specialForcesType')
-            ->setParameter(':playerId', $playerId)
-            ->setParameter(':specialForcesType', 'special-forces')
             ->execute()
             ->fetch();
     }
