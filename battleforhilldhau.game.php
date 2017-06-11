@@ -84,6 +84,9 @@ class BattleForHillDhau extends Table
 
         $infos = self::getGameInfosForGame($this->getGameName());
         $colors = $infos['player_colors'];
+        $playerNumbers = range(1, count($players));
+        shuffle($playerNumbers);
+        shuffle($colors);
 
         $i = 0;
         foreach ($players as $player_id => $player) {
