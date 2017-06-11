@@ -194,6 +194,15 @@ class Battlefield
 
     /**
      * @param int $playerId
+     * @return Position
+     */
+    public function getOpponentBasePosition($playerId)
+    {
+        return $this->getBasePosition($playerId)->flipY();
+    }
+
+    /**
+     * @param int $playerId
      * @return bool
      */
     private function isBasePositionOccupied($playerId)

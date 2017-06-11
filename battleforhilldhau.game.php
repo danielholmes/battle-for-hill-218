@@ -566,6 +566,15 @@ class BattleForHillDhau extends Table
             )
         );
 
+        // Check if occupying base
+        $opponentBasePosition = $battlefield->getOpponentBasePosition($card->getPlayerId());
+        if ($opponentBasePosition == $position) {
+            self::DbQuery("UPDATE player SET player_score = 10 WHERE player_id = {$card->getPlayerId()}");
+            self::DbQuery("UPDATE player SET player_score = 0 WHERE player_id != {$card->getPlayerId()}");
+            $this->gamestate->nextState('occupyEnemyBase');
+            return;
+        }
+
         $updatedBattlefield = $this->loadBattlefield();
         if ($updatedBattlefield->hasAttackablePlacement($position)) {
             $this->gamestate->nextState('attackAvailable');

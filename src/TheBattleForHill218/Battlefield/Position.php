@@ -93,6 +93,14 @@ class Position
     }
 
     /**
+     * @return Position
+     */
+    public function flipY()
+    {
+        return new Position($this->x, -$this->y);
+    }
+
+    /**
      * @return string
      */
     public function __toString()
