@@ -10,7 +10,9 @@ use TheBattleForHill218\SQLHelper;
 
 class PlayCardTest extends TestCase
 {
-    use TestHelp;
+    use TestHelp {
+        setUp as helpSetUp;
+    }
 
     protected function createGameTableInstanceBuilder()
     {
@@ -18,10 +20,22 @@ class PlayCardTest extends TestCase
             ->setPlayersWithIds([66, 77]);
     }
 
+    protected function setUp()
+    {
+        $this->helpSetUp();
+        $this->table->setupNewGame();
+        $this->table->getDbConnection()->exec('UPDATE player SET player_color = "000000" WHERE player_id = 66');
+        $this->table->getDbConnection()->exec(
+            sprintf(
+                'UPDATE player SET player_color = "%s" WHERE player_id = 77',
+                \BattleForHillDhau::DOWNWARD_PLAYER_COLOR
+            )
+        );
+    }
+
     public function testArgPlayCard()
     {
         $game = $this->table
-            ->setupNewGame()
             ->createGameInstanceForCurrentPlayer(66)
             ->stubActivePlayerId(66);
 
@@ -33,9 +47,7 @@ class PlayCardTest extends TestCase
 
     public function testPlayCardValid()
     {
-        $action = $this->table
-            ->setupNewGame()
-            ->createActionInstanceForCurrentPlayer(66);
+        $action = $this->table->createActionInstanceForCurrentPlayer(66);
         $card = $this->getNonAirStrikePlayableCardForPlayer(66);
 
         $action->stubArgs([
@@ -92,9 +104,7 @@ class PlayCardTest extends TestCase
     // TODO: Ensure no win if play air strike in enemy base
     public function testPlayCardOccupyEnemyBase()
     {
-        $action = $this->table
-            ->setupNewGame()
-            ->createActionInstanceForCurrentPlayer(66);
+        $action = $this->table->createActionInstanceForCurrentPlayer(66);
         $this->table->getDbConnection()->insert(
             'playable_card',
             ['type' => 'special-forces', 'player_id' => 66, '`order`' => 8]
@@ -178,7 +188,6 @@ class PlayCardTest extends TestCase
         $this->expectException('BgaUserException');
 
         $action = $this->table
-            ->setupNewGame()
             ->createActionInstanceForCurrentPlayer(66)
             ->stubArgs([
                 'id' => -999999,
@@ -193,9 +202,7 @@ class PlayCardTest extends TestCase
     {
         $this->expectException('BgaUserException');
 
-        $action = $this->table
-            ->setupNewGame()
-            ->createActionInstanceForCurrentPlayer(66);
+        $action = $this->table->createActionInstanceForCurrentPlayer(66);
         $card = $this->getNonAirStrikePlayableCardForPlayer(66);
 
         $action->stubArgs([
@@ -207,9 +214,7 @@ class PlayCardTest extends TestCase
 
     public function testPlayAirStrike()
     {
-        $action = $this->table
-            ->setupNewGame()
-            ->createActionInstanceForCurrentPlayer(66);
+        $action = $this->table->createActionInstanceForCurrentPlayer(66);
         $airStrikeId = $this->table
             ->fetchValue('SELECT id FROM playable_card WHERE type = "air-strike" AND player_id = 66');
         $this->table
@@ -262,9 +267,7 @@ class PlayCardTest extends TestCase
     {
         $this->expectException('BgaUserException');
 
-        $action = $this->table
-            ->setupNewGame()
-            ->createActionInstanceForCurrentPlayer(66);
+        $action = $this->table->createActionInstanceForCurrentPlayer(66);
         $airStrikeId = $this->table
             ->fetchValue('SELECT id FROM playable_card WHERE type = "air-strike" AND player_id = 66');
 
@@ -279,9 +282,7 @@ class PlayCardTest extends TestCase
     {
         $this->expectException('BgaUserException');
 
-        $action = $this->table
-            ->setupNewGame()
-            ->createActionInstanceForCurrentPlayer(66);
+        $action = $this->table->createActionInstanceForCurrentPlayer(66);
         $airStrikeId = $this->table
             ->fetchValue('SELECT id FROM playable_card WHERE type = "air-strike" AND player_id = 66');
         $this->table
