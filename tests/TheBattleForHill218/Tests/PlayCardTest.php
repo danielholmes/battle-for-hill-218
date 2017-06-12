@@ -15,10 +15,7 @@ class PlayCardTest extends TestCase
     protected function createGameTableInstanceBuilder()
     {
         return $this->gameTableInstanceBuilder()
-            ->setPlayers([
-                ['player_id' => 66, 'base_side' => '1'],
-                ['player_id' => 77, 'base_side' => '-1']
-            ]);
+            ->setPlayersWithIds([66, 77]);
     }
 
     public function testArgPlayCard()

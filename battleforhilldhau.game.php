@@ -39,6 +39,8 @@ use TheBattleForHill218\SQLHelper;
 
 class BattleForHillDhau extends Table
 {
+    const DOWNWARD_PLAYER_COLOR = '6f0f11';
+
     public function __construct()
     {
         parent::__construct();
@@ -96,8 +98,7 @@ class BattleForHillDhau extends Table
                 'player_color' => $color,
                 'player_canal' => $player['player_canal'],
                 'player_name' => $player['player_name'],
-                'player_avatar' => $player['player_avatar'],
-                'base_side' => $color === '04237b' ? '1' : '-1'
+                'player_avatar' => $player['player_avatar']
             )));
             $i++;
         }
@@ -322,7 +323,10 @@ class BattleForHillDhau extends Table
      */
     private function loadBattlefield()
     {
-        $downwardPlayerId = self::getUniqueValueFromDB('SELECT player_id FROM player WHERE base_side = "-1"');
+        $downwardPlayerColor = self::DOWNWARD_PLAYER_COLOR;
+        $downwardPlayerId = self::getUniqueValueFromDB(
+            "SELECT player_id FROM player WHERE player_color = '{$downwardPlayerColor}'"
+        );
         if ($downwardPlayerId === null) {
             throw new RuntimeException('Downwards player not found');
         }
