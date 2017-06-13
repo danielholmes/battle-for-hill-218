@@ -896,7 +896,6 @@ SQL
             default:
                 throw new BgaSystemException("Unknown state for zombie {$state['name']}");
         }
-        //$this->gamestate->nextState( "zombiePass" );
         //$this->gamestate->updateMultiactiveOrNextState( '' );
     }
     

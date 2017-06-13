@@ -13,6 +13,7 @@ define([
     "dojo/fx",
     "dojo/NodeList-data",
     "dojo/NodeList-traverse",
+    "dojo/NodeList-html",
     "ebg/core/gamegui",
     "ebg/counter",
     "ebg/scrollmap"
@@ -315,7 +316,8 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domClass, domGeo
         },
 
         updateDeckCount: function(playerId, count) {
-            this.getPlayerCardsNode(playerId).query('.deck-count').text(count);
+            console.log('update', playerId, 'with', count);
+            query(this.getPlayerBoardNode(playerId)).query('.deck-count').pop().innerHTML = count;
         },
 
         ///////////////////////////////////////////////////
