@@ -375,6 +375,16 @@ class BattleForHillDhau extends Table
         return (int) self::getUniqueValueFromDB($sql);
     }
 
+    private function updatePlayerScores()
+    {
+        self::DbQuery(
+<<<SQL
+            UPDATE player p 
+            SET player_score = (SELECT COUNT(b.id) FROM battlefield_card b WHERE b.player_id = p.player_id)
+SQL
+        );
+    }
+
 //////////////////////////////////////////////////////////////////////////////
 //////////// Player actions
 ////////////
@@ -490,6 +500,8 @@ class BattleForHillDhau extends Table
         self::DbQuery("DELETE FROM playable_card WHERE id = {$cardId}");
         self::DbQuery("DELETE FROM battlefield_card WHERE id = {$cardInPosition['id']}");
 
+        $this->updatePlayerScores();
+
         // Notifications
         $players = self::loadPlayersBasicInfos();
         $player = $players[$card->getPlayerId()];
@@ -583,6 +595,7 @@ class BattleForHillDhau extends Table
         }
 
         $updatedBattlefield = $this->loadBattlefield();
+        $this->updatePlayerScores();
         if ($updatedBattlefield->hasAttackablePlacement($position)) {
             $this->gamestate->nextState('attackAvailable');
             return;
@@ -612,6 +625,7 @@ class BattleForHillDhau extends Table
         }
 
         self::DbQuery("DELETE FROM battlefield_card WHERE x = {$x} AND y = {$y} LIMIT 1");
+        $this->updatePlayerScores();
 
         $this->notifyAllPlayers(
             'cardAttacked',

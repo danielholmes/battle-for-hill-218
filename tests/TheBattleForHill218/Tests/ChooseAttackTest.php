@@ -68,8 +68,7 @@ class ChooseAttackTest extends TestCase
         $action = $this->table
             ->setupNewGame()
             ->createActionInstanceForCurrentPlayer(66)
-            ->stubActivePlayerId(66)
-            ->stubArgs(['x' => 0, 'y' => -1]);
+            ->stubActivePlayerId(66);
 
         $this->table->getDbConnection()->exec(SQLHelper::insertAll(
             'battlefield_card', [
@@ -93,8 +92,10 @@ class ChooseAttackTest extends TestCase
                 ]
             ]
         ));
+        $this->table->getDbConnection()->update('player', ['player_score' => 2], ['player_id' => 66]);
+        $this->table->getDbConnection()->update('player', ['player_score' => 1], ['player_id' => 77]);
 
-        $action->chooseAttack();
+        $action->stubArgs(['x' => 0, 'y' => -1])->chooseAttack();
 
         assertThat(
             $this->table->fetchDbRows('battlefield_card'),
@@ -104,6 +105,13 @@ class ChooseAttackTest extends TestCase
                     'y' => -1
                 ]))),
                 arrayWithSize(3)
+            )
+        );
+        assertThat(
+            $this->table->fetchDbRows('player'),
+            containsInAnyOrder(
+                M\hasEntries(['player_id' => 66, 'player_score' => 2]),
+                M\hasEntries(['player_id' => 77, 'player_score' => 0])
             )
         );
         assertThat(

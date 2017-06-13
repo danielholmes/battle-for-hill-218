@@ -226,6 +226,7 @@ class PlayCardTest extends TestCase
         $this->table
             ->getDbConnection()
             ->insert('battlefield_card', ['type' => 'infantry', 'player_id' => 77, 'x' => 0, 'y' => -1]);
+        $this->table->getDbConnection()->update('player', ['player_score' => 1], ['player_id' => 77]);
 
         $action->stubArgs([
             'id' => $airStrikeId,
@@ -240,6 +241,13 @@ class PlayCardTest extends TestCase
         assertThat(
             $this->table->fetchDbRows('battlefield_card', ['x' => 0, 'y' => -1]),
             emptyArray()
+        );
+        assertThat(
+            $this->table->fetchDbRows('player'),
+            containsInAnyOrder(
+                M\hasEntries(['player_id' => 66, 'player_score' => 0]),
+                M\hasEntries(['player_id' => 77, 'player_score' => 0])
+            )
         );
         assertThat(
             $action->getGame()->getNotifications(),
