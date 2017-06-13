@@ -64,6 +64,13 @@ class PlayCardTest extends TestCase
             )
         );
         assertThat(
+            $this->table->fetchDbRows('player'),
+            containsInAnyOrder(
+                M\hasEntries(['player_id' => 66, 'player_score' => 1]),
+                M\hasEntries(['player_id' => 77, 'player_score' => 0])
+            )
+        );
+        assertThat(
             $action->getGame()->getNotifications(),
             containsInAnyOrder(
                 M\hasEntries([
