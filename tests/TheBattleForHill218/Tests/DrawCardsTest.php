@@ -63,6 +63,12 @@ class DrawCardsTest extends TestCase
                         'numCards' => 1,
                         'playerId' => 66
                     ])
+                ]),
+                M\hasEntries([
+                    'playerId' => 'all',
+                    'type' => 'newDeckCount',
+                    'log' => '',
+                    'args' => ['playerId' => 66, 'count' => 20]
                 ])
             )
         );
@@ -103,6 +109,12 @@ class DrawCardsTest extends TestCase
                     'type' => 'cardsDrawn',
                     'log' => '${playerName} has drawn ${numCards} cards',
                     'args' => hasEntry('numCards', 2)
+                ]),
+                M\hasEntries([
+                    'playerId' => 'all',
+                    'type' => 'newDeckCount',
+                    'log' => '',
+                    'args' => ['playerId' => 77, 'count' => 19]
                 ])
             )
         );
@@ -119,14 +131,8 @@ class DrawCardsTest extends TestCase
         $game->stDrawCards();
 
         assertThat($this->table->fetchDbRows('deck_card'), emptyArray());
-        assertThat(
-            $this->table->fetchDbRows('playable_card', ['player_id' => 66]),
-            arrayWithSize(7)
-        );
-        assertThat(
-            $this->table->fetchDbRows('playable_card', ['player_id' => 77]),
-            arrayWithSize(7)
-        );
+        assertThat($this->table->fetchDbRows('playable_card', ['player_id' => 66]), arrayWithSize(7));
+        assertThat($this->table->fetchDbRows('playable_card', ['player_id' => 77]), arrayWithSize(7));
         assertThat($game->getNotifications(), emptyArray());
     }
 }

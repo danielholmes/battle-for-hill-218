@@ -30,7 +30,7 @@
     var jstpl_opponent_air_strike_card = '<div class="playable-card"><div class="card ${type} color-${color}"></div></div>';
     var jstpl_battlefield_position = '<div id="position-${x}-${y}" class="battlefield-position" style="left: ${left}px;top: ${top}px" data-x="${x}" data-y="${y}"><div class="clickable-indicator"></div></div>';
     var jstpl_battlefield_card = '<div class="battlefield-card"><div class="card ${type} color-${color}"></div></div>';
-    var jstpl_counter_icons = '<div id="counter-icons"><div class="deck-icon"></div><span class="deck-count">-</span></div>';
+    var jstpl_counter_icons = '<div id="counter-icons"><div class="deck-count-icon"></div><span class="deck-count">-</span></div>';
 </script>
 
 {OVERALL_GAME_FOOTER}

@@ -48,10 +48,8 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domClass, domGeo
                     } else {
                         this.setupHiddenPlayerCards(player);
                     }
-
-                    var playerBoard = query('#player_board_' + id);
-                    playerBoard.addClass('player-color-' + player.color);
-                    dojo.place(this.format_block('jstpl_counter_icons', {}), playerBoard.pop());
+                    dojo.place(this.format_block('jstpl_counter_icons', {}), this.getPlayerBoardNode(id));
+                    this.updateDeckCount(id, player.deckSize);
                 }
             }
         },
@@ -221,8 +219,12 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domClass, domGeo
             return query('#map_scrollable_oversurface').pop();
         },
 
-        getPlayerCardsNode: function(id) {
-            return dom.byId('player-cards-' + id);
+        getPlayerBoardNode: function(playerId) {
+            return query('#player_board_' + playerId).pop();
+        },
+
+        getPlayerCardsNode: function(playerId) {
+            return dom.byId('player-cards-' + playerId);
         },
 
         getCurrentPlayerCardsNode: function() {
@@ -255,7 +257,7 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domClass, domGeo
         },
 
         getPlayerDeckNode: function(playerId) {
-            return query('#overall_player_board_' + playerId).query('.deck-icon').pop();
+            return query('#overall_player_board_' + playerId).query('.deck-count-icon').pop();
         },
 
         getCurrentPlayerDeckNode: function() {
@@ -310,6 +312,10 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domClass, domGeo
         placeBattlefieldCard: function(card) {
             var position = this.getOrCreatePlacementPosition(card.x, card.y);
             dojo.place(this.createBattlefieldCard(card, card.playerColor || ''), position);
+        },
+
+        updateDeckCount: function(playerId, count) {
+            this.getPlayerCardsNode(playerId).query('.deck-count').text(count);
         },
 
         ///////////////////////////////////////////////////
@@ -627,6 +633,7 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domClass, domGeo
             dojo.subscribe('playedAirStrike', lang.hitch(this, this.notif_playedAirStrike));
             dojo.subscribe('cardAttacked', lang.hitch(this, this.notif_cardAttacked));
             dojo.subscribe('newScores', lang.hitch(this, this.notif_newScores));
+            dojo.subscribe('newDeckCount', lang.hitch(this, this.notif_newDeckCount));
         },
 
         notif_cardAttacked: function(notification) {
@@ -784,6 +791,10 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domClass, domGeo
                     this.scoreCtrl[playerId].toValue(score);
                 })
             );
+        },
+
+        notif_newDeckCount: function(notification) {
+            this.updateDeckCount(notification.args.playerId, notification.args.count);
         }
    });             
 });

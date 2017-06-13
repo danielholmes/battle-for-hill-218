@@ -786,6 +786,16 @@ SQL
             '',
             array('cards' => $drawnPlayable, 'playerColor' => $playerColor)
         );
+
+        self::notifyAllPlayers(
+            'newDeckCount',
+            '',
+            array(
+                'playerId' => $playerId,
+                'count' => self::getIntUniqueValueFromDB("SELECT COUNT(id) FROM deck_card WHERE player_id = {$playerId}")
+            )
+        );
+
         $drawMessage = '${playerName} has drawn ${numCards} card';
         if ($numDrawn > 1) {
             $drawMessage .= 's';
