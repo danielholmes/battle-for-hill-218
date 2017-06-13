@@ -10,7 +10,7 @@ trait TestHelp
     /**
      * @var TableInstance
      */
-    protected $table;
+    private $table;
 
     protected function setUp()
     {

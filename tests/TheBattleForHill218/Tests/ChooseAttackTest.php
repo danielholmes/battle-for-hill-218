@@ -9,32 +9,22 @@ use TheBattleForHill218\SQLHelper;
 
 class ChooseAttackTest extends TestCase
 {
-    use TestHelp {
-        setUp as helpSetUp;
-    }
+    use TestHelp;
 
     protected function createGameTableInstanceBuilder()
     {
         return $this->gameTableInstanceBuilder()
-            ->setPlayersWithIds([66, 77]);
-    }
-
-    protected function setUp()
-    {
-        $this->helpSetUp();
-        $this->table->setupNewGame();
-        $this->table->getDbConnection()->exec('UPDATE player SET player_color = "000000" WHERE player_id = 66');
-        $this->table->getDbConnection()->exec(
-            sprintf(
-                'UPDATE player SET player_color = "%s" WHERE player_id = 77',
-                \BattleForHillDhau::DOWNWARD_PLAYER_COLOR
-            )
-        );
+            ->setPlayersWithIds([66, 77])
+            ->overridePlayersPostSetup([
+                66 => ['player_color' => '000000'],
+                77 => ['player_color' => \BattleForHillDhau::DOWNWARD_PLAYER_COLOR]
+            ]);
     }
 
     public function testArgChooseAttack()
     {
         $game = $this->table
+            ->setupNewGame()
             ->createGameInstanceForCurrentPlayer(66)
             ->stubActivePlayerId(66);
         $this->table->getDbConnection()->exec(SQLHelper::insertAll(
@@ -76,6 +66,7 @@ class ChooseAttackTest extends TestCase
     public function testChooseAttackValid()
     {
         $action = $this->table
+            ->setupNewGame()
             ->createActionInstanceForCurrentPlayer(66)
             ->stubActivePlayerId(66)
             ->stubArgs(['x' => 0, 'y' => -1]);
@@ -137,6 +128,7 @@ class ChooseAttackTest extends TestCase
         $this->expectException('BgaUserException');
 
         $action = $this->table
+            ->setupNewGame()
             ->createActionInstanceForCurrentPlayer(66)
             ->stubActivePlayerId(66)
             ->stubArgs(['x' => 5, 'y' => 5]);

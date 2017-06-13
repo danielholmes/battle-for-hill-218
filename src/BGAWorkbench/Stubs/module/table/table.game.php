@@ -225,26 +225,17 @@ abstract class Table extends APP_GameClass
     }
 
     /**
-     * @var array|null
-     */
-    private $stubbedPlayersBasicInfos;
-
-    /**
-     * @param array $stubbedPlayersBasicInfos
-     */
-    public function stubPlayersBasicInfos(array $stubbedPlayersBasicInfos)
-    {
-        $this->stubbedPlayersBasicInfos = $stubbedPlayersBasicInfos;
-    }
-
-    /**
      * @return array
      */
     public function loadPlayersBasicInfos()
     {
-        if ($this->stubbedPlayersBasicInfos === null) {
-            throw new RuntimeException('PlayersBasicInfos not stubbed');
-        }
-        return $this->stubbedPlayersBasicInfos;
+        $players = self::getObjectListFromDB('SELECT * FROM player');
+        $playerIds = array_map(
+            function (array $player) {
+                return (int) $player['player_id'];
+            },
+            $players
+        );
+        return array_combine($playerIds, $players);
     }
 }

@@ -28,6 +28,11 @@ class TableInstance
     /**
      * @var array
      */
+    private $playerAmendments;
+
+    /**
+     * @var array
+     */
     private $options;
 
     /**
@@ -43,13 +48,15 @@ class TableInstance
     /**
      * @param WorkbenchProjectConfig $config
      * @param array $players
+     * @param array $playerAmendments
      * @param array $options
      */
-    public function __construct(WorkbenchProjectConfig $config, array $players, array $options)
+    public function __construct(WorkbenchProjectConfig $config, array $players, array $playerAmendments, array $options)
     {
         $this->config = $config;
         $this->project = $config->loadProject();
         $this->players = $players;
+        $this->playerAmendments = $playerAmendments;
         $this->options = $options;
         $this->database = new DatabaseInstance(
             $config->getTestDbNamePrefix() . substr(md5(time()), 0, 10),
@@ -133,6 +140,21 @@ class TableInstance
         call_user_func([$gameClass->getName(), 'stubGameInfos'], $this->project->getGameInfos());
         call_user_func([$gameClass->getName(), 'setDbConnection'], $this->database->getOrCreateConnection());
         Utils::callProtectedMethod($game, 'setupNewGame', $this->createPlayersById(), $this->options);
+
+        if (!empty($this->playerAmendments)) {
+            foreach ($this->playerAmendments as $id => $player) {
+                $numAffected = $this->getDbConnection()->update('player', $player, ['player_id' => $id]);
+                if ($numAffected === 0) {
+                    $found = (boolean) $this->getDbConnection()->executeQuery(
+                        "SELECT COUNT(player_id) FROM player WHERE player_id = {$id}"
+                    );
+                    if (!$found) {
+                        throw new \RuntimeException("No player with id {$id} found to override");
+                    }
+                }
+            }
+        }
+
         return $this;
     }
 
@@ -141,9 +163,7 @@ class TableInstance
      */
     public function createGameInstanceWithNoBoundedPlayer()
     {
-        $game = $this->project->createGameTableInstance();
-        $game->stubPlayersBasicInfos($this->createPlayersById());
-        return $game;
+        return $this->project->createGameTableInstance();
     }
 
     /**

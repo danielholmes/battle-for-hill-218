@@ -22,6 +22,11 @@ class TableInstanceBuilder
     /**
      * @var array
      */
+    private $playerAmendments;
+
+    /**
+     * @var array
+     */
     private $options;
 
     /**
@@ -37,6 +42,7 @@ class TableInstanceBuilder
         $this->config = $config;
         $this->options = [];
         $this->faker = Factory::create();
+        $this->playerAmendments = [];
     }
 
     /**
@@ -48,23 +54,46 @@ class TableInstanceBuilder
         $this->players = F\map(
             $players,
             function (array $player, $i) {
-                return array_merge(
-                    array(
-                        'player_no' => $i + 1,
-                        'player_canal' => md5($i + time()),
-                        'player_color' => substr($this->faker->hexColor, 1),
-                        'player_name' => $this->faker->firstName,
-                        'player_avatar' => '000000',
-                        'player_is_admin' => 0,
-                        'player_beginner' => 0,
-                        'player_is_ai' => 0,
-                        'player_table_order' => $i
-                    ),
-                    $player
-                );
+                $defaultPlayer = $this->createDefaultPlayer($i);
+                $allowedKeys = array_keys($defaultPlayer);
+                $usedKeys = array_keys($player);
+                $notAllowedKeys = array_diff($usedKeys, $allowedKeys);
+                if (!empty($notAllowedKeys)) {
+                    throw new \InvalidArgumentException(sprintf(
+                        'Invalid player keys: %s. Can only use %s',
+                        join(', ', $notAllowedKeys),
+                        join(', ', $allowedKeys)
+                    ));
+                }
+                return array_merge($defaultPlayer, $player);
             }
         );
         return $this;
+    }
+
+    /**
+     * @param array $playerAmendments
+     * @return self
+     */
+    public function overridePlayersPostSetup(array $playerAmendments)
+    {
+        $this->playerAmendments = $playerAmendments;
+        return $this;
+    }
+
+    /**
+     * @param int $index
+     * @return array
+     */
+    private function createDefaultPlayer($index)
+    {
+        return array(
+            'player_id' => $index + time(),
+            'player_no' => $index + 1,
+            'player_canal' => md5($index + time()),
+            'player_name' => $this->faker->firstName,
+            'player_avatar' => '000000'
+        );
     }
 
     /**
@@ -102,7 +131,7 @@ class TableInstanceBuilder
      */
     public function build()
     {
-        return new TableInstance($this->config, $this->players, $this->options);
+        return new TableInstance($this->config, $this->players, $this->playerAmendments, $this->options);
     }
 
     /**
