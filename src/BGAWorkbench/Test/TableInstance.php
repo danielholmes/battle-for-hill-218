@@ -7,6 +7,7 @@ use BGAWorkbench\Project\WorkbenchProjectConfig;
 use BGAWorkbench\Utils;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Query\QueryBuilder;
+use Functional as F;
 
 class TableInstance
 {
@@ -194,6 +195,24 @@ class TableInstance
         $action = $this->project->createActionInstance();
         $action->stubGame($this->createGameInstanceForCurrentPlayer($currentPlayerId));
         return $action;
+    }
+
+    /**
+     * @param string $stateName
+     * @param null|int $activePlayerId
+     * @return \Table
+     */
+    public function runZombieTurn($stateName, $activePlayerId = null)
+    {
+        $state = F\first(
+            $this->project->getStates(),
+            function (array $state) use ($stateName) {
+                return $state['name'] === $stateName;
+            }
+        );
+        $game = $this->createGameInstanceWithNoBoundedPlayer();
+        $game->zombieTurn($state, $activePlayerId);
+        return $game;
     }
 
     /**

@@ -95,6 +95,14 @@ class Project
     }
 
     /**
+     * @return string
+     */
+    private function getStatesFileName()
+    {
+        return 'states.inc.php';
+    }
+
+    /**
      * @return ImmArray
      */
     public function getRequiredFiles()
@@ -110,7 +118,7 @@ class Project
             $this->getGameinfosProjectFileRelativePathname(),
             "gameoptions.inc.php",
             "material.inc.php",
-            "states.inc.php",
+            $this->getStatesFileName(),
             "stats.inc.php",
             "version.php",
             "img" . DIRECTORY_SEPARATOR . "game_box.png",
@@ -198,6 +206,16 @@ class Project
                         return $this->getProjectFile($path);
                     })
             );
+    }
+
+    /**
+     * @return array
+     */
+    public function getStates()
+    {
+        $variableName = 'machinestates';
+        return $this->getFileVariableValue($this->getStatesFileName(), $variableName)
+            ->getOrThrow(new \RuntimeException("Couldn't find states"));
     }
 
     /**

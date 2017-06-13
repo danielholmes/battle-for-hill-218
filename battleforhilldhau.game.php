@@ -623,9 +623,10 @@ SQL
      */
     public function chooseAttack($x, $y)
     {
+        $playerId = (int) $this->getActivePlayerId();
         $attackPosition = new Position($x, $y);
         $battlefield = $this->loadBattlefield();
-        $fromPosition = $this->getChooseAttackFromPosition();
+        $fromPosition = $this->getChooseAttackFromPosition($playerId);
         $isAttackablePosition = F\some(
             $battlefield->getAttackablePlacements($fromPosition),
             function (CardPlacement $p) use ($attackPosition) {
@@ -637,15 +638,28 @@ SQL
             throw new BgaUserException('Position not attackable');
         }
 
-        self::DbQuery("DELETE FROM battlefield_card WHERE x = {$x} AND y = {$y} LIMIT 1");
+        $this->giveExtraTime($playerId);
+
+        $this->performChooseAttack($playerId, $fromPosition, $attackPosition);
+    }
+
+    /**
+     * @param int $playerId
+     * @param Position $fromPosition
+     * @param Position $attackPosition
+     */
+    private function performChooseAttack($playerId, Position $fromPosition, Position $attackPosition)
+    {
+        self::DbQuery(
+            "DELETE FROM battlefield_card WHERE x = {$attackPosition->getX()} AND y = {$attackPosition->getY()} LIMIT 1"
+        );
         $this->updatePlayerScores();
-        $this->giveExtraTime((int) $this->getActivePlayerId());
 
         $this->notifyAllPlayers(
             'cardAttacked',
             '${playerName} attacked ${x},${y}',
             array(
-                'playerName' => $this->getActivePlayerName(),
+                'playerName' => self::getUniqueValueFromDB("SELECT player_name FROM player WHERE player_id = {$playerId}"),
                 'x' => $attackPosition->getX(),
                 'y' => $attackPosition->getY(),
                 'fromX' => $fromPosition->getX(),
@@ -694,7 +708,7 @@ SQL
     public function argChooseAttack()
     {
         $battlefield = $this->loadBattlefield();
-        $fromPosition = $this->getChooseAttackFromPosition();
+        $fromPosition = $this->getChooseAttackFromPosition((int) $this->getActivePlayerId());
 
         return array(
             '_private' => array(
@@ -709,12 +723,12 @@ SQL
     }
 
     /**
+     * @param int $playerId
      * @return Position
      * @throws BgaSystemException
      */
-    private function getChooseAttackFromPosition()
+    private function getChooseAttackFromPosition($playerId)
     {
-        $playerId = (int) $this->getActivePlayerId();
         // TODO: placed_at timestamp would be better
         $mostRecentList = self::getObjectListFromDB(
             "SELECT x, y, player_id FROM battlefield_card ORDER BY id DESC LIMIT 1"
@@ -724,7 +738,9 @@ SQL
         }
         $mostRecent = $mostRecentList[0];
         if ((int) $mostRecent['player_id'] !== $playerId) {
-            throw new BgaSystemException('Choosing attack when active player hasn\'t placed most recent card');
+            throw new BgaSystemException(
+                'Choosing attack when active player hasn\'t placed most recent card: ' . json_encode($mostRecent)
+            );
         }
 
         return new Position((int) $mostRecent['x'], (int) $mostRecent['y']);
@@ -863,34 +879,25 @@ SQL
         You can do whatever you want in order to make sure the turn of this player ends appropriately
         (ex: pass).
     */
-    public function zombieTurn($state, $active_player)
+    public function zombieTurn($state, $activePlayerId)
     {
-        $statename = $state['name'];
-        
-        if ($state['type'] == "activeplayer") {
-            switch ($statename) {
-                default:
-                    $this->gamestate->nextState( "zombiePass" );
-                    break;
-            }
-
-            return;
+        switch ($state['name']) {
+            case 'playCard':
+                self::DbQuery("DELETE FROM playable_card WHERE player_id = {$activePlayerId} LIMIT 1");
+                $this->gamestate->nextState('noAttackAvailable');
+                break;
+            case 'chooseAttack':
+                $battlefield = $this->loadBattlefield();
+                $fromPosition = $this->getChooseAttackFromPosition($activePlayerId);
+                $battlefield->getAttackablePlacements($fromPosition);
+                $possiblePlacements = $battlefield->getAttackablePlacements($fromPosition);
+                $this->performChooseAttack($activePlayerId, $fromPosition, $possiblePlacements[0]->getPosition());
+                break;
+            default:
+                throw new BgaSystemException("Unknown state for zombie {$state['name']}");
         }
-
-        if ($state['type'] == "multipleactiveplayer") {
-            // Make sure player is in a non blocking status for role turn
-            $sql = "
-                UPDATE  player
-                SET     player_is_multiactive = 0
-                WHERE   player_id = $active_player
-            ";
-            self::DbQuery( $sql );
-
-            $this->gamestate->updateMultiactiveOrNextState( '' );
-            return;
-        }
-
-        throw new feException( "Zombie mode not supported at this game state: ".$statename );
+        //$this->gamestate->nextState( "zombiePass" );
+        //$this->gamestate->updateMultiactiveOrNextState( '' );
     }
     
 ///////////////////////////////////////////////////////////////////////////////////:
