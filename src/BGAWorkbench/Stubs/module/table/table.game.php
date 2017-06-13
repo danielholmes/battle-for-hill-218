@@ -78,6 +78,12 @@ abstract class Table extends APP_GameClass
     }
 
     /**
+     * @param int $player_id
+     * @param int $specific_time
+     */
+    public function giveExtraTime($player_id, $specific_time = null) {}
+
+    /**
      * @return string
      */
     public function getActivePlayerName()

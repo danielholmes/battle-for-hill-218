@@ -440,6 +440,7 @@ SQL
             )
         );
 
+        $this->giveExtraTime($playerId);
         $this->gamestate->setPlayerNonMultiactive($playerId, 'allReturned');
     }
 
@@ -526,6 +527,7 @@ SQL
             )
         );
 
+        $this->giveExtraTime($card->getPlayerId());
         $this->gamestate->nextState('noAttackAvailable');
     }
 
@@ -596,6 +598,7 @@ SQL
 
         $updatedBattlefield = $this->loadBattlefield();
         $this->updatePlayerScores();
+        $this->giveExtraTime($card->getPlayerId());
         if ($updatedBattlefield->hasAttackablePlacement($position)) {
             $this->gamestate->nextState('attackAvailable');
             return;
@@ -626,6 +629,7 @@ SQL
 
         self::DbQuery("DELETE FROM battlefield_card WHERE x = {$x} AND y = {$y} LIMIT 1");
         $this->updatePlayerScores();
+        $this->giveExtraTime((int) $this->getActivePlayerId());
 
         $this->notifyAllPlayers(
             'cardAttacked',

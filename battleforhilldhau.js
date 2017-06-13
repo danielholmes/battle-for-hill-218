@@ -57,7 +57,7 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domClass, domGeo
         },
 
         setupCurrentPlayerCards: function(data) {
-            var cardsContainer = this.getPlayerCardsNodeById(data.id);
+            var cardsContainer = this.getPlayerCardsNode(data.id);
 
             // Air strikes
             var airStrikeCards = array.filter(data.cards, function(card) { return card.type === 'air-strike'; });
@@ -80,7 +80,7 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domClass, domGeo
         },
 
         setupHiddenPlayerCards: function(data) {
-            var cardsContainer = this.getPlayerCardsNodeById(data.id);
+            var cardsContainer = this.getPlayerCardsNode(data.id);
 
             // Air strikes
             for (var i = 0; i < data.numAirStrikes; i++) {
@@ -221,29 +221,29 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domClass, domGeo
             return query('#map_scrollable_oversurface').pop();
         },
 
-        getPlayerCardsNodeById: function(id) {
+        getPlayerCardsNode: function(id) {
             return dom.byId('player-cards-' + id);
         },
 
         getCurrentPlayerCardsNode: function() {
-            return this.getPlayerCardsNodeById(this.player_id);
+            return this.getPlayerCardsNode(this.player_id);
         },
         
         getPlayerHandCardsNodeList: function(playerId) {
             // Note: .hand-card not needed since have .hand-cards container?
-            return query(this.getPlayerCardsNodeById(playerId)).query('.hand-card');
+            return query(this.getPlayerCardsNode(playerId)).query('.hand-card');
         },
         
         getCurrentPlayerHandCardsNodeList: function() {
             return this.getPlayerHandCardsNodeList(this.player_id);
         },
 
-        getPlayerHandCardsNodeById: function(playerId) {
-            return query(this.getPlayerCardsNodeById(playerId)).query('.hand-cards').pop();
+        getPlayerHandCardsNode: function(playerId) {
+            return query(this.getPlayerCardsNode(playerId)).query('.hand-cards').pop();
         },
 
         getCurrentPlayerHandCardsNode: function() {
-            return this.getPlayerHandCardsNodeById(this.player_id);
+            return this.getPlayerHandCardsNode(this.player_id);
         },
 
         getCurrentPlayerHandCardNodeByCardId: function(cardId) {
@@ -254,20 +254,20 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domClass, domGeo
             return this.getCurrentPlayerPlayableCardNodeList().filter('[data-id=' + cardId + ']').pop();
         },
 
-        getPlayerDeckNodeById: function(id) {
-            return query('#overall_player_board_' + id).query('.deck-icon').pop();
-        },
-
-        getRandomAirStrikeCardNodeByPlayerId: function(playerId) {
-            return query(this.getPlayerCardsNodeById(playerId)).query('.air-strikes .playable-card').pop();
+        getPlayerDeckNode: function(playerId) {
+            return query('#overall_player_board_' + playerId).query('.deck-icon').pop();
         },
 
         getCurrentPlayerDeckNode: function() {
-            return this.getPlayerDeckNodeById(this.player_id);
+            return this.getPlayerDeckNode(this.player_id);
+        },
+
+        getRandomAirStrikeCardNode: function(playerId) {
+            return query(this.getPlayerCardsNode(playerId)).query('.air-strikes .playable-card').pop();
         },
 
         placeInPlayerHand: function(playerId, card) {
-            dojo.place(this.recoverFromAnimation(card), this.getPlayerHandCardsNodeById(playerId));
+            dojo.place(this.recoverFromAnimation(card), this.getPlayerHandCardsNode(playerId));
         },
 
         placeInCurrentPlayerHand: function(card) {
@@ -646,7 +646,7 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domClass, domGeo
             var cardType = notification.args.typeKey;
             var color = notification.args.playerColor;
             var cardNode = this.createBattlefieldCard({type: cardType}, color);
-            var handCardsNode = this.getPlayerHandCardsNodeById(playerId);
+            var handCardsNode = this.getPlayerHandCardsNode(playerId);
             var position = this.getOrCreatePlacementPosition(x, y);
 
             dojo.destroy(this.getPlayerHandCardsNodeList(playerId).pop());
@@ -679,7 +679,7 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domClass, domGeo
 
             var x = notification.args.x;
             var y = notification.args.y;
-            var airStrikeCardNode = this.getRandomAirStrikeCardNodeByPlayerId(playerId);
+            var airStrikeCardNode = this.getRandomAirStrikeCardNode(playerId);
             var position = this.getOrCreatePlacementPosition(x, y);
 
             this.slideToObjectAndDestroy(this.prepareForAnimation(airStrikeCardNode), position, SLIDE_ANIMATION_DURATION);
@@ -719,9 +719,9 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domClass, domGeo
                 lang.hitch(this, function (cardDisplay, i) {
                     var offset = i * 20;
                     this.slideNewElementTo(
-                        this.getPlayerDeckNodeById(playerId),
+                        this.getPlayerDeckNode(playerId),
                         cardDisplay,
-                        this.getPlayerHandCardsNodeById(playerId),
+                        this.getPlayerHandCardsNode(playerId),
                         {x: offset, y: offset}
                     ).on("End", lang.hitch(this, function(card) { this.placeInPlayerHand(playerId, card); }));
                 })
@@ -771,7 +771,7 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domClass, domGeo
                 )),
                 lang.hitch(
                     this,
-                    function(card) { this.slideToDeckAndDestroy(card, this.getPlayerDeckNodeById(playerId)); }
+                    function(card) { this.slideToDeckAndDestroy(card, this.getPlayerDeckNode(playerId)); }
                 )
             );
         }
