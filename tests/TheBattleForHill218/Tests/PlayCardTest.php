@@ -95,6 +95,12 @@ class PlayCardTest extends TestCase
                         'x' => 0,
                         'y' => 1
                     ])
+                ]),
+                M\hasEntries([
+                    'playerId' => 'all',
+                    'type' => 'newScores',
+                    'log' => '',
+                    'args' => [66 => 1, 77 => 0]
                 ])
             )
         );
@@ -272,6 +278,12 @@ class PlayCardTest extends TestCase
                         'x' => 0,
                         'y' => -1
                     ])
+                ]),
+                M\hasEntries([
+                    'playerId' => 'all',
+                    'type' => 'newScores',
+                    'log' => '',
+                    'args' => [66 => 0, 77 => 0]
                 ])
             )
         );

@@ -626,6 +626,7 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domClass, domGeo
             dojo.subscribe('iPlayedAirStrike', lang.hitch(this, this.notif_iPlayedAirStrike));
             dojo.subscribe('playedAirStrike', lang.hitch(this, this.notif_playedAirStrike));
             dojo.subscribe('cardAttacked', lang.hitch(this, this.notif_cardAttacked));
+            dojo.subscribe('newScores', lang.hitch(this, this.notif_newScores));
         },
 
         notif_cardAttacked: function(notification) {
@@ -773,6 +774,15 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domClass, domGeo
                     this,
                     function(card) { this.slideToDeckAndDestroy(card, this.getPlayerDeckNode(playerId)); }
                 )
+            );
+        },
+
+        notif_newScores: function(notification) {
+            array.forEach(
+                notification.args,
+                lang.hitch(this, function(score, playerId) {
+                    this.scoreCtrl[playerId].toValue(score);
+                })
             );
         }
    });             

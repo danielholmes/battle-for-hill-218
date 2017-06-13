@@ -116,18 +116,26 @@ class ChooseAttackTest extends TestCase
         );
         assertThat(
             $action->getGame()->getNotifications(),
-            contains(M\hasEntries([
-                'playerId' => 'all',
-                'type' => 'cardAttacked',
-                'log' => '${playerName} attacked ${x},${y}',
-                'args' => M\hasEntries([
-                    'playerName' => nonEmptyString(),
-                    'x' => 0,
-                    'y' => -1,
-                    'fromX' => 1,
-                    'fromY' => 1
+            containsInAnyOrder(
+                M\hasEntries([
+                    'playerId' => 'all',
+                    'type' => 'cardAttacked',
+                    'log' => '${playerName} attacked ${x},${y}',
+                    'args' => M\hasEntries([
+                        'playerName' => nonEmptyString(),
+                        'x' => 0,
+                        'y' => -1,
+                        'fromX' => 1,
+                        'fromY' => 1
+                    ])
+                ]),
+                M\hasEntries([
+                    'playerId' => 'all',
+                    'type' => 'newScores',
+                    'log' => '',
+                    'args' => [66 => 2, 77 => 0]
                 ])
-            ]))
+            )
         );
     }
 

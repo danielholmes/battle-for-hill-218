@@ -383,6 +383,16 @@ class BattleForHillDhau extends Table
             SET player_score = (SELECT COUNT(b.id) FROM battlefield_card b WHERE b.player_id = p.player_id)
 SQL
         );
+        self::notifyAllPlayers(
+            'newScores',
+            '',
+            F\map(
+                self::getCollectionFromDb('SELECT player_id, player_score FROM player', true),
+                function ($value) {
+                    return (int) $value;
+                }
+            )
+        );
     }
 
 //////////////////////////////////////////////////////////////////////////////
