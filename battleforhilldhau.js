@@ -316,7 +316,6 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domClass, domGeo
         },
 
         updateDeckCount: function(playerId, count) {
-            console.log('update', playerId, 'with', count);
             query(this.getPlayerBoardNode(playerId)).query('.deck-count').pop().innerHTML = count;
         },
 
@@ -787,12 +786,12 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domClass, domGeo
         },
 
         notif_newScores: function(notification) {
-            array.forEach(
-                notification.args,
-                lang.hitch(this, function(score, playerId) {
+            for (var playerId in notification.args) {
+                if (notification.args.hasOwnProperty(playerId)) {
+                    var score = notification.args[playerId];
                     this.scoreCtrl[playerId].toValue(score);
-                })
-            );
+                }
+            }
         },
 
         notif_newDeckCount: function(notification) {
