@@ -20,6 +20,10 @@ class ZombieTurnTest extends TestCase
             ->setPlayers([
                 ['player_id' => 66, 'player_no' => 1],
                 ['player_id' => 77, 'player_no' => 2]
+            ])
+            ->overridePlayersPostSetup([
+                66 => ['player_color' => '000000'],
+                77 => ['player_color' => \BattleForHillDhau::DOWNWARD_PLAYER_COLOR]
             ]);
     }
 
