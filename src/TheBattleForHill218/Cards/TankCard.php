@@ -9,7 +9,7 @@ class TankCard extends BasePlayerBattlefieldCard
     /**
      * @inheritdoc
      */
-    public function getTypeKey()
+    public function getTypeKey() : string
     {
         return 'tank';
     }
@@ -17,7 +17,7 @@ class TankCard extends BasePlayerBattlefieldCard
     /**
      * @inheritdoc
      */
-    public function getTypeName()
+    public function getTypeName() : string
     {
         return 'Tank';
     }
@@ -25,7 +25,7 @@ class TankCard extends BasePlayerBattlefieldCard
     /**
      * @inheritdoc
      */
-    public function attackRequiresSupport()
+    public function attackRequiresSupport() : bool
     {
         return false;
     }
@@ -33,7 +33,7 @@ class TankCard extends BasePlayerBattlefieldCard
     /**
      * @inheritdoc
      */
-    public function getSupplyPattern()
+    public function getSupplyPattern() : array
     {
         return SupplyOffset::plusPattern();
     }
@@ -41,7 +41,7 @@ class TankCard extends BasePlayerBattlefieldCard
     /**
      * @inheritdoc
      */
-    public function getSupportPattern()
+    public function getSupportPattern() : array
     {
         return SupportOffset::plusPattern();
     }
@@ -49,7 +49,7 @@ class TankCard extends BasePlayerBattlefieldCard
     /**
      * @inheritdoc
      */
-    public function getAttackPattern()
+    public function getAttackPattern() : array
     {
         return AttackOffset::plusPattern();
     }
@@ -57,7 +57,7 @@ class TankCard extends BasePlayerBattlefieldCard
     /**
      * @inheritdoc
      */
-    public function getPossiblePlacements(Battlefield $battlefield)
+    public function getPossiblePlacements(Battlefield $battlefield) : array
     {
         return $battlefield->getAllowedPositions($this->getPlayerId(), $this->getSupplyPattern());
     }

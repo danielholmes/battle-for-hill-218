@@ -31,7 +31,7 @@ class Project
      * @param string $name
      * @param ImmArray $extraSrcPaths
      */
-    public function __construct(\SplFileInfo $directory, $name, ImmArray $extraSrcPaths)
+    public function __construct(\SplFileInfo $directory, string $name, ImmArray $extraSrcPaths)
     {
         $this->directory = $directory;
         $this->name = $name;
@@ -41,7 +41,7 @@ class Project
     /**
      * @return \SplFileInfo
      */
-    public function getDirectory()
+    public function getDirectory() : \SplFileInfo
     {
         return $this->directory;
     }
@@ -49,7 +49,7 @@ class Project
     /**
      * @return string
      */
-    public function getName()
+    public function getName() : string
     {
         return $this->name;
     }
@@ -57,7 +57,7 @@ class Project
     /**
      * @return string
      */
-    public function getGameProjectFileRelativePathname()
+    public function getGameProjectFileRelativePathname() : string
     {
         return "{$this->name}.game.php";
     }
@@ -65,7 +65,7 @@ class Project
     /**
      * @return string
      */
-    public function getActionProjectFileRelativePathname()
+    public function getActionProjectFileRelativePathname() : string
     {
         return "{$this->name}.action.php";
     }
@@ -73,7 +73,7 @@ class Project
     /**
      * @return string
      */
-    public function getGameinfosProjectFileRelativePathname()
+    public function getGameinfosProjectFileRelativePathname() : string
     {
         return "gameinfos.inc.php";
     }
@@ -81,7 +81,7 @@ class Project
     /**
      * @return string
      */
-    private function getDbModelSqlRelativePathname()
+    private function getDbModelSqlRelativePathname() : string
     {
         return "dbmodel.sql";
     }
@@ -89,7 +89,7 @@ class Project
     /**
      * @return SplFileInfo
      */
-    public function getDbModelSqlFile()
+    public function getDbModelSqlFile() : SplFileInfo
     {
         return $this->getProjectFile($this->getDbModelSqlRelativePathname());
     }
@@ -97,7 +97,7 @@ class Project
     /**
      * @return string
      */
-    private function getStatesFileName()
+    private function getStatesFileName() : string
     {
         return 'states.inc.php';
     }
@@ -105,7 +105,7 @@ class Project
     /**
      * @return ImmArray
      */
-    public function getRequiredFiles()
+    public function getRequiredFiles() : ImmArray
     {
         return ImmArray::fromArray([
             $this->getActionProjectFileRelativePathname(),
@@ -136,7 +136,7 @@ class Project
      * @param ImmArray $exclude
      * @return ImmArray
      */
-    private function getPathFiles(SplFileInfo $file, ImmArray $exclude)
+    private function getPathFiles(SplFileInfo $file, ImmArray $exclude) : ImmArray
     {
         $finder = Finder::create()
             ->in($file->getPathname())
@@ -158,7 +158,7 @@ class Project
     /**
      * @return ImmArray
      */
-    public function getAllFiles()
+    public function getAllFiles() : ImmArray
     {
         return $this->getBaseProjectFiles();
     }
@@ -166,7 +166,7 @@ class Project
     /**
      * @return ImmArray
      */
-    private function getBaseProjectFiles()
+    private function getBaseProjectFiles() : ImmArray
     {
         return $this->getDevelopmentLocations()
             ->reduce(
@@ -184,7 +184,7 @@ class Project
     /**
      * @return ImmArray
      */
-    public function getDevelopmentPhpFiles()
+    public function getDevelopmentPhpFiles() : ImmArray
     {
         return $this->getBaseProjectFiles()
             ->filter(function (SplFileInfo $file) {
@@ -195,7 +195,7 @@ class Project
     /**
      * @return ImmArray
      */
-    public function getDevelopmentLocations()
+    public function getDevelopmentLocations() : ImmArray
     {
         $required = $this->getRequiredFiles();
         return $required
@@ -211,7 +211,7 @@ class Project
     /**
      * @return array
      */
-    public function getStates()
+    public function getStates() : array
     {
         $variableName = 'machinestates';
         return $this->getFileVariableValue($this->getStatesFileName(), $variableName)
@@ -223,7 +223,7 @@ class Project
      * @param string|callable $predicate
      * @return Option
      */
-    public function getFileVariableValue($fileName, $predicate)
+    public function getFileVariableValue(string $fileName, $predicate) : Option
     {
         return Utils::getVariableValueFromFile($this->getProjectFile($fileName), $predicate);
     }
@@ -232,7 +232,7 @@ class Project
      * @param string $relativePath
      * @return SplFileInfo
      */
-    protected function getProjectFile($relativePath)
+    protected function getProjectFile($relativePath) : SplFileInfo
     {
         return $this->createProjectFile($this->directory->getPathname() . DIRECTORY_SEPARATOR . $relativePath);
     }
@@ -241,7 +241,7 @@ class Project
      * @param \SplFileInfo $file
      * @return SplFileInfo
      */
-    public function absoluteToProjectRelativeFile(\SplFileInfo $file)
+    public function absoluteToProjectRelativeFile(\SplFileInfo $file) : SplFileInfo
     {
         if (strpos($file->getPathname(), $this->directory->getPathname()) !== 0) {
             throw new \RuntimeException("File {$file->getPathname()} not within project");
@@ -253,7 +253,7 @@ class Project
      * @param string $pathname
      * @return SplFileInfo
      */
-    private function createProjectFile($pathname)
+    private function createProjectFile($pathname) : SplFileInfo
     {
         $relativePathname = str_replace_first($this->directory->getPathname() . DIRECTORY_SEPARATOR, '', $pathname);
         return new SplFileInfo($pathname, dirname($relativePathname), $relativePathname);
@@ -262,7 +262,7 @@ class Project
     /**
      * @return array
      */
-    public function getGameInfos()
+    public function getGameInfos() : array
     {
         return Utils::getVariableValueFromFile(
             $this->getProjectFile($this->getGameinfosProjectFileRelativePathname()),
@@ -273,7 +273,7 @@ class Project
     /**
      * @return \Table
      */
-    public function createGameTableInstance()
+    public function createGameTableInstance() : \Table
     {
         return $this->createInstanceFromClassInFile($this->getGameProjectFileRelativePathname(), 'Table');
     }
@@ -281,7 +281,7 @@ class Project
     /**
      * @return \APP_GameAction
      */
-    public function createActionInstance()
+    public function createActionInstance() : \APP_GameAction
     {
         return $this->createInstanceFromClassInFile($this->getActionProjectFileRelativePathname(), 'APP_GameAction');
     }
@@ -291,7 +291,7 @@ class Project
      * @param string $class
      * @return mixed
      */
-    private function createInstanceFromClassInFile($relativePathname, $class)
+    private function createInstanceFromClassInFile(string $relativePathname, string $class)
     {
         $gameFilepath = $this->getProjectFile($relativePathname)->getPathname();
         require_once($gameFilepath);

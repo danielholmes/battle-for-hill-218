@@ -24,7 +24,7 @@ class DeployConfig
      * @param string $username
      * @param string $password
      */
-    public function __construct($host, $username, $password)
+    public function __construct(string $host, string $username, string $password)
     {
         $this->host = $host;
         $this->username = $username;
@@ -34,7 +34,7 @@ class DeployConfig
     /**
      * @return string
      */
-    public function getHost()
+    public function getHost() : string
     {
         return $this->host;
     }
@@ -42,7 +42,7 @@ class DeployConfig
     /**
      * @return string
      */
-    public function getUsername()
+    public function getUsername() : string
     {
         return $this->username;
     }
@@ -50,7 +50,7 @@ class DeployConfig
     /**
      * @return string
      */
-    public function getPassword()
+    public function getPassword() : string
     {
         return $this->password;
     }

@@ -7,10 +7,10 @@ interface Card
     /**
      * @return string
      */
-    public function getTypeKey();
+    public function getTypeKey() : string;
 
     /**
      * @return string
      */
-    public function getTypeName();
+    public function getTypeName() : string;
 }

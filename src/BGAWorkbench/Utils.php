@@ -14,7 +14,7 @@ class Utils
      * @param string|callable $namePredicate
      * @return Option
      */
-    public static function getVariableNameFromFile(\SplFileInfo $file, $namePredicate)
+    public static function getVariableNameFromFile(\SplFileInfo $file, $namePredicate) : Option
     {
         return self::getVariableFromFile($file, $namePredicate)
             ->map(function (array $variable) {
@@ -28,7 +28,7 @@ class Utils
      * @param string|callable $namePredicate
      * @return Option
      */
-    public static function getVariableValueFromFile(\SplFileInfo $file, $namePredicate)
+    public static function getVariableValueFromFile(\SplFileInfo $file, $namePredicate) : Option
     {
         return self::getVariableFromFile($file, $namePredicate)
             ->map(function (array $variable) {
@@ -42,7 +42,7 @@ class Utils
      * @param string|callable $namePredicate
      * @return Option
      */
-    private static function getVariableFromFile(\SplFileInfo $file, $namePredicate)
+    private static function getVariableFromFile(\SplFileInfo $file, $namePredicate) : Option
     {
         if (!$file->isReadable()) {
             throw new \InvalidArgumentException("Couldn't open file {$file->getPathname()}");
@@ -72,10 +72,10 @@ class Utils
     /**
      * @param object $object
      * @param string $methodName
-     * @param mixed $args,...
+     * @param mixed ...$args
      * @return mixed
      */
-    public static function callProtectedMethod($object, $methodName, $args = null)
+    public static function callProtectedMethod($object, string $methodName, ...$args)
     {
         $gameClass = new \ReflectionClass($object);
         $method = $gameClass->getMethod($methodName);
@@ -84,7 +84,6 @@ class Utils
         }
 
         $method->setAccessible(true);
-        $methodArgs = array_slice(func_get_args(), 2);
-        return $method->invokeArgs($object, $methodArgs);
+        return $method->invokeArgs($object, $args);
     }
 }

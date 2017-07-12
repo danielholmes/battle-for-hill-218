@@ -12,7 +12,7 @@ class SQLHelper
      * @param array $values
      * @return string
      */
-    public static function insert($table, array $values)
+    public static function insert(string $table, array $values) : string
     {
         return self::insertAll($table, [$values]);
     }
@@ -22,7 +22,7 @@ class SQLHelper
      * @param array $allValues
      * @return string
      */
-    public static function insertAll($table, array $allValues)
+    public static function insertAll(string $table, array $allValues) : string
     {
         if (empty($allValues)) {
             throw new \InvalidArgumentException('All Values is empty');
@@ -58,7 +58,7 @@ class SQLHelper
      * @param string $field
      * @return string
      */
-    public static function quoteField($field)
+    public static function quoteField(string $field) : string
     {
         return '`' . $field . '`';
     }
@@ -67,7 +67,7 @@ class SQLHelper
      * @param string|boolean|null $value
      * @return string
      */
-    public static function quoteValue($value)
+    public static function quoteValue($value) : string
     {
         if ($value === null) {
             return 'NULL';

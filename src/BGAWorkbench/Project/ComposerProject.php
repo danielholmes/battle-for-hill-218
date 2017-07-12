@@ -19,7 +19,7 @@ class ComposerProject extends Project
     /**
      * @inheritdoc
      */
-    public function getAllFiles()
+    public function getAllFiles() : ImmArray
     {
         return parent::getAllFiles()->concat($this->getVendorFiles());
     }
@@ -27,7 +27,7 @@ class ComposerProject extends Project
     /**
      * @return ImmArray
      */
-    private function getVendorFiles()
+    private function getVendorFiles() : ImmArray
     {
         if ($this->vendorFiles === null) {
             $this->vendorFiles = $this->createVendorFiles();
@@ -38,7 +38,7 @@ class ComposerProject extends Project
     /**
      * @return ImmArray
      */
-    private function createVendorFiles()
+    private function createVendorFiles() : ImmArray
     {
         $buildDir = new \SplFileInfo($this->getProjectFile('build') . DIRECTORY_SEPARATOR . 'prod-vendors');
         $buildVendorConfig = new \SplFileInfo($buildDir->getPathname() . DIRECTORY_SEPARATOR . 'composer.json');

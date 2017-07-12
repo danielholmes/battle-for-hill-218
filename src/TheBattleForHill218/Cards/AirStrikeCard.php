@@ -14,15 +14,15 @@ class AirStrikeCard implements PlayerCard
     /**
      * @param int $playerId
      */
-    public function __construct($playerId)
+    public function __construct(int $playerId)
     {
         $this->playerId = $playerId;
     }
 
     /**
-     * @return int
+     * @inheritdoc
      */
-    public function getPlayerId()
+    public function getPlayerId() : int
     {
         return $this->playerId;
     }
@@ -30,7 +30,7 @@ class AirStrikeCard implements PlayerCard
     /**
      * @inheritdoc
      */
-    public function getPossiblePlacements(Battlefield $battlefield)
+    public function getPossiblePlacements(Battlefield $battlefield) : array
     {
         return $battlefield->getPositionsOfOpponent($this->getPlayerId());
     }
@@ -38,7 +38,7 @@ class AirStrikeCard implements PlayerCard
     /**
      * @inheritdoc
      */
-    public function getTypeKey()
+    public function getTypeKey() : string
     {
         return 'air-strike';
     }
@@ -46,7 +46,7 @@ class AirStrikeCard implements PlayerCard
     /**
      * @inheritdoc
      */
-    public function getTypeName()
+    public function getTypeName() : string
     {
         return 'Air Strike';
     }
@@ -54,7 +54,7 @@ class AirStrikeCard implements PlayerCard
     /**
      * @inheritdoc
      */
-    public function attackRequiresSupport()
+    public function attackRequiresSupport() : bool
     {
         return false;
     }
@@ -62,7 +62,7 @@ class AirStrikeCard implements PlayerCard
     /**
      * @inheritdoc
      */
-    public function alwaysStartsInHand()
+    public function alwaysStartsInHand() : bool
     {
         return true;
     }

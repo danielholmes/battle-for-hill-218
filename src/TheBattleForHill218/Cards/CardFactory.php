@@ -9,7 +9,7 @@ class CardFactory
      * @param int $playerId
      * @return PlayerCard
      */
-    public static function createFromTypeKey($key, $playerId)
+    public static function createFromTypeKey(string $key, int $playerId) : PlayerCard
     {
         switch ($key) {
             case 'air-strike':
@@ -24,7 +24,7 @@ class CardFactory
      * @param int $playerId
      * @return BattlefieldCard
      */
-    public static function createBattlefieldFromTypeKey($key, $playerId)
+    public static function createBattlefieldFromTypeKey(string $key, int $playerId) : BattlefieldCard
     {
         switch ($key) {
             case 'infantry':

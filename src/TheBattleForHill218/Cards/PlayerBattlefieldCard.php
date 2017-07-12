@@ -7,15 +7,15 @@ interface PlayerBattlefieldCard extends PlayerCard, BattlefieldCard
     /**
      * @return SupplyOffset[]
      */
-    public function getSupplyPattern();
+    public function getSupplyPattern() : array;
 
     /**
      * @return AttackOffset[]
      */
-    public function getAttackPattern();
+    public function getAttackPattern() : array;
 
     /**
      * @return SupportOffset[]
      */
-    public function getSupportPattern();
+    public function getSupportPattern() : array;
 }

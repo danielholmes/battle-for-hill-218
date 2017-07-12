@@ -39,7 +39,7 @@ class ProductionDeployment
      * @param string $password
      * @param string $directory
      */
-    public function __construct($host, $username, $password, $directory)
+    public function __construct(string $host, string $username, string $password, string $directory)
     {
         $this->sftp = new SFTP($host);
 
@@ -48,9 +48,6 @@ class ProductionDeployment
         $this->directory = $directory;
     }
 
-    /**
-     *
-     */
     public function connect()
     {
         if (!$this->sftp->login($this->username, $this->password)) {
@@ -63,7 +60,7 @@ class ProductionDeployment
      * @param callable $callable
      * @return int
      */
-    public function deployChangedFiles(ImmArray $files, $callable)
+    public function deployChangedFiles(ImmArray $files, $callable) : int
     {
         $remoteMTimes = $this->getMTimesByFilepath();
         $newerFiles = $files->filter(
@@ -84,7 +81,7 @@ class ProductionDeployment
     /**
      * @return ImmArray
      */
-    private function getRemoteDirectories()
+    private function getRemoteDirectories() : ImmArray
     {
         if ($this->remoteDirectories === null) {
             $rawList = $this->sftp->rawlist($this->directory, true);
@@ -131,7 +128,7 @@ class ProductionDeployment
      * @param string $remoteDirpath
      * @return ImmArray
      */
-    private function pathToAllSubPaths($remoteDirpath)
+    private function pathToAllSubPaths($remoteDirpath) : ImmArray
     {
         $parts = explode('/', $remoteDirpath);
         return ImmArray::fromArray(range(1, count($parts)))
@@ -143,7 +140,7 @@ class ProductionDeployment
     /**
      * @return array
      */
-    private function getMTimesByFilepath()
+    private function getMTimesByFilepath() : array
     {
         $rawList = $this->sftp->rawlist($this->directory, true);
         $this->remoteDirectories = $this->rawListToDirectories($rawList);
@@ -154,7 +151,7 @@ class ProductionDeployment
      * @param array $rawRemoteList
      * @return array
      */
-    private function rawListToMTimesByFilepath(array $rawRemoteList)
+    private function rawListToMTimesByFilepath(array $rawRemoteList) : array
     {
         $map = [];
         foreach ($rawRemoteList as $key => $value) {
@@ -179,7 +176,7 @@ class ProductionDeployment
      * @param array $rawRemoteList
      * @return ImmArray
      */
-    private function rawListToDirectories(array $rawRemoteList)
+    private function rawListToDirectories(array $rawRemoteList) : ImmArray
     {
         $directories = ImmArray::fromArray([]);
         foreach ($rawRemoteList as $key => $value) {

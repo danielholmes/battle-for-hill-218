@@ -11,7 +11,6 @@ use TheBattleForHill218\Cards\PlayerBattlefieldCard;
 use TheBattleForHill218\Cards\PlayerCard;
 use TheBattleForHill218\Cards\SupplyOffset;
 use Functional as F;
-use TheBattleForHill218\Cards\SupportOffset;
 
 class CardPlacement
 {
@@ -38,7 +37,7 @@ class CardPlacement
     /**
      * @return Option
      */
-    public function getPlayerId()
+    public function getPlayerId() : Option
     {
         if ($this->card instanceof PlayerCard) {
             return new Some($this->card->getPlayerId());
@@ -49,7 +48,7 @@ class CardPlacement
     /**
      * @return BattlefieldCard
      */
-    public function getCard()
+    public function getCard() : BattlefieldCard
     {
         return $this->card;
     }
@@ -57,7 +56,7 @@ class CardPlacement
     /**
      * @return Position
      */
-    public function getPosition()
+    public function getPosition() : Position
     {
         return $this->position;
     }
@@ -65,7 +64,7 @@ class CardPlacement
     /**
      * @return Position[]
      */
-    public function canBeSuppliedFrom()
+    public function canBeSuppliedFrom() : array
     {
         if ($this->card instanceof PlayerBattlefieldCard) {
             $position = $this->getPosition();
@@ -84,7 +83,7 @@ class CardPlacement
      * @param SupplyOffset[] $supplyPattern
      * @return Position[]
      */
-    public function getSuppliedPositions(array $supplyPattern)
+    public function getSuppliedPositions(array $supplyPattern) : array
     {
         $position = $this->getPosition();
         return F\map(
@@ -98,7 +97,7 @@ class CardPlacement
     /**
      * @return Position[]
      */
-    public function getAttackPositions()
+    public function getAttackPositions() : array
     {
         if ($this->card instanceof PlayerBattlefieldCard) {
             return $this->getAttackPositionsByPattern($this->card->getAttackPattern());
@@ -110,7 +109,7 @@ class CardPlacement
     /**
      * @return Position[]
      */
-    public function getYFlippedAttackPositions()
+    public function getYFlippedAttackPositions() : array
     {
         if ($this->card instanceof PlayerBattlefieldCard) {
             return $this->getAttackPositionsByPattern(
@@ -130,7 +129,7 @@ class CardPlacement
      * @param AttackOffset[] $pattern
      * @return Position[]
      */
-    private function getAttackPositionsByPattern(array $pattern)
+    private function getAttackPositionsByPattern(array $pattern) : array
     {
         $position = $this->position;
         return F\map(
@@ -144,7 +143,7 @@ class CardPlacement
     /**
      * @return Position[]
      */
-    public function getSupportPositions()
+    public function getSupportPositions() : array
     {
         if ($this->card instanceof PlayerBattlefieldCard) {
             $position = $this->position;
@@ -162,7 +161,7 @@ class CardPlacement
     /**
      * @return string
      */
-    public function __toString()
+    public function __toString() : string
     {
         return "CardPlacement(card={$this->card}, position={$this->position})";
     }

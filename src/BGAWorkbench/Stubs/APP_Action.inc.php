@@ -72,7 +72,7 @@ abstract class APP_Action extends APP_DbObject
 
     /**
      * @param string $argName
-     * @return boolean
+     * @return bool
      */
     protected function isArg($argName) { return true; }
 

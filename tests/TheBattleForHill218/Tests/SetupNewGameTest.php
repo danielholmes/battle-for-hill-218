@@ -3,6 +3,7 @@
 namespace TheBattleForHill218\Tests;
 
 use BGAWorkbench\Test\HamcrestMatchers as M;
+use BGAWorkbench\Test\TableInstanceBuilder;
 use PHPUnit\Framework\TestCase;
 use BGAWorkbench\Test\TestHelp;
 
@@ -10,7 +11,7 @@ class SetupNewGameTest extends TestCase
 {
     use TestHelp;
 
-    protected function createGameTableInstanceBuilder()
+    protected function createGameTableInstanceBuilder() : TableInstanceBuilder
     {
         return $this->gameTableInstanceBuilder()
             ->setPlayersWithIds([66, 77]);

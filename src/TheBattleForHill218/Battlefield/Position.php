@@ -20,29 +20,16 @@ class Position
      * @param int $x
      * @param int $y
      */
-    public function __construct($x, $y)
+    public function __construct(int $x, int $y)
     {
-        $this->x = $this->validateCoordinate($x);
-        $this->y = $this->validateCoordinate($y);
-    }
-
-    /**
-     * @param mixed $coord
-     * @return int
-     */
-    private function validateCoordinate($coord)
-    {
-        if (!is_int($coord)) {
-            $coordExport = var_export($coord, true);
-            throw new \InvalidArgumentException("Coord should be an int {$coordExport}");
-        }
-        return $coord;
+        $this->x = $x;
+        $this->y = $y;
     }
 
     /**
      * @return int
      */
-    public function getX()
+    public function getX() : int
     {
         return $this->x;
     }
@@ -50,7 +37,7 @@ class Position
     /**
      * @return int
      */
-    public function getY()
+    public function getY() : int
     {
         return $this->y;
     }
@@ -60,7 +47,7 @@ class Position
      * @param int $yOffset
      * @return Position
      */
-    public function offset($xOffset, $yOffset)
+    public function offset(int $xOffset, int $yOffset)
     {
         return new Position($this->x + $xOffset, $this->y + $yOffset);
     }
@@ -69,7 +56,7 @@ class Position
      * @param Position $other
      * @return Position[]
      */
-    public function gridTo(Position $other)
+    public function gridTo(Position $other) : array
     {
         if ($this == $other) {
             return [$this];
@@ -95,7 +82,7 @@ class Position
     /**
      * @return Position
      */
-    public function flipY()
+    public function flipY() : Position
     {
         return new Position($this->x, -$this->y);
     }
@@ -103,7 +90,7 @@ class Position
     /**
      * @return string
      */
-    public function __toString()
+    public function __toString() : string
     {
         return "Position({$this->x}, {$this->y})";
     }

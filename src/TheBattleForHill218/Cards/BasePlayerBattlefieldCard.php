@@ -12,15 +12,15 @@ abstract class BasePlayerBattlefieldCard implements PlayerBattlefieldCard
     /**
      * @param int $playerId
      */
-    public function __construct($playerId)
+    public function __construct(int $playerId)
     {
         $this->playerId = $playerId;
     }
 
     /**
-     * @return int
+     * @inheritdoc
      */
-    public function getPlayerId()
+    public function getPlayerId() : int
     {
         return $this->playerId;
     }
@@ -28,7 +28,7 @@ abstract class BasePlayerBattlefieldCard implements PlayerBattlefieldCard
     /**
      * @inheritdoc
      */
-    public function alwaysStartsInHand()
+    public function alwaysStartsInHand() : bool
     {
         return false;
     }
@@ -36,7 +36,7 @@ abstract class BasePlayerBattlefieldCard implements PlayerBattlefieldCard
     /**
      * @return string
      */
-    public function __toString()
+    public function __toString() : string
     {
         $refClass = new \ReflectionClass($this);
         return $refClass->getShortName() . '()';

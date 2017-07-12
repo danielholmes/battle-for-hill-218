@@ -7,7 +7,7 @@ class HillCard implements BattlefieldCard
     /**
      * @inheritdoc
      */
-    public function getTypeKey()
+    public function getTypeKey() : string
     {
         return 'hill';
     }
@@ -15,7 +15,7 @@ class HillCard implements BattlefieldCard
     /**
      * @inheritdoc
      */
-    public function getTypeName()
+    public function getTypeName() : string
     {
         return 'Hill';
     }

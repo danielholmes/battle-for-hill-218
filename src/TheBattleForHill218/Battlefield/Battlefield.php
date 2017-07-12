@@ -23,7 +23,7 @@ class Battlefield
      * @param int $downwardsPlayerId
      * @param CardPlacement[] $placements
      */
-    public function __construct($downwardsPlayerId, array $placements)
+    public function __construct(int $downwardsPlayerId, array $placements)
     {
         if (empty($placements)) {
             throw new \InvalidArgumentException('Must provide some placements');
@@ -48,9 +48,9 @@ class Battlefield
 
     /**
      * @param Position $placementPosition
-     * @return boolean
+     * @return bool
      */
-    public function hasAttackablePlacement(Position $placementPosition)
+    public function hasAttackablePlacement(Position $placementPosition) : bool
     {
         try {
             $attackable = $this->getAttackablePlacements($placementPosition);
@@ -65,7 +65,7 @@ class Battlefield
      * @return CardPlacement[]
      * @throws \InvalidArgumentException
      */
-    public function getAttackablePlacements(Position $placementPosition)
+    public function getAttackablePlacements(Position $placementPosition) : array
     {
         $placement = Option::fromValue(
             F\first(
@@ -98,7 +98,7 @@ class Battlefield
      * @param CardPlacement $placement
      * @return Position[]
      */
-    private function getAttackablePositions(CardPlacement $placement)
+    private function getAttackablePositions(CardPlacement $placement) : array
     {
         $myId = $placement->getPlayerId()->getOrThrow(new \InvalidArgumentException('Not a player placement'));
         if ($myId === $this->downwardsPlayerId) {
@@ -130,7 +130,7 @@ class Battlefield
      * @param int $expansion
      * @return Position[]
      */
-    public function getUnoccupiedWithExpansion($expansion)
+    public function getUnoccupiedWithExpansion(int $expansion) : array
     {
         $placedPositions = $this->getPositions();
         $xs = F\map($this->getPositions(), function (Position $position) {
@@ -154,7 +154,7 @@ class Battlefield
     /**
      * @return Position[]
      */
-    private function getPositions()
+    private function getPositions() : array
     {
         return F\map($this->placements, function (CardPlacement $placement) {
             return $placement->getPosition();
@@ -165,7 +165,7 @@ class Battlefield
      * @param int $myId
      * @return Position[]
      */
-    public function getPositionsOfOpponent($myId)
+    public function getPositionsOfOpponent(int $myId) : array
     {
         return F\map(
             HF\filter_to_list(
@@ -184,7 +184,7 @@ class Battlefield
      * @param int $playerId
      * @return Position
      */
-    private function getBasePosition($playerId)
+    private function getBasePosition(int $playerId) : Position
     {
         if ($playerId === $this->downwardsPlayerId) {
             return new Position(0, -1);
@@ -196,7 +196,7 @@ class Battlefield
      * @param int $playerId
      * @return Position
      */
-    public function getOpponentBasePosition($playerId)
+    public function getOpponentBasePosition(int $playerId) : Position
     {
         return $this->getBasePosition($playerId)->flipY();
     }
@@ -205,7 +205,7 @@ class Battlefield
      * @param int $playerId
      * @return bool
      */
-    private function isBasePositionOccupied($playerId)
+    private function isBasePositionOccupied(int $playerId) : bool
     {
         $basePosition = $this->getBasePosition($playerId);
         return F\some($this->placements, function (CardPlacement $p) use ($basePosition) {
@@ -218,7 +218,7 @@ class Battlefield
      * @param SupplyOffset[] $supplyPattern
      * @return Position[]
      */
-    public function getAllowedPositions($playerId, array $supplyPattern)
+    public function getAllowedPositions(int $playerId, array $supplyPattern) : array
     {
         $placedPositions = $this->getPositions();
         return HF\filter_to_list(
@@ -234,7 +234,7 @@ class Battlefield
      * @param SupplyOffset[] $supplyPattern
      * @return Position[]
      */
-    private function getSuppliedPositionsByPlayerId($playerId, array $supplyPattern)
+    private function getSuppliedPositionsByPlayerId(int $playerId, array $supplyPattern) : array
     {
         if (!$this->isBasePositionOccupied($playerId)) {
             return [$this->getBasePosition($playerId)];
@@ -256,7 +256,7 @@ class Battlefield
      * @param int $playerId
      * @return CardPlacement[]
      */
-    private function getSuppliedPlacementsByPlayerId($playerId)
+    private function getSuppliedPlacementsByPlayerId(int $playerId) : array
     {
         $basePosition = $this->getBasePosition($playerId);
         list($basePlacements, $nonBasePlacements) = HF\partition_to_lists(
@@ -278,7 +278,7 @@ class Battlefield
      * @param CardPlacement[] $checkPlacements
      * @return CardPlacement[]
      */
-    private function suppliedPlacementsStep(CardPlacement $placement, array $checkPlacements)
+    private function suppliedPlacementsStep(CardPlacement $placement, array $checkPlacements) : array
     {
         $position = $placement->getPosition();
         $placementsSuppliedByThis = HF\filter_to_list(
@@ -320,7 +320,7 @@ class Battlefield
      * @param int $playerId
      * @return CardPlacement[]
      */
-    private function getPlacementsByPlayerId($playerId)
+    private function getPlacementsByPlayerId(int $playerId) : array
     {
         return HF\filter_to_list(
             $this->placements,

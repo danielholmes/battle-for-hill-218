@@ -19,7 +19,7 @@ class Hill218Setup
      * @param int $playerId
      * @return PlayerCard[][]
      */
-    public static function getPlayerStartingCards($playerId)
+    public static function getPlayerStartingCards(int $playerId) : array
     {
         $all = self::createAllStartingCards($playerId);
         shuffle($all);
@@ -48,7 +48,7 @@ class Hill218Setup
      * @param int $playerId
      * @return PlayerCard[]
      */
-    private static function createAllStartingCards($playerId)
+    private static function createAllStartingCards(int $playerId) : array
     {
         return F\map(
             array_merge(
@@ -69,7 +69,7 @@ class Hill218Setup
     /**
      * @return int
      */
-    public static function getTotalDeckSize()
+    public static function getTotalDeckSize() : int
     {
         return self::getNumberOfStartingCardsPerPlayer() * self::NUMBER_OF_PLAYERS;
     }
@@ -77,7 +77,7 @@ class Hill218Setup
     /**
      * @return int
      */
-    public static function getNumberOfStartingCardsPerPlayer()
+    public static function getNumberOfStartingCardsPerPlayer() : int
     {
         return count(self::createAllStartingCards(0));
     }
@@ -85,7 +85,7 @@ class Hill218Setup
     /**
      * @return int
      */
-    public static function getPlayerDeckSizeAfterInitialReturn()
+    public static function getPlayerDeckSizeAfterInitialReturn() : int
     {
         return self::getNumberOfStartingCardsPerPlayer() + self::NUMBER_OF_INITIAL_CARDS_TO_RETURN -
             self::PLAYABLE_CARDS_SIZE;

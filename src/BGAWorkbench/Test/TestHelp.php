@@ -22,7 +22,7 @@ trait TestHelp
     /**
      * @return TableInstanceBuilder
      */
-    abstract protected function createGameTableInstanceBuilder();
+    abstract protected function createGameTableInstanceBuilder() : TableInstanceBuilder;
 
     protected function tearDown()
     {
@@ -39,7 +39,7 @@ trait TestHelp
     /**
      * @return WorkbenchProjectConfig
      */
-    private static function getCwdProjectConfig()
+    private static function getCwdProjectConfig() : WorkbenchProjectConfig
     {
         if (self::$cwdConfig === null) {
             self::$cwdConfig = WorkbenchProjectConfig::loadFromCwd();
@@ -51,7 +51,7 @@ trait TestHelp
     /**
      * @return TableInstanceBuilder
      */
-    protected function gameTableInstanceBuilder()
+    protected function gameTableInstanceBuilder() : TableInstanceBuilder
     {
         return TableInstanceBuilder::create(self::getCwdProjectConfig());
     }

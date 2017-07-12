@@ -53,7 +53,7 @@ class WorkbenchProjectConfig
 
     /**
      * @param \SplFileInfo $directory
-     * @param boolean $useComposer
+     * @param bool $useComposer
      * @param ImmArray $extraSrcPaths
      * @param string $testDbNamePrefix
      * @param string $testDbUsername
@@ -63,12 +63,12 @@ class WorkbenchProjectConfig
      */
     public function __construct(
         \SplFileInfo $directory,
-        $useComposer,
+        bool $useComposer,
         ImmArray $extraSrcPaths,
-        $testDbNamePrefix,
-        $testDbUsername,
-        $testDbPassword,
-        $linterPhpBin,
+        string $testDbNamePrefix,
+        string $testDbUsername,
+        string $testDbPassword,
+        string $linterPhpBin,
         Option $sftpConfig
     ) {
     
@@ -85,7 +85,7 @@ class WorkbenchProjectConfig
     /**
      * @return string
      */
-    public function getTestDbNamePrefix()
+    public function getTestDbNamePrefix() : string
     {
         return $this->testDbNamePrefix;
     }
@@ -93,7 +93,7 @@ class WorkbenchProjectConfig
     /**
      * @return string
      */
-    public function getTestDbUsername()
+    public function getTestDbUsername() : string
     {
         return $this->testDbUsername;
     }
@@ -101,7 +101,7 @@ class WorkbenchProjectConfig
     /**
      * @return string
      */
-    public function getTestDbPassword()
+    public function getTestDbPassword() : string
     {
         return $this->testDbPassword;
     }
@@ -109,7 +109,7 @@ class WorkbenchProjectConfig
     /**
      * @return string
      */
-    public function getLinterPhpBin()
+    public function getLinterPhpBin() : string
     {
         return $this->linterPhpBin;
     }
@@ -117,7 +117,7 @@ class WorkbenchProjectConfig
     /**
      * @return Option
      */
-    public function getDeployConfig()
+    public function getDeployConfig() : Option
     {
         return $this->sftpConfig;
     }
@@ -125,7 +125,7 @@ class WorkbenchProjectConfig
     /**
      * @return Project
      */
-    public function loadProject()
+    public function loadProject() : Project
     {
         $versionFile = new \SplFileInfo($this->directory->getPathname() . DIRECTORY_SEPARATOR . 'version.php');
 
@@ -151,7 +151,7 @@ class WorkbenchProjectConfig
     /**
      * @return WorkbenchProjectConfig
      */
-    public static function loadFromCwd()
+    public static function loadFromCwd() : WorkbenchProjectConfig
     {
         return self::loadFrom(new \SplFileInfo(getcwd()));
     }
@@ -160,7 +160,7 @@ class WorkbenchProjectConfig
      * @param \SplFileInfo $directory
      * @return WorkbenchProjectConfig
      */
-    public static function loadFrom(\SplFileInfo $directory)
+    public static function loadFrom(\SplFileInfo $directory) : WorkbenchProjectConfig
     {
         $filepath = $directory->getPathname() . DIRECTORY_SEPARATOR . 'bgaproject.yml';
         $rawContent = @file_get_contents($filepath);

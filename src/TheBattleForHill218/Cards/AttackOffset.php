@@ -18,7 +18,7 @@ class AttackOffset
      * @param int $xOffset
      * @param int $yOffset
      */
-    public function __construct($xOffset, $yOffset)
+    public function __construct(int $xOffset, int $yOffset)
     {
         $this->x = $this->validateOffset($xOffset);
         $this->y = $this->validateOffset($yOffset);
@@ -28,7 +28,7 @@ class AttackOffset
      * @param int $offset
      * @return int
      */
-    private function validateOffset($offset)
+    private function validateOffset(int $offset) : int
     {
         if (!in_array($offset, [3, 2, 1, 0, -1, -2, -3], true)) {
             throw new \InvalidArgumentException('Offsets must be 3, 2, 1, 0, -1, -2, -3');
@@ -39,7 +39,7 @@ class AttackOffset
     /**
      * @return int
      */
-    public function getX()
+    public function getX() : int
     {
         return $this->x;
     }
@@ -47,7 +47,7 @@ class AttackOffset
     /**
      * @return int
      */
-    public function getY()
+    public function getY() : int
     {
         return $this->y;
     }
@@ -55,7 +55,7 @@ class AttackOffset
     /**
      * @return self
      */
-    public function flipY()
+    public function flipY() : self
     {
         return new self($this->getX(), -$this->getY());
     }
@@ -63,7 +63,7 @@ class AttackOffset
     /**
      * @return self[]
      */
-    public static function plusPattern()
+    public static function plusPattern() : array
     {
         return [
             new self(0, 1),
@@ -76,7 +76,7 @@ class AttackOffset
     /**
      * @return self[]
      */
-    public static function crossPattern()
+    public static function crossPattern() : array
     {
         return [
             new self(1, 1),
@@ -89,7 +89,7 @@ class AttackOffset
     /**
      * @return self[]
      */
-    public static function arrowPattern()
+    public static function arrowPattern() : array
     {
         return [
             new self(-1, 2),

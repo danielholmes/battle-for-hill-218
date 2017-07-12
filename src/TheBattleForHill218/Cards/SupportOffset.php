@@ -18,7 +18,7 @@ class SupportOffset
      * @param int $xOffset
      * @param int $yOffset
      */
-    public function __construct($xOffset, $yOffset)
+    public function __construct(int $xOffset, int $yOffset)
     {
         $this->x = $this->validateOffset($xOffset);
         $this->y = $this->validateOffset($yOffset);
@@ -28,7 +28,7 @@ class SupportOffset
      * @param int $offset
      * @return int
      */
-    private function validateOffset($offset)
+    private function validateOffset(int $offset) : int
     {
         if (!in_array($offset, [1, 0, -1], true)) {
             throw new \InvalidArgumentException('Offsets must be 1, 0, -1');
@@ -39,7 +39,7 @@ class SupportOffset
     /**
      * @return int
      */
-    public function getX()
+    public function getX() : int
     {
         return $this->x;
     }
@@ -47,7 +47,7 @@ class SupportOffset
     /**
      * @return int
      */
-    public function getY()
+    public function getY() : int
     {
         return $this->y;
     }
@@ -55,7 +55,7 @@ class SupportOffset
     /**
      * @return self[]
      */
-    public static function plusPattern()
+    public static function plusPattern() : array
     {
         return [
             new self(0, 1),
@@ -68,7 +68,7 @@ class SupportOffset
     /**
      * @return self[]
      */
-    public static function borderPattern()
+    public static function borderPattern() : array
     {
         return [
             new self(0, 1),
