@@ -30,7 +30,7 @@ class SupportOffset
      */
     private function validateOffset($offset)
     {
-        if (!in_array($offset, array(1, 0, -1), true)) {
+        if (!in_array($offset, [1, 0, -1], true)) {
             throw new \InvalidArgumentException('Offsets must be 1, 0, -1');
         }
         return $offset;
@@ -57,12 +57,12 @@ class SupportOffset
      */
     public static function plusPattern()
     {
-        return array(
+        return [
             new self(0, 1),
             new self(1, 0),
             new self(0, -1),
             new self(-1, 0)
-        );
+        ];
     }
 
     /**
@@ -70,7 +70,7 @@ class SupportOffset
      */
     public static function borderPattern()
     {
-        return array(
+        return [
             new self(0, 1),
             new self(1, 1),
             new self(1, 0),
@@ -79,6 +79,6 @@ class SupportOffset
             new self(-1, -1),
             new self(-1, 0),
             new self(-1, 1),
-        );
+        ];
     }
 }

@@ -68,7 +68,7 @@ class DatabaseInstance
      * @param array $conditions
      * @return array
      */
-    public function fetchRows($tableName, array $conditions = array())
+    public function fetchRows($tableName, array $conditions = [])
     {
         if (!$this->isCreated) {
             throw new \RuntimeException('Database not created');

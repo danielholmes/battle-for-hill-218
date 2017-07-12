@@ -28,7 +28,7 @@ phpcbf --standard=PSR2 --tab-width=4 --ignore=src/BGAWorkbench/Stubs,tests/boots
 ```
 
 
-## Deploying to Production
+## Deploying to Studio
 
 ```
 vagrant ssh
@@ -36,7 +36,7 @@ bgawb deploy
 ```
 
 
-## Continuous Deployment to Production
+## Continuous Deployment to Studio
 
 Watches development files and deploys them as they change.
 
@@ -46,15 +46,11 @@ bgawb watch
 ```
 
 
-## Notes on VM Compatibility
+## Current Studio Versions
 
- - The BGA Workbench requires PHP 5.6+
- - The BGA production environment uses Ubuntu 10.04, PHP 5.3.2 and MySQL 5.1
- - The VM we're currently using is a newer version of Ubuntu (16.04) with PHP 5.6 and MySQL 5.1 (built from source)
- - I've attempted to use a 10.04 VM which conveniently has the correct production MySQL and PHP versions, but couldn't 
-   get a PHP 5.6 installation
- - Would be nice to at least provide a PHP 5.3.2 bin in vm to put all production deployable code through its linter
- - Building this stuff from source takes a long time though
+ - OS: Ubuntu 16.04.1
+ - MySQL: 5.7.18-0ubuntu0.16.04.1
+ - PHP: 7.0.18-0ubuntu0.16.04.1
 
 
 ## Known Workbench Issues

@@ -77,7 +77,7 @@ class CardPlacement
             );
         }
 
-        return array();
+        return [];
     }
 
     /**
@@ -104,7 +104,7 @@ class CardPlacement
             return $this->getAttackPositionsByPattern($this->card->getAttackPattern());
         }
 
-        return array();
+        return [];
     }
 
     /**
@@ -123,7 +123,7 @@ class CardPlacement
             );
         }
 
-        return array();
+        return [];
     }
 
     /**
@@ -156,7 +156,7 @@ class CardPlacement
             );
         }
 
-        return array();
+        return [];
     }
 
     /**

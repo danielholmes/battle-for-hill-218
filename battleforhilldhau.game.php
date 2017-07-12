@@ -45,7 +45,7 @@ class BattleForHillDhau extends Table
     {
         parent::__construct();
 
-        $this->initGameStateLabels(array());
+        $this->initGameStateLabels([]);
     }
 
     /**
@@ -63,7 +63,7 @@ class BattleForHillDhau extends Table
         In this method, you must setup the game according to the game rules, so that
         the game is ready to be played.
     */
-    protected function setupNewGame($players, $options = array())
+    protected function setupNewGame($players, $options = [])
     {
         $this->setupPlayers($players);
         // TODO: Setup stats here
@@ -93,13 +93,13 @@ class BattleForHillDhau extends Table
         $i = 0;
         foreach ($players as $player_id => $player) {
             $color = $colors[$i];
-            self::DbQuery(SQLHelper::insert('player', array(
+            self::DbQuery(SQLHelper::insert('player', [
                 'player_id' => $player_id,
                 'player_color' => $color,
                 'player_canal' => $player['player_canal'],
                 'player_name' => $player['player_name'],
                 'player_avatar' => $player['player_avatar']
-            )));
+            ]));
             $i++;
         }
 
@@ -109,12 +109,12 @@ class BattleForHillDhau extends Table
 
     private function setupBattlefield()
     {
-        self::DBQuery(SQLHelper::insert('battlefield_card', array(
+        self::DBQuery(SQLHelper::insert('battlefield_card', [
             'type' => 'hill',
             'player_id' => null,
             'x' => 0,
             'y' => 0
-        )));
+        ]));
     }
 
     /**
@@ -139,11 +139,11 @@ class BattleForHillDhau extends Table
                 F\map(
                     $cards,
                     function (PlayerCard $card, $i) {
-                        return array(
+                        return [
                             'player_id' => $card->getPlayerId(),
                             'type' => $card->getTypeKey(),
                             'order' => $i
-                        );
+                        ];
                     }
                 )
             )
@@ -190,14 +190,14 @@ class BattleForHillDhau extends Table
             function (array $rawPlayer) {
                 return array_merge(
                     $rawPlayer,
-                    array('id' => (int) $rawPlayer['id'], 'score' => (int) $rawPlayer['score'])
+                    ['id' => (int) $rawPlayer['id'], 'score' => (int) $rawPlayer['score']]
                 );
             }
         );
         $playerIds = F\pluck($players, 'id');
         foreach ($playerIds as $playerId) {
             if (!isset($allHandCards[$playerId])) {
-                $allHandCards[$playerId] = array();
+                $allHandCards[$playerId] = [];
             }
             if (!isset($allDeckSizes[$playerId])) {
                 $allDeckSizes[$playerId] = 0;
@@ -221,10 +221,10 @@ class BattleForHillDhau extends Table
             }
         );
 
-        return array(
+        return [
             'players' => $players,
             'battlefield' => $this->getBattlefieldDatas()
-        );
+        ];
     }
 
     /**
@@ -236,14 +236,14 @@ class BattleForHillDhau extends Table
     {
         return array_merge(
             $this->getPublicPlayerData($deckSize, $cards),
-            array(
+            [
                 'cards' => F\map(
                     $cards,
                     function (array $card) {
-                        return array('id' => (int) $card['id'], 'type' => $card['type']);
+                        return ['id' => (int) $card['id'], 'type' => $card['type']];
                     }
                 )
-            )
+            ]
         );
     }
 
@@ -262,11 +262,11 @@ class BattleForHillDhau extends Table
                 }
             )
         );
-        return array(
+        return [
             'numAirStrikes' => $numAirStrikes,
             'numCards' => count($cards),
             'deckSize' => $deckSize
-        );
+        ];
     }
 
     /**
@@ -284,13 +284,13 @@ class BattleForHillDhau extends Table
                     $playerId = (int) $playerId;
                     $playerColor = $players[$playerId]['player_color'];
                 }
-                return array(
+                return [
                     'playerId' => $playerId,
                     'playerColor' => $playerColor,
                     'type' => $card['type'],
                     'x' => (int) $card['x'],
                     'y' => (int) $card['y']
-                );
+                ];
             }
         );
     }
@@ -334,7 +334,7 @@ class BattleForHillDhau extends Table
             (int) $downwardPlayerId,
             F\map(
                 self::getObjectListFromDB('SELECT * FROM battlefield_card'),
-                array('BattleForHillDhau', 'parseCardPlacement')
+                ['BattleForHillDhau', 'parseCardPlacement']
             )
         );
     }
@@ -430,11 +430,11 @@ SQL
         self::DBQuery(SQLHelper::insertAll(
             'deck_card',
             F\map($returnCards, function (array $handCard, $i) use ($playerId) {
-                return array(
+                return [
                     'type' => $handCard['type'],
                     'order' => $i,
                     'player_id' => $playerId
-                );
+                ];
             })
         ));
 
@@ -442,12 +442,12 @@ SQL
             'all',
             'returnedToDeck',
             clienttranslate('${playerName} returned ${numCards} cards to their deck'),
-            array(
+            [
                 'numCards' => $numCards,
                 'playerName' => $this->getCurrentPlayerName(),
                 'playerColor' => $this->getCurrentPlayerColor(),
                 'playerId' => $playerId
-            )
+            ]
         );
 
         $this->giveExtraTime($playerId);
@@ -519,22 +519,22 @@ SQL
         $this->notifyAllPlayers(
             'playedAirStrike',
             '${playerName} played an air strike card at ${x},${y}',
-            array(
+            [
                 'playerId' => $card->getPlayerId(),
                 'playerName' => $player['player_name'],
                 'x' => $position->getX(),
                 'y' => $position->getY()
-            )
+            ]
         );
         $this->notifyPlayer(
             $card->getPlayerId(),
             'iPlayedAirStrike',
             '',
-            array(
+            [
                 'cardId' => $cardId,
                 'x' => $position->getX(),
                 'y' => $position->getY()
-            )
+            ]
         );
 
         $this->giveExtraTime($card->getPlayerId());
@@ -561,12 +561,12 @@ SQL
         self::DbQuery(
             SQLHelper::insert(
                 'battlefield_card',
-                array(
+                [
                     'type' => $card->getTypeKey(),
                     'player_id' => $card->getPlayerId(),
                     'x' => $position->getX(),
                     'y' => $position->getY()
-                )
+                ]
             )
         );
 
@@ -576,7 +576,7 @@ SQL
         $this->notifyAllPlayers(
             'placedCard',
             '${playerName} placed a ${typeName} card at ${x},${y}',
-            array(
+            [
                 'playerId' => $card->getPlayerId(),
                 'playerName' => $player['player_name'],
                 'playerColor' => $player['player_color'],
@@ -584,17 +584,17 @@ SQL
                 'typeKey' => $card->getTypeKey(),
                 'x' => $position->getX(),
                 'y' => $position->getY()
-            )
+            ]
         );
         $this->notifyPlayer(
             $card->getPlayerId(),
             'iPlacedCard',
             '',
-            array(
+            [
                 'cardId' => $cardId,
                 'x' => $position->getX(),
                 'y' => $position->getY()
-            )
+            ]
         );
 
         // Check if occupying base
@@ -658,13 +658,13 @@ SQL
         $this->notifyAllPlayers(
             'cardAttacked',
             '${playerName} attacked ${x},${y}',
-            array(
+            [
                 'playerName' => self::getUniqueValueFromDB("SELECT player_name FROM player WHERE player_id = {$playerId}"),
                 'x' => $attackPosition->getX(),
                 'y' => $attackPosition->getY(),
                 'fromX' => $fromPosition->getX(),
                 'fromY' => $fromPosition->getY()
-            )
+            ]
         );
 
         $this->gamestate->nextState('attackChosen');
@@ -681,24 +681,24 @@ SQL
         $playerId = (int) $this->getActivePlayerId();
         $playableCards = self::getObjectListFromDB("SELECT * from playable_card WHERE player_id = {$playerId}");
         $battlefield = $this->loadBattlefield();
-        return array(
-            '_private' => array(
+        return [
+            '_private' => [
                 'active' => array_combine(
                     F\pluck($playableCards, 'id'),
                     F\map(
-                        F\map($playableCards, array('BattleForHillDhau', 'parsePlayableCard')),
+                        F\map($playableCards, ['BattleForHillDhau', 'parsePlayableCard']),
                         function (PlayerCard $card) use ($battlefield) {
                             return F\map(
                                 $card->getPossiblePlacements($battlefield),
                                 function (Position $position) {
-                                    return array('x' => $position->getX(), 'y' => $position->getY());
+                                    return ['x' => $position->getX(), 'y' => $position->getY()];
                                 }
                             );
                         }
                     )
                 )
-            )
-        );
+            ]
+        ];
     }
 
     /**
@@ -710,16 +710,16 @@ SQL
         $battlefield = $this->loadBattlefield();
         $fromPosition = $this->getChooseAttackFromPosition((int) $this->getActivePlayerId());
 
-        return array(
-            '_private' => array(
+        return [
+            '_private' => [
                 'active' => F\map(
                     $battlefield->getAttackablePlacements($fromPosition),
                     function (CardPlacement $p) {
-                        return array('x' => $p->getPosition()->getX(), 'y' => $p->getPosition()->getY());
+                        return ['x' => $p->getPosition()->getX(), 'y' => $p->getPosition()->getY()];
                     }
                 )
-            )
-        );
+            ]
+        ];
     }
 
     /**
@@ -783,11 +783,11 @@ SQL
         self::DBQuery(SQLHelper::insertAll(
             'playable_card',
             F\map($drawnDeck, function (array $card, $i) use ($playerId, $maxOrder) {
-                return array(
+                return [
                     'type' => $card['type'],
                     'order' => $maxOrder + $i + 1,
                     'player_id' => $playerId
-                );
+                ];
             })
         ));
         $drawnPlayable = self::getObjectListFromDB(
@@ -800,16 +800,16 @@ SQL
             $playerId,
             'myCardsDrawn',
             '',
-            array('cards' => $drawnPlayable, 'playerColor' => $playerColor)
+            ['cards' => $drawnPlayable, 'playerColor' => $playerColor]
         );
 
         self::notifyAllPlayers(
             'newDeckCount',
             '',
-            array(
+            [
                 'playerId' => $playerId,
                 'count' => self::getIntUniqueValueFromDB("SELECT COUNT(id) FROM deck_card WHERE player_id = {$playerId}")
-            )
+            ]
         );
 
         $drawMessage = '${playerName} has drawn ${numCards} card';
@@ -819,12 +819,12 @@ SQL
         $this->notifyAllPlayers(
             'cardsDrawn',
             clienttranslate($drawMessage),
-            array(
+            [
                 'numCards' => $numDrawn,
                 'playerName' => $players[$playerId]['player_name'],
                 'playerId' => $playerId,
                 'playerColor' => $playerColor
-            )
+            ]
         );
 
         self::DbQuery("UPDATE player SET turn_plays_remaining = {$numDrawn} WHERE player_id = {$playerId}");

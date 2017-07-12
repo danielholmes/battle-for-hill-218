@@ -30,7 +30,7 @@ class AttackOffset
      */
     private function validateOffset($offset)
     {
-        if (!in_array($offset, array(3, 2, 1, 0, -1, -2, -3), true)) {
+        if (!in_array($offset, [3, 2, 1, 0, -1, -2, -3], true)) {
             throw new \InvalidArgumentException('Offsets must be 3, 2, 1, 0, -1, -2, -3');
         }
         return $offset;
@@ -65,12 +65,12 @@ class AttackOffset
      */
     public static function plusPattern()
     {
-        return array(
+        return [
             new self(0, 1),
             new self(1, 0),
             new self(0, -1),
             new self(-1, 0)
-        );
+        ];
     }
 
     /**
@@ -78,12 +78,12 @@ class AttackOffset
      */
     public static function crossPattern()
     {
-        return array(
+        return [
             new self(1, 1),
             new self(1, -1),
             new self(-1, -1),
             new self(-1, 1)
-        );
+        ];
     }
 
     /**
@@ -91,11 +91,11 @@ class AttackOffset
      */
     public static function arrowPattern()
     {
-        return array(
+        return [
             new self(-1, 2),
             new self(0, 2),
             new self(1, 2),
             new self(0, 3)
-        );
+        ];
     }
 }

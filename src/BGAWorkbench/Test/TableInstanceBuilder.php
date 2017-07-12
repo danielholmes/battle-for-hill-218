@@ -87,13 +87,13 @@ class TableInstanceBuilder
      */
     private function createDefaultPlayer($index)
     {
-        return array(
+        return [
             'player_id' => $index + time(),
             'player_no' => $index + 1,
             'player_canal' => md5($index + time()),
             'player_name' => $this->faker->firstName,
             'player_avatar' => '000000'
-        );
+        ];
     }
 
     /**

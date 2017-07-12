@@ -41,7 +41,7 @@ class Hill218Setup
         $deck = HF\filter_to_list($all, function (PlayerCard $card) use ($hand) {
             return !F\contains($hand, $card);
         });
-        return array($hand, $deck);
+        return [$hand, $deck];
     }
 
     /**

@@ -72,7 +72,7 @@ class Position
     public function gridTo(Position $other)
     {
         if ($this == $other) {
-            return array($this);
+            return [$this];
         }
 
         $minX = min($this->getX(), $other->getX());

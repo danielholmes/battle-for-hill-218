@@ -237,7 +237,7 @@ class Battlefield
     private function getSuppliedPositionsByPlayerId($playerId, array $supplyPattern)
     {
         if (!$this->isBasePositionOccupied($playerId)) {
-            return array($this->getBasePosition($playerId));
+            return [$this->getBasePosition($playerId)];
         }
 
         return HF\unique_list(
@@ -266,7 +266,7 @@ class Battlefield
             }
         );
         if (empty($basePlacements)) {
-            return array();
+            return [];
         }
 
         return $this->suppliedPlacementsStep($basePlacements[0], $nonBasePlacements);
@@ -287,7 +287,7 @@ class Battlefield
                 return F\contains($p->canBeSuppliedFrom(), $position, false);
             }
         );
-        $allPlacementsSupplied = array_merge(array($placement), $placementsSuppliedByThis);
+        $allPlacementsSupplied = array_merge([$placement], $placementsSuppliedByThis);
 
         $remainingPlacements = HF\filter_to_list(
             $checkPlacements,

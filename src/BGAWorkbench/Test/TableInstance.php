@@ -95,7 +95,7 @@ class TableInstance
      * @param array $conditions
      * @return array
      */
-    public function fetchDbRows($tableName, array $conditions = array())
+    public function fetchDbRows($tableName, array $conditions = [])
     {
         return $this->database->fetchRows($tableName, $conditions);
     }

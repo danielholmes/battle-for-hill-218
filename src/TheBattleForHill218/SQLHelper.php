@@ -14,7 +14,7 @@ class SQLHelper
      */
     public static function insert($table, array $values)
     {
-        return self::insertAll($table, array($values));
+        return self::insertAll($table, [$values]);
     }
 
     /**
@@ -40,13 +40,13 @@ class SQLHelper
 
         $quotedTable = self::quoteField($table);
         $keys = array_values($uniqueKeys[0]);
-        $quotedKeys = join(', ', F\map($keys, array(__CLASS__, 'quoteField')));
+        $quotedKeys = join(', ', F\map($keys, [__CLASS__, 'quoteField']));
         $valuesList = join(
             ', ',
             F\map(
                 $allValues,
                 function (array $values) {
-                    return '(' . join(', ', F\map($values, array(__CLASS__, 'quoteValue'))) . ')';
+                    return '(' . join(', ', F\map($values, [__CLASS__, 'quoteValue'])) . ')';
                 }
             )
         );

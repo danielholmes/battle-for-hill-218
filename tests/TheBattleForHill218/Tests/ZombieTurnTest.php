@@ -48,7 +48,8 @@ class ZombieTurnTest extends TestCase
     {
         $this->table->setupNewGame();
         $this->table->getDbConnection()->exec(SQLHelper::insertAll(
-            'battlefield_card', [
+            'battlefield_card',
+            [
                 [
                     'player_id' => 77,
                     'type' => 'infantry',

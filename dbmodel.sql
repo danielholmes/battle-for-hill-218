@@ -7,8 +7,8 @@ CREATE TABLE IF NOT EXISTS `playable_card` (
   UNIQUE KEY `player_id_order` (`player_id`,`order`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
 
-ALTER TABLE `playable_card`
-  ADD CONSTRAINT `playable_card_ibfk_1` FOREIGN KEY (`player_id`) REFERENCES `player` (`player_id`) ON DELETE CASCADE ON UPDATE CASCADE;
+-- ALTER TABLE `playable_card`
+--  ADD CONSTRAINT `playable_card_ibfk_1` FOREIGN KEY (`player_id`) REFERENCES `player` (`player_id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 
 CREATE TABLE IF NOT EXISTS `deck_card` (
@@ -20,8 +20,8 @@ CREATE TABLE IF NOT EXISTS `deck_card` (
   UNIQUE KEY `player_id_order` (`player_id`,`order`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
 
-ALTER TABLE `deck_card`
-  ADD CONSTRAINT `deck_card_ibfk_1` FOREIGN KEY (`player_id`) REFERENCES `player` (`player_id`) ON DELETE CASCADE ON UPDATE CASCADE;
+-- ALTER TABLE `deck_card`
+--   ADD CONSTRAINT `deck_card_ibfk_1` FOREIGN KEY (`player_id`) REFERENCES `player` (`player_id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 
 CREATE TABLE IF NOT EXISTS `battlefield_card` (
@@ -35,8 +35,8 @@ CREATE TABLE IF NOT EXISTS `battlefield_card` (
   KEY `player_id` (`player_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
 
-ALTER TABLE `battlefield_card`
-  ADD CONSTRAINT `battlefield_card_ibfk_1` FOREIGN KEY (`player_id`) REFERENCES `player` (`player_id`) ON DELETE CASCADE ON UPDATE CASCADE;
+-- ALTER TABLE `battlefield_card`
+--   ADD CONSTRAINT `battlefield_card_ibfk_1` FOREIGN KEY (`player_id`) REFERENCES `player` (`player_id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 
 ALTER TABLE player ADD COLUMN `turn_plays_remaining` TINYINT(1) UNSIGNED NOT NULL DEFAULT 2;

@@ -28,8 +28,8 @@ class NextPlayTest extends TestCase
             ->setupNewGame()
             ->createGameInstanceWithNoBoundedPlayer();
 
-        $game->stubCurrentPlayerId(66)->returnToDeck([1, 2]);
-        $game->stubCurrentPlayerId(77)->returnToDeck([8, 9]);
+        $game->stubCurrentPlayerId(66)->returnToDeck([3, 4]);
+        $game->stubCurrentPlayerId(77)->returnToDeck([10, 11]);
         $game->stubActivePlayerId(77)->stDrawCards();
         return $game;
     }

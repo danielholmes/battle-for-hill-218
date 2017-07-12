@@ -28,7 +28,8 @@ class ChooseAttackTest extends TestCase
             ->createGameInstanceForCurrentPlayer(66)
             ->stubActivePlayerId(66);
         $this->table->getDbConnection()->exec(SQLHelper::insertAll(
-            'battlefield_card', [
+            'battlefield_card',
+            [
                 [
                     'player_id' => 77,
                     'type' => 'infantry',
@@ -71,7 +72,8 @@ class ChooseAttackTest extends TestCase
             ->stubActivePlayerId(66);
 
         $this->table->getDbConnection()->exec(SQLHelper::insertAll(
-            'battlefield_card', [
+            'battlefield_card',
+            [
                 [
                     'player_id' => 77,
                     'type' => 'infantry',
@@ -150,7 +152,8 @@ class ChooseAttackTest extends TestCase
             ->stubArgs(['x' => 5, 'y' => 5]);
 
         $this->table->getDbConnection()->exec(SQLHelper::insertAll(
-            'battlefield_card', [
+            'battlefield_card',
+            [
                 [
                     'player_id' => 77,
                     'type' => 'infantry',
