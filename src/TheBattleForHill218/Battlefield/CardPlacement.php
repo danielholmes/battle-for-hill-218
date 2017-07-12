@@ -11,6 +11,7 @@ use TheBattleForHill218\Cards\PlayerBattlefieldCard;
 use TheBattleForHill218\Cards\PlayerCard;
 use TheBattleForHill218\Cards\SupplyOffset;
 use Functional as F;
+use TheBattleForHill218\Cards\SupportOffset;
 
 class CardPlacement
 {
