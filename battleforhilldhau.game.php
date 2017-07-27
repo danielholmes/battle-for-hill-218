@@ -66,13 +66,18 @@ class BattleForHillDhau extends Table
     protected function setupNewGame($players, $options = [])
     {
         $this->setupPlayers($players);
-        // TODO: Setup stats here
+        $this->setupStats();
         $this->setupBattlefield();
         foreach (array_keys($players) as $playerId) {
             $this->setupPlayerCards($playerId);
         }
         $this->activeNextPlayer();
         $this->gamestate->setAllPlayersMultiactive();
+    }
+
+    private function setupStats()
+    {
+        $this->initStat('player', 'num_defeated_cards', 0);
     }
 
     /**
@@ -517,6 +522,7 @@ SQL
         // Remove from battlefield and playable
         self::DbQuery("DELETE FROM playable_card WHERE id = {$cardId}");
         self::DbQuery("DELETE FROM battlefield_card WHERE id = {$cardInPosition['id']}");
+        $this->incStat(1, 'num_defeated_cards', $card->getPlayerId());
 
         $this->updatePlayerScores();
 
@@ -660,6 +666,7 @@ SQL
         self::DbQuery(
             "DELETE FROM battlefield_card WHERE x = {$attackPosition->getX()} AND y = {$attackPosition->getY()} LIMIT 1"
         );
+        $this->incStat(1, 'num_defeated_cards', $playerId);
         $this->updatePlayerScores();
 
         $this->notifyAllPlayers(
@@ -893,7 +900,9 @@ SQL
                 $this->performReturnToDeck(
                     $activePlayerId,
                     F\map(
-                        self::getObjectListFromDB("SELECT id FROM playable_card WHERE player_id = ${activePlayerId} AND type != \"air-strike\" ORDER BY RAND() LIMIT 2"),
+                        self::getObjectListFromDB(
+                            "SELECT id FROM playable_card WHERE player_id = ${activePlayerId} AND type != \"air-strike\" ORDER BY RAND() LIMIT 2"
+                        ),
                         function(array $row) {
                             return (int) $row['id'];
                         }

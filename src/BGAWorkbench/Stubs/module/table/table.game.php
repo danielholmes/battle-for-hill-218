@@ -77,6 +77,18 @@ abstract class Table extends APP_GameClass
         return true;
     }
 
+    public function initStat($table_or_player, $name, $value, $player_id = null)
+    {
+    }
+
+    public function incStat($delta, $name, $player_id = null)
+    {
+    }
+
+    public function setStat($value, $name, $player_id = null)
+    {
+    }
+
     /**
      * @param int $player_id
      * @param int $specific_time
