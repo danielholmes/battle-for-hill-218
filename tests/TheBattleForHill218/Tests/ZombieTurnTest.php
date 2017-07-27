@@ -31,7 +31,6 @@ class ZombieTurnTest extends TestCase
 
     public function testReturnToDeck()
     {
-        $this->markTestSkipped('TODO');
         $this->table
             ->setupNewGame()
             ->runZombieTurn('returnToDeck', 66);

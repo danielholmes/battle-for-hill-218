@@ -186,7 +186,7 @@ class BattleForHillDhau extends Table
 
         // Default values
         $players = F\map(
-            self::getCollectionFromDb('SELECT player_id id, player_score score, player_color color FROM player'),
+            $this->getCollectionFromDb('SELECT player_id id, player_score score, player_color color FROM player'),
             function (array $rawPlayer) {
                 return array_merge(
                     $rawPlayer,
@@ -387,7 +387,7 @@ SQL
             'newScores',
             '',
             F\map(
-                self::getCollectionFromDb('SELECT player_id, player_score FROM player', true),
+                $this->getCollectionFromDb('SELECT player_id, player_score FROM player', true),
                 function ($value) {
                     return (int) $value;
                 }
@@ -406,12 +406,19 @@ SQL
     {
         $this->checkAction('returnToDeck');
 
+        $this->performReturnToDeck($this->getCurrentPlayerId(), $cardIds);
+    }
+
+    /**
+     * @param array $cardIds
+     * @throws BgaUserException
+     */
+    private function performReturnToDeck($playerId, array $cardIds)
+    {
         $numCards = Hill218Setup::NUMBER_OF_INITIAL_CARDS_TO_RETURN;
         if (count($cardIds) !== $numCards) {
             throw new BgaUserException(sprintf('Exactly %d cards required', $numCards));
         }
-
-        $playerId = $this->getCurrentPlayerId();
 
         // Remove cards from hand
         $idList = join(', ', $cardIds);
@@ -882,6 +889,17 @@ SQL
     public function zombieTurn($state, $activePlayerId)
     {
         switch ($state['name']) {
+            case 'returnToDeck':
+                $this->performReturnToDeck(
+                    $activePlayerId,
+                    F\map(
+                        self::getObjectListFromDB("SELECT id FROM playable_card WHERE player_id = ${activePlayerId} AND type != \"air-strike\" ORDER BY RAND() LIMIT 2"),
+                        function(array $row) {
+                            return (int) $row['id'];
+                        }
+                    )
+                );
+                break;
             case 'playCard':
                 self::DbQuery("DELETE FROM playable_card WHERE player_id = {$activePlayerId} LIMIT 1");
                 $this->gamestate->nextState('noAttackAvailable');
