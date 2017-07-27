@@ -5,6 +5,7 @@ namespace TheBattleForHill218\Tests;
 use BGAWorkbench\Test\HamcrestMatchers as M;
 use BGAWorkbench\Test\TableInstanceBuilder;
 use BGAWorkbench\Test\TestHelp;
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 
 class NextPlayTest extends TestCase
@@ -21,9 +22,10 @@ class NextPlayTest extends TestCase
     }
 
     /**
+     * @param callable $callable
      * @return \BattleForHillDhau
      */
-    private function createGameReadyForNext()
+    private function createGameReadyForNext($callable)
     {
         $game = $this->table
             ->setupNewGame()
@@ -32,18 +34,17 @@ class NextPlayTest extends TestCase
         $game->stubCurrentPlayerId(66)->returnToDeck([3, 4]);
         $game->stubCurrentPlayerId(77)->returnToDeck([10, 11]);
         $game->stubActivePlayerId(77)->stDrawCards();
+        call_user_func($callable, $this->table->getDbConnection());
         return $game;
     }
 
     public function testNextPlaySwitchPlayer()
     {
-        $game = $this->createGameReadyForNext();
-        $this->table->getDbConnection()
-            ->exec('UPDATE player SET turn_plays_remaining = 1 WHERE player_id = 66');
-        $this->table->getDbConnection()
-            ->exec('UPDATE player SET turn_plays_remaining = 0 WHERE player_id = 77');
-
-        $game->stubActivePlayerId(66)->stNextPlay();
+        $this->createGameReadyForNext(function (Connection $db) {
+            $db->exec('UPDATE player SET turn_plays_remaining = 1 WHERE player_id = 66');
+            $db->exec('UPDATE player SET turn_plays_remaining = 0 WHERE player_id = 77');
+        })->stubActivePlayerId(66)
+            ->stNextPlay();
 
         assertThat(
             $this->table->fetchDbRows('player'),
@@ -56,14 +57,12 @@ class NextPlayTest extends TestCase
 
     public function testNextPlaySwitchPlayerNoCardsLeftForOnePlayer()
     {
-        $game = $this->createGameReadyForNext();
-        $this->table->getDbConnection()
-            ->exec('UPDATE player SET turn_plays_remaining = 2 WHERE player_id = 66');
-        $this->table->getDbConnection()->exec('DELETE FROM playable_card WHERE player_id = 66');
-        $this->table->getDbConnection()
-            ->exec('UPDATE player SET turn_plays_remaining = 0 WHERE player_id = 77');
-
-        $game->stubActivePlayerId(66)->stNextPlay();
+        $this->createGameReadyForNext(function (Connection $db) {
+            $db->exec('UPDATE player SET turn_plays_remaining = 2 WHERE player_id = 66');
+            $db->exec('DELETE FROM playable_card WHERE player_id = 66');
+            $db->exec('UPDATE player SET turn_plays_remaining = 0 WHERE player_id = 77');
+        })->stubActivePlayerId(66)
+            ->stNextPlay();
 
         assertThat(
             $this->table->fetchDbRows('player'),
@@ -76,13 +75,11 @@ class NextPlayTest extends TestCase
 
     public function testNextPlaySamePlayer()
     {
-        $game = $this->createGameReadyForNext();
-        $this->table->getDbConnection()
-            ->exec('UPDATE player SET turn_plays_remaining = 2 WHERE player_id = 66');
-        $this->table->getDbConnection()
-            ->exec('UPDATE player SET turn_plays_remaining = 0 WHERE player_id = 77');
-
-        $game->stubActivePlayerId(66)->stNextPlay();
+        $this->createGameReadyForNext(function (Connection $db) {
+            $db->exec('UPDATE player SET turn_plays_remaining = 2 WHERE player_id = 66');
+            $db->exec('UPDATE player SET turn_plays_remaining = 0 WHERE player_id = 77');
+        })->stubActivePlayerId(66)
+            ->stNextPlay();
 
         assertThat(
             $this->table->fetchDbRows('player'),
@@ -95,11 +92,10 @@ class NextPlayTest extends TestCase
 
     public function testNextPlayNoCardsLeft()
     {
-        $game = $this->createGameReadyForNext();
-
-        $this->table->getDbConnection()->exec('DELETE FROM deck_card WHERE 1');
-        $this->table->getDbConnection()->exec('DELETE FROM playable_card WHERE 1');
-
-        $game->stubActivePlayerId(66)->stNextPlay();
+        $this->createGameReadyForNext(function (Connection $db) {
+            $db->exec('DELETE FROM deck_card WHERE 1');
+            $db->exec('DELETE FROM playable_card WHERE 1');
+        })->stubActivePlayerId(66)
+            ->stNextPlay();
     }
 }

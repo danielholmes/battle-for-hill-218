@@ -4,6 +4,7 @@ namespace TheBattleForHill218\Tests;
 
 use BGAWorkbench\Test\HamcrestMatchers as M;
 use BGAWorkbench\Test\TableInstanceBuilder;
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use BGAWorkbench\Test\TestHelp;
 
@@ -125,9 +126,11 @@ class DrawCardsTest extends TestCase
     {
         $game = $this->table
             ->setupNewGame()
+            ->withDbConnection(function (Connection $db) {
+                $db->exec('DELETE FROM deck_card WHERE 1');
+            })
             ->createGameInstanceWithNoBoundedPlayer()
             ->stubActivePlayerId(66);
-        $this->table->getDbConnection()->exec('DELETE FROM deck_card WHERE 1');
 
         $game->stDrawCards();
 

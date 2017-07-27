@@ -4,6 +4,7 @@ namespace TheBattleForHill218\Tests;
 
 use BGAWorkbench\Test\HamcrestMatchers as M;
 use BGAWorkbench\Test\TableInstanceBuilder;
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use BGAWorkbench\Test\TestHelp;
 use Functional as F;
@@ -112,20 +113,23 @@ class PlayCardTest extends TestCase
     {
         $action = $this->table
             ->setupNewGame()
+            ->withDbConnection(function (Connection $db) {
+                $db->insert(
+                    'playable_card',
+                    ['type' => 'special-forces', 'player_id' => 66, '`order`' => 8]
+                );
+                $db->exec(SQLHelper::insertAll(
+                    'battlefield_card',
+                    [
+                        ['player_id' => 66, 'type' => 'special-forces', 'x' => 0, 'y' => 1],
+                        ['player_id' => 66, 'type' => 'special-forces', 'x' => 1, 'y' => 0]
+                    ]
+                ));
+            })
             ->createActionInstanceForCurrentPlayer(66);
-        $this->table->getDbConnection()->insert(
-            'playable_card',
-            ['type' => 'special-forces', 'player_id' => 66, '`order`' => 8]
-        );
-        $specialForcesId = $this->table->getDbConnection()->lastInsertId();
-        $this->table->getDbConnection()->exec(SQLHelper::insertAll(
-            'battlefield_card',
-            [
-                ['player_id' => 66, 'type' => 'special-forces', 'x' => 0, 'y' => 1],
-                ['player_id' => 66, 'type' => 'special-forces', 'x' => 1, 'y' => 0]
-            ]
-        ));
 
+        $specialForcesId = $this->table->getDbConnection()
+            ->fetchColumn('SELECT id FROM playable_card WHERE type = "special-forces" AND player_id = 66');
         $action->stubArgs([
             'id' => $specialForcesId,
             'x' => 0,
@@ -227,13 +231,13 @@ class PlayCardTest extends TestCase
     {
         $action = $this->table
             ->setupNewGame()
+            ->withDbConnection(function (Connection $db) {
+                $db->insert('battlefield_card', ['type' => 'infantry', 'player_id' => 77, 'x' => 0, 'y' => -1]);
+                $db->update('player', ['player_score' => 1], ['player_id' => 77]);
+            })
             ->createActionInstanceForCurrentPlayer(66);
         $airStrikeId = $this->table
             ->fetchValue('SELECT id FROM playable_card WHERE type = "air-strike" AND player_id = 66');
-        $this->table
-            ->getDbConnection()
-            ->insert('battlefield_card', ['type' => 'infantry', 'player_id' => 77, 'x' => 0, 'y' => -1]);
-        $this->table->getDbConnection()->update('player', ['player_score' => 1], ['player_id' => 77]);
 
         $action->stubArgs([
             'id' => $airStrikeId,
@@ -313,12 +317,12 @@ class PlayCardTest extends TestCase
 
         $action = $this->table
             ->setupNewGame()
+            ->withDbConnection(function (Connection $db) {
+                $db->insert('battlefield_card', ['type' => 'infantry', 'player_id' => 66, 'x' => 0, 'y' => -1]);
+            })
             ->createActionInstanceForCurrentPlayer(66);
         $airStrikeId = $this->table
             ->fetchValue('SELECT id FROM playable_card WHERE type = "air-strike" AND player_id = 66');
-        $this->table
-            ->getDbConnection()
-            ->insert('battlefield_card', ['type' => 'infantry', 'player_id' => 66, 'x' => 0, 'y' => -1]);
 
         $action->stubArgs([
             'id' => $airStrikeId,

@@ -5,6 +5,7 @@ namespace TheBattleForHill218\Tests;
 use BGAWorkbench\Test\HamcrestMatchers as M;
 use BGAWorkbench\Test\TableInstanceBuilder;
 use BGAWorkbench\Utils;
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use BGAWorkbench\Test\TestHelp;
 
@@ -64,9 +65,11 @@ class GetAllDatasTest extends TestCase
     {
         $game = $this->table
             ->setupNewGame()
+            ->withDbConnection(function (Connection $db) {
+                $db->exec('DELETE FROM deck_card');
+                $db->exec('DELETE FROM playable_card');
+            })
             ->createGameInstanceForCurrentPlayer(66);
-        $this->table->getDbConnection()->exec('DELETE FROM deck_card');
-        $this->table->getDbConnection()->exec('DELETE FROM playable_card');
 
         $datas = Utils::callProtectedMethod($game, 'getAllDatas');
 

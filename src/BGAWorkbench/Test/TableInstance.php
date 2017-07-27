@@ -160,6 +160,16 @@ class TableInstance
     }
 
     /**
+     * @param callable $callable
+     * @return $this
+     */
+    public function withDbConnection($callable)
+    {
+        call_user_func($callable, $this->getDbConnection());
+        return $this;
+    }
+
+    /**
      * @return \Table
      */
     public function createGameInstanceWithNoBoundedPlayer()

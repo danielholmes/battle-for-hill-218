@@ -4,6 +4,7 @@ namespace TheBattleForHill218\Tests;
 
 use BGAWorkbench\Test\HamcrestMatchers as M;
 use BGAWorkbench\Test\TableInstanceBuilder;
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use BGAWorkbench\Test\TestHelp;
 use TheBattleForHill218\SQLHelper;
@@ -26,31 +27,33 @@ class ChooseAttackTest extends TestCase
     {
         $game = $this->table
             ->setupNewGame()
+            ->withDbConnection(function (Connection $db) {
+                $db->exec(SQLHelper::insertAll(
+                    'battlefield_card',
+                    [
+                        [
+                            'player_id' => 77,
+                            'type' => 'infantry',
+                            'x' => 0,
+                            'y' => -1
+                        ],
+                        [
+                            'player_id' => 66,
+                            'type' => 'infantry',
+                            'x' => 0,
+                            'y' => 1
+                        ],
+                        [
+                            'player_id' => 66,
+                            'type' => 'artillery',
+                            'x' => 1,
+                            'y' => 1
+                        ]
+                    ]
+                ));
+            })
             ->createGameInstanceForCurrentPlayer(66)
             ->stubActivePlayerId(66);
-        $this->table->getDbConnection()->exec(SQLHelper::insertAll(
-            'battlefield_card',
-            [
-                [
-                    'player_id' => 77,
-                    'type' => 'infantry',
-                    'x' => 0,
-                    'y' => -1
-                ],
-                [
-                    'player_id' => 66,
-                    'type' => 'infantry',
-                    'x' => 0,
-                    'y' => 1
-                ],
-                [
-                    'player_id' => 66,
-                    'type' => 'artillery',
-                    'x' => 1,
-                    'y' => 1
-                ]
-            ]
-        ));
 
         $datas = $game->argChooseAttack();
 
@@ -69,34 +72,35 @@ class ChooseAttackTest extends TestCase
     {
         $action = $this->table
             ->setupNewGame()
+            ->withDbConnection(function (Connection $db) {
+                $db->exec(SQLHelper::insertAll(
+                    'battlefield_card',
+                    [
+                        [
+                            'player_id' => 77,
+                            'type' => 'infantry',
+                            'x' => 0,
+                            'y' => -1
+                        ],
+                        [
+                            'player_id' => 66,
+                            'type' => 'infantry',
+                            'x' => 0,
+                            'y' => 1
+                        ],
+                        [
+                            'player_id' => 66,
+                            'type' => 'artillery',
+                            'x' => 1,
+                            'y' => 1
+                        ]
+                    ]
+                ));
+                $db->update('player', ['player_score' => 2], ['player_id' => 66]);
+                $db->update('player', ['player_score' => 1], ['player_id' => 77]);
+            })
             ->createActionInstanceForCurrentPlayer(66)
             ->stubActivePlayerId(66);
-
-        $this->table->getDbConnection()->exec(SQLHelper::insertAll(
-            'battlefield_card',
-            [
-                [
-                    'player_id' => 77,
-                    'type' => 'infantry',
-                    'x' => 0,
-                    'y' => -1
-                ],
-                [
-                    'player_id' => 66,
-                    'type' => 'infantry',
-                    'x' => 0,
-                    'y' => 1
-                ],
-                [
-                    'player_id' => 66,
-                    'type' => 'artillery',
-                    'x' => 1,
-                    'y' => 1
-                ]
-            ]
-        ));
-        $this->table->getDbConnection()->update('player', ['player_score' => 2], ['player_id' => 66]);
-        $this->table->getDbConnection()->update('player', ['player_score' => 1], ['player_id' => 77]);
 
         $action->stubArgs(['x' => 0, 'y' => -1])->chooseAttack();
 
@@ -148,33 +152,34 @@ class ChooseAttackTest extends TestCase
 
         $action = $this->table
             ->setupNewGame()
+            ->withDbConnection(function (Connection $db) {
+                $db->exec(SQLHelper::insertAll(
+                    'battlefield_card',
+                    [
+                        [
+                            'player_id' => 77,
+                            'type' => 'infantry',
+                            'x' => 0,
+                            'y' => -1
+                        ],
+                        [
+                            'player_id' => 66,
+                            'type' => 'infantry',
+                            'x' => 0,
+                            'y' => 1
+                        ],
+                        [
+                            'player_id' => 66,
+                            'type' => 'artillery',
+                            'x' => 1,
+                            'y' => 1
+                        ]
+                    ]
+                ));
+            })
             ->createActionInstanceForCurrentPlayer(66)
             ->stubActivePlayerId(66)
             ->stubArgs(['x' => 5, 'y' => 5]);
-
-        $this->table->getDbConnection()->exec(SQLHelper::insertAll(
-            'battlefield_card',
-            [
-                [
-                    'player_id' => 77,
-                    'type' => 'infantry',
-                    'x' => 0,
-                    'y' => -1
-                ],
-                [
-                    'player_id' => 66,
-                    'type' => 'infantry',
-                    'x' => 0,
-                    'y' => 1
-                ],
-                [
-                    'player_id' => 66,
-                    'type' => 'artillery',
-                    'x' => 1,
-                    'y' => 1
-                ]
-            ]
-        ));
 
         $action->chooseAttack();
     }

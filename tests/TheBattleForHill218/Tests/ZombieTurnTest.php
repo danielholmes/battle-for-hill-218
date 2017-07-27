@@ -4,6 +4,7 @@ namespace TheBattleForHill218\Tests;
 
 use BGAWorkbench\Test\HamcrestMatchers as M;
 use BGAWorkbench\Test\TableInstanceBuilder;
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use BGAWorkbench\Test\TestHelp;
 use TheBattleForHill218\SQLHelper;
@@ -30,10 +31,10 @@ class ZombieTurnTest extends TestCase
 
     public function testReturnToDeck()
     {
-        $this->markTestSkipped('TODO: Check how works with multiactive in terms of activePlayerId');
+        $this->markTestSkipped('TODO');
         $this->table
             ->setupNewGame()
-            ->runZombieTurn('returnToDeck');
+            ->runZombieTurn('returnToDeck', 66);
     }
 
     public function testPlayCard()
@@ -47,32 +48,35 @@ class ZombieTurnTest extends TestCase
 
     public function testChooseAttack()
     {
-        $this->table->setupNewGame();
-        $this->table->getDbConnection()->exec(SQLHelper::insertAll(
-            'battlefield_card',
-            [
-                [
-                    'player_id' => 77,
-                    'type' => 'infantry',
-                    'x' => 0,
-                    'y' => -1
-                ],
-                [
-                    'player_id' => 66,
-                    'type' => 'infantry',
-                    'x' => 0,
-                    'y' => 1
-                ],
-                [
-                    'player_id' => 66,
-                    'type' => 'artillery',
-                    'x' => 1,
-                    'y' => 1
-                ]
-            ]
-        ));
-        $this->table->getDbConnection()->update('player', ['player_score' => 2], ['player_id' => 66]);
-        $this->table->getDbConnection()->update('player', ['player_score' => 1], ['player_id' => 77]);
+        $this->table
+            ->setupNewGame()
+            ->withDbConnection(function (Connection $db) {
+                $db->exec(SQLHelper::insertAll(
+                    'battlefield_card',
+                    [
+                        [
+                            'player_id' => 77,
+                            'type' => 'infantry',
+                            'x' => 0,
+                            'y' => -1
+                        ],
+                        [
+                            'player_id' => 66,
+                            'type' => 'infantry',
+                            'x' => 0,
+                            'y' => 1
+                        ],
+                        [
+                            'player_id' => 66,
+                            'type' => 'artillery',
+                            'x' => 1,
+                            'y' => 1
+                        ]
+                    ]
+                ));
+                $db->update('player', ['player_score' => 2], ['player_id' => 66]);
+                $db->update('player', ['player_score' => 1], ['player_id' => 77]);
+            });
 
         $game = $this->table->runZombieTurn('chooseAttack', 66);
 
