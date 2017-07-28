@@ -531,7 +531,7 @@ SQL
         $player = $players[$card->getPlayerId()];
         $this->notifyAllPlayers(
             'playedAirStrike',
-            '${playerName} played an air strike card at ${x},${y}',
+            clienttranslate('${playerName} played an air strike card at ${x},${y}'),
             [
                 'playerId' => $card->getPlayerId(),
                 'playerName' => $player['player_name'],
@@ -588,7 +588,7 @@ SQL
         $player = $players[$card->getPlayerId()];
         $this->notifyAllPlayers(
             'placedCard',
-            '${playerName} placed a ${typeName} card at ${x},${y}',
+            clienttranslate('${playerName} placed a ${typeName} card at ${x},${y}'),
             [
                 'playerId' => $card->getPlayerId(),
                 'playerName' => $player['player_name'],
@@ -671,7 +671,7 @@ SQL
 
         $this->notifyAllPlayers(
             'cardAttacked',
-            '${playerName} attacked ${x},${y}',
+            clienttranslate('${playerName} attacked ${x},${y}'),
             [
                 'playerName' => self::getUniqueValueFromDB("SELECT player_name FROM player WHERE player_id = {$playerId}"),
                 'x' => $attackPosition->getX(),
