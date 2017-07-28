@@ -12,6 +12,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Finder\SplFileInfo;
 use Symfony\Component\Process\Process;
 use Symfony\Component\Process\ProcessBuilder;
+use Functional as F;
 
 class ValidateCommand extends Command
 {
@@ -105,7 +106,7 @@ HELP
         $validated = $processor->processConfiguration(new StateConfiguration(), [$states]);
         $stateIds = array_keys($states);
 
-        array_walk(
+        F\each(
             $validated,
             function (array $state) use ($stateIds) {
                 if (!isset($state['transitions'])) {
