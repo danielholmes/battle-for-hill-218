@@ -28,8 +28,10 @@
     "phpoption/phpoption": "1.5.0",
     "lstrojny/functional-php": "1.6.0"
   },
+  "_extensions": ["gd", "mysql"],
   "require-dev": {
     "php": ">=7.0.0",
+
     "classpreloader/classpreloader": "^3.1.0",
     "classpreloader/console": "^2.0.0",
     "jasonlewis/resource-watcher": "1.2.0",
@@ -46,6 +48,7 @@
     "phpoption/phpoption": "1.5.0",
 
     "hamcrest/hamcrest-php": "^2.0.0",
+    "intervention/image": "^2.4.0",
 
     "phpunit/phpunit": "^6.2.3",
     "squizlabs/php_codesniffer": "^3.0.0"

@@ -46,6 +46,14 @@ bgawb watch
 ```
 
 
+## Compilation WIP
+
+It's possible extra files aren't allowed in preproduction and production. If not have been working on the 
+following command which compiles:
+
+`classpreloader.php compile --config=build-config.csv.php --output=build/out.php --strip_comments=1`
+
+
 ## Current Studio Versions
 
  - OS: Ubuntu 16.04.1
