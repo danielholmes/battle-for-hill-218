@@ -28,6 +28,17 @@ phpcbf --standard=PSR2 --tab-width=4 --ignore=src/BGAWorkbench/Stubs,tests/boots
 ```
 
 
+## Compiling images
+
+Compile the images in resources/cards into a tilesheet and provide the CSS. See 
+`CompileImagesCommand` to add or change tilesheet.
+
+```
+vagrant ssh
+bfh compile-images
+```
+
+
 ## Deploying to Studio
 
 ```

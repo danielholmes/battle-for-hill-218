@@ -23,34 +23,32 @@
     background-position: 80px 112px;
     background-repeat: no-repeat;
 }
-.card.air-strike {
-    width: 112px;
-    height: 80px;
-}
-
 .card.artillery.color-04237b {
-    background-position: 0 0;
+    background-position: 0px 0px;
 }
 .card.heavy-weapons.color-04237b {
-    background-position: -80px 0;
+    background-position: -80px 0px;
 }
 .card.infantry.color-04237b {
-    background-position: -160px 0;
+    background-position: -160px 0px;
 }
 .card.paratroopers.color-04237b {
-    background-position: -240px 0;
+    background-position: -240px 0px;
 }
 .card.special-forces.color-04237b {
-    background-position: -320px 0;
+    background-position: -320px 0px;
 }
 .card.tank.color-04237b {
-    background-position: -400px 0;
+    background-position: -400px 0px;
 }
 .card.air-strike.color-04237b {
-    background-position: -480px 0;
+    background-position: -480px 0px;
+}
+.card.hill {
+    background-position: -560px 0px;
 }
 .card.artillery.color-3b550c {
-    background-position: 0 -112px;
+    background-position: 0px -112px;
 }
 .card.heavy-weapons.color-3b550c {
     background-position: -80px -112px;
@@ -70,12 +68,8 @@
 .card.air-strike.color-3b550c {
     background-position: -480px -112px;
 }
-
-.card.hill {
-    background-position: -592px 0;
-}
 .card.back {
-    background-position: -592px -112px;
+    background-position: -560px -112px;
 }
 
 /* Hands */
@@ -95,7 +89,7 @@
 }
 .player-cards.current-player .playable-card .selected-border {
     display: none;
-    background-position: -672px -112px;
+    background-position: -640px -112px;
     position: absolute;
 }
 .player-cards.current-player .playable-card .selected-border.landscape-border {
@@ -123,14 +117,14 @@
     width: 80px;
     height: 112px;
     background-image: url(img/cards.png);
-    background-position: -752px 0;
+    background-position: -720px 0px;
     background-repeat: no-repeat;
 }
 .battlefield-position.clickable .clickable-indicator {
     display: inline-block;
 }
 .state-choose-attack .battlefield-position.clickable .clickable-indicator {
-    background-position: -672px 0;
+    background-position: -640px 0px;
 }
 
 /* Battlefield map */
@@ -143,12 +137,12 @@
 #map_scrollable, #map_scrollable_oversurface {
     position: absolute;
     top: 205px;
-    left:  315px;
+    left: 315px;
 }
 #map_surface {
     position: absolute;
-    top: 0px;
-    left: 0px;
+    top: 0;
+    left: 0;
     width: 100%;
     height: 100%;
     cursor: move;
@@ -192,7 +186,7 @@
     display: inline-block;
     width: 26px;
     height: 25px;
-    background-position: -752px -112px;
+    background-position: 0 -224px;
     background-image: url(img/cards.png);
     background-repeat: no-repeat;
 }
