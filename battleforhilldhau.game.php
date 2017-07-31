@@ -39,7 +39,7 @@ use TheBattleForHill218\SQLHelper;
 
 class BattleForHillDhau extends Table
 {
-    const DOWNWARD_PLAYER_COLOR = '6f0f11';
+    const DOWNWARD_PLAYER_COLOR = '3b550c';
 
     public function __construct()
     {

@@ -34,7 +34,7 @@ class SetupNewGameTest extends TestCase
         assertThat(
             $this->table->fetchDbRows('player'),
             containsInAnyOrder([
-                M\hasEntries(['player_color' => '6f0f11']),
+                M\hasEntries(['player_color' => '3b550c']),
                 M\hasEntries(['player_color' => '04237b'])
             ])
         );
