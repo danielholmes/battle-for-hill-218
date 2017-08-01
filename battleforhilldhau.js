@@ -261,6 +261,10 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domClass, domGeo
             return query('#overall_player_board_' + playerId).query('.deck-count-icon').pop();
         },
 
+        getAirStrikeDeckNode: function(playerId) {
+            return query('#overall_player_board_' + playerId).query('.air-strike-count-icon').pop();
+        },
+
         getCurrentPlayerDeckNode: function() {
             return this.getPlayerDeckNode(this.player_id);
         },

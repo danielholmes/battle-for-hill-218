@@ -2,6 +2,7 @@
 
 namespace TheBattleForHill218\Commands;
 
+use Intervention\Image\AbstractShape;
 use Intervention\Image\Image;
 use Intervention\Image\ImageManager;
 use Symfony\Component\Console\Command\Command;
@@ -16,6 +17,12 @@ class CompileImagesCommand extends Command
 
     const CARD_WIDTH = 80;
     const CARD_HEIGHT = 112;
+    const CARD_CORNER_RADIUS = 5;
+
+    /**
+     * @var Image
+     */
+    private $cardMask;
 
     /**
      * @var ImageManager
@@ -104,7 +111,18 @@ CSS
      */
     private function appendIcons(Image $image)
     {
-        $iconsImage = $this->imageManager->make(self::CARDS_DIRPATH . '/Deck Icon.png');
+        $iconNames = [
+            'Deck Icon.png',
+            'Air Strike Green Icon.png',
+            'Air Strike Blue Icon.png'
+        ];
+        $iconImages = F\map(
+            $iconNames,
+            function ($name) {
+                return $this->imageManager->make(self::CARDS_DIRPATH . '/' . $name);
+            }
+        );
+        $iconsImage = $this->combineImageRow($iconImages);
         $combined = $this->imageManager->canvas(
             max($image->getWidth(), $iconsImage->getWidth()),
             $image->getHeight() + $iconsImage->getHeight()
@@ -143,7 +161,15 @@ CSS
         return F\reduce_left(
             $row,
             function (Image $image, $i, array $row, Image $reduction) {
-                return $reduction->insert($image, 'top-left', $i * self::CARD_WIDTH);
+                $x = F\sum(
+                    F\map(
+                        array_slice($row, 0, $i),
+                        function (Image $image) {
+                            return $image->getWidth();
+                        }
+                    )
+                );
+                return $reduction->insert($image, 'top-left', $x);
             },
             $this->createCanvas([$row])
         );
@@ -163,7 +189,21 @@ CSS
                 }
             )
         );
-        $totalHeight = self::CARD_HEIGHT * count($imageRows);
+        $totalHeight = F\sum(
+            F\map(
+                $imageRows,
+                function (array $imageRow) {
+                    return F\maximum(
+                        F\map(
+                            $imageRow,
+                            function (Image $image) {
+                                return $image->getHeight();
+                            }
+                        )
+                    );
+                }
+            )
+        );
         return $this->imageManager->canvas($totalWidth, $totalHeight);
     }
 
@@ -203,6 +243,62 @@ CSS
     }
 
     /**
+     * @return Image
+     */
+    private function createCardMask()
+    {
+        if ($this->cardMask !== null) {
+            return $this->cardMask;
+        }
+
+        $cardDiameter = 2 * self::CARD_CORNER_RADIUS;
+        $styleCallback = function (AbstractShape $shape) {
+            $shape->background(0xff0000);
+        };
+        $this->cardMask = $this->imageManager
+            ->canvas(self::CARD_WIDTH, self::CARD_HEIGHT)
+            ->rectangle(
+                0,
+                self::CARD_CORNER_RADIUS,
+                self::CARD_WIDTH,
+                self::CARD_HEIGHT - self::CARD_CORNER_RADIUS,
+                $styleCallback
+            )
+            ->rectangle(
+                self::CARD_CORNER_RADIUS,
+                0,
+                self::CARD_WIDTH - self::CARD_CORNER_RADIUS,
+                self::CARD_HEIGHT,
+                $styleCallback
+            )
+            ->circle(
+                $cardDiameter,
+                self::CARD_CORNER_RADIUS,
+                self::CARD_CORNER_RADIUS,
+                $styleCallback
+            )
+            ->circle(
+                $cardDiameter,
+                self::CARD_WIDTH - self::CARD_CORNER_RADIUS,
+                self::CARD_CORNER_RADIUS,
+                $styleCallback
+            )
+            ->circle(
+                $cardDiameter,
+                self::CARD_CORNER_RADIUS,
+                self::CARD_HEIGHT - self::CARD_CORNER_RADIUS,
+                $styleCallback
+            )
+            ->circle(
+                $cardDiameter,
+                self::CARD_WIDTH - self::CARD_CORNER_RADIUS,
+                self::CARD_HEIGHT - self::CARD_CORNER_RADIUS,
+                $styleCallback
+            );
+        return $this->cardMask;
+    }
+
+    /**
      * @param array $pathRows
      * @return array
      */
@@ -225,7 +321,8 @@ CSS
                                 self::CARD_HEIGHT
                             ));
                         }
-                        return $image->resize(self::CARD_WIDTH, self::CARD_HEIGHT);
+                        return $image->resize(self::CARD_WIDTH, self::CARD_HEIGHT)
+                            ->mask($this->createCardMask(), true);
                     }
                 );
             }

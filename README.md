@@ -30,13 +30,16 @@ phpcbf --standard=PSR2 --tab-width=4 --ignore=src/BGAWorkbench/Stubs,tests/boots
 
 ## Compiling images
 
-Compile the images in resources/cards into a tilesheet and provide the CSS. See 
-`CompileImagesCommand` to add or change tilesheet.
+Compile the images in resources/cards into a tilesheet and provide the CSS. See `CompileImagesCommand` to add or change 
+tilesheet.
 
 ```
 vagrant ssh
 bfh compile-images
 ```
+
+Use [https://www.youidraw.com/apps/drawing/](https://www.youidraw.com/apps/drawing/) for creating interaction borders.
+Radius: 5, Dashes: 18, 10, Cap Mode: Left - not overstepping
 
 
 ## Deploying to Studio
