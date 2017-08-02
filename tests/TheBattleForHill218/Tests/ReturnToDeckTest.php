@@ -47,6 +47,8 @@ class ReturnToDeckTest extends TestCase
                     'type' => 'returnedToDeck',
                     'args' => M\hasEntries([
                         'playerId' => 66,
+                        'deckCount' => 21,
+                        'handCount' => 3,
                         'numCards' => 2
                     ])
                 ])

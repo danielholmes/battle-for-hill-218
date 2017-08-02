@@ -267,10 +267,12 @@ class BattleForHillDhau extends Table
                 }
             )
         );
+        $numCards = count($cards);
         return [
             'numAirStrikes' => $numAirStrikes,
-            'numCards' => count($cards),
-            'deckSize' => $deckSize
+            'numCards' => $numCards,
+            'deckSize' => $deckSize,
+            'handSize' => $numCards - $numAirStrikes
         ];
     }
 
@@ -400,6 +402,26 @@ SQL
         );
     }
 
+    /**
+     * @param int $playerId
+     * @return int
+     */
+    private function getHandCountByPlayerId($playerId)
+    {
+        return self::getIntUniqueValueFromDB(
+            "SELECT COUNT(id) FROM playable_card WHERE type != 'air-strike' AND player_id = {$playerId}"
+        );
+    }
+
+    /**
+     * @param int $playerId
+     * @return int
+     */
+    private function getDeckCountByPlayerId($playerId)
+    {
+        return self::getIntUniqueValueFromDB("SELECT COUNT(id) FROM deck_card WHERE player_id = {$playerId}");
+    }
+
 //////////////////////////////////////////////////////////////////////////////
 //////////// Player actions
 ////////////
@@ -455,6 +477,8 @@ SQL
             'returnedToDeck',
             clienttranslate('${playerName} returned ${numCards} cards to their deck'),
             [
+                'handCount' => $this->getHandCountByPlayerId($playerId),
+                'deckCount' => $this->getDeckCountByPlayerId($playerId),
                 'numCards' => $numCards,
                 'playerName' => $this->getCurrentPlayerName(),
                 'playerColor' => $this->getCurrentPlayerColor(),
@@ -535,8 +559,12 @@ SQL
             [
                 'playerId' => $card->getPlayerId(),
                 'playerName' => $player['player_name'],
+                'playerColor' => $player['player_color'],
                 'x' => $position->getX(),
-                'y' => $position->getY()
+                'y' => $position->getY(),
+                'count' => self::getIntUniqueValueFromDB(
+                    "SELECT COUNT(id) FROM playable_card WHERE type = 'air-strike' AND player_id = '{$card->getPlayerId()}'"
+                )
             ]
         );
         $this->notifyPlayer(
@@ -593,6 +621,7 @@ SQL
                 'playerId' => $card->getPlayerId(),
                 'playerName' => $player['player_name'],
                 'playerColor' => $player['player_color'],
+                'handCount' => $this->getHandCountByPlayerId($card->getPlayerId()),
                 'typeName' => $card->getTypeName(),
                 'typeKey' => $card->getTypeKey(),
                 'x' => $position->getX(),
@@ -817,15 +846,6 @@ SQL
             ['cards' => $drawnPlayable, 'playerColor' => $playerColor]
         );
 
-        self::notifyAllPlayers(
-            'newDeckCount',
-            '',
-            [
-                'playerId' => $playerId,
-                'count' => self::getIntUniqueValueFromDB("SELECT COUNT(id) FROM deck_card WHERE player_id = {$playerId}")
-            ]
-        );
-
         $drawMessage = '${playerName} has drawn ${numCards} card';
         if ($numDrawn > 1) {
             $drawMessage .= 's';
@@ -835,6 +855,8 @@ SQL
             clienttranslate($drawMessage),
             [
                 'numCards' => $numDrawn,
+                'deckCount' => $this->getDeckCountByPlayerId($playerId),
+                'handCount' => $this->getHandCountByPlayerId($playerId),
                 'playerName' => $players[$playerId]['player_name'],
                 'playerId' => $playerId,
                 'playerColor' => $playerColor

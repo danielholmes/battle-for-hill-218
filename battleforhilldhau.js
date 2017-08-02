@@ -46,17 +46,17 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domClass, domGeo
                     var player = players[id];
                     if (id.toString() === this.player_id.toString()) {
                         this.setupCurrentPlayerCards(player);
-                    } else {
-                        this.setupHiddenPlayerCards(player);
                     }
                     dojo.place(this.format_block('jstpl_counter_icons', {}), this.getPlayerBoardNode(id));
                     this.updateDeckCount(id, player.deckSize);
+                    this.updateHandCount(id, player.handSize);
+                    this.updateAirStrikeCount(id, player.numAirStrikes);
                 }
             }
         },
 
         setupCurrentPlayerCards: function(data) {
-            var cardsContainer = this.getPlayerCardsNode(data.id);
+            var cardsContainer = this.getCurrentPlayerCardsNode();
 
             // Air strikes
             var airStrikeCards = array.filter(data.cards, function(card) { return card.type === 'air-strike'; });
@@ -74,25 +74,8 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domClass, domGeo
                     handCards,
                     lang.hitch(this, function(card) { return this.createCurrentPlayerHandCard(card, data.color); })
                 ),
-                lang.hitch(this, function(card) { this.placeInPlayerHand(data.id, card); })
+                lang.hitch(this, function(card) { this.placeInCurrentPlayerHand(card); })
             );
-        },
-
-        setupHiddenPlayerCards: function(data) {
-            var cardsContainer = this.getPlayerCardsNode(data.id);
-
-            // Air strikes
-            for (var i = 0; i < data.numAirStrikes; i++) {
-                dojo.place(
-                    this.createHiddenPlayerAirStrikeCard({type: 'air-strike'}, data.color),
-                    query(cardsContainer).query('.air-strikes').pop()
-                );
-            }
-
-            // Hand
-            for (var j = 0; j < data.numCards - data.numAirStrikes; j++) {
-                this.placeInPlayerHand(data.id, this.createHiddenPlayerHandCard({type: 'back'}, data.color));
-            }
         },
 
         setupBattlefield: function(data) {
@@ -224,29 +207,17 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domClass, domGeo
             return query('#player_board_' + playerId).pop();
         },
 
-        getPlayerCardsNode: function(playerId) {
-            return dom.byId('player-cards-' + playerId);
-        },
-
         getCurrentPlayerCardsNode: function() {
-            return this.getPlayerCardsNode(this.player_id);
-        },
-        
-        getPlayerHandCardsNodeList: function(playerId) {
-            // Note: .hand-card not needed since have .hand-cards container?
-            return query(this.getPlayerCardsNode(playerId)).query('.hand-card');
+            return dom.byId('my-cards');
         },
         
         getCurrentPlayerHandCardsNodeList: function() {
-            return this.getPlayerHandCardsNodeList(this.player_id);
-        },
-
-        getPlayerHandCardsNode: function(playerId) {
-            return query(this.getPlayerCardsNode(playerId)).query('.hand-cards').pop();
+            // Note: .hand-card not needed since have .hand-cards container?
+            return query(this.getCurrentPlayerCardsNode()).query('.hand-card');
         },
 
         getCurrentPlayerHandCardsNode: function() {
-            return this.getPlayerHandCardsNode(this.player_id);
+            return query(this.getCurrentPlayerCardsNode()).query('.hand-cards').pop();
         },
 
         getCurrentPlayerHandCardNodeByCardId: function(cardId) {
@@ -265,20 +236,16 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domClass, domGeo
             return query('#overall_player_board_' + playerId).query('.air-strike-count-icon').pop();
         },
 
+        getPlayerHandCardsIconNode: function(playerId) {
+            return query('#overall_player_board_' + playerId).query('.hand-count-icon').pop();
+        },
+
         getCurrentPlayerDeckNode: function() {
             return this.getPlayerDeckNode(this.player_id);
         },
 
-        getRandomAirStrikeCardNode: function(playerId) {
-            return query(this.getPlayerCardsNode(playerId)).query('.air-strikes .playable-card').pop();
-        },
-
-        placeInPlayerHand: function(playerId, card) {
-            dojo.place(this.recoverFromAnimation(card), this.getPlayerHandCardsNode(playerId));
-        },
-
         placeInCurrentPlayerHand: function(card) {
-            this.placeInPlayerHand(this.player_id, card);
+            dojo.place(this.recoverFromAnimation(card), this.getCurrentPlayerHandCardsNode());
         },
 
         getCurrentPlayerPlayableCardNodeList: function() {
@@ -289,9 +256,9 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domClass, domGeo
             return this.getCurrentPlayerPlayableCardNodeList().filter('.selected');
         },
 
-        createHiddenPlayerAirStrikeCard: function(card, color) {
-            var coloredCard = lang.mixin({}, card, {color: color});
-            return domConstruct.toDom(this.format_block('jstpl_opponent_air_strike_card', coloredCard));
+        createHiddenPlayerAirStrikeCard: function(color) {
+            var card = {type: 'air-strike', color: color};
+            return domConstruct.toDom(this.format_block('jstpl_opponent_air_strike_card', card));
         },
 
         createCurrentPlayerAirStrikeCard: function(card, color) {
@@ -302,11 +269,6 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domClass, domGeo
         createCurrentPlayerHandCard: function(card, color) {
             var coloredCard = lang.mixin({}, card, {color: color});
             return domConstruct.toDom(this.format_block('jstpl_hand_card', coloredCard));
-        },
-
-        createHiddenPlayerHandCard: function(card, color) {
-            var coloredCard = lang.mixin({}, card, {color: color});
-            return domConstruct.toDom(this.format_block('jstpl_opponent_hand_card', coloredCard));
         },
 
         createBattlefieldCard: function(card, color) {
@@ -321,6 +283,14 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domClass, domGeo
 
         updateDeckCount: function(playerId, count) {
             query(this.getPlayerBoardNode(playerId)).query('.deck-count').pop().innerHTML = count;
+        },
+
+        updateHandCount: function(playerId, count) {
+            query(this.getPlayerBoardNode(playerId)).query('.hand-count').pop().innerHTML = count;
+        },
+
+        updateAirStrikeCount: function(playerId, count) {
+            query(this.getPlayerBoardNode(playerId)).query('.air-strike-count').pop().innerHTML = count;
         },
 
         ///////////////////////////////////////////////////
@@ -638,7 +608,6 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domClass, domGeo
             dojo.subscribe('playedAirStrike', lang.hitch(this, this.notif_playedAirStrike));
             dojo.subscribe('cardAttacked', lang.hitch(this, this.notif_cardAttacked));
             dojo.subscribe('newScores', lang.hitch(this, this.notif_newScores));
-            dojo.subscribe('newDeckCount', lang.hitch(this, this.notif_newDeckCount));
         },
 
         notif_cardAttacked: function(notification) {
@@ -650,6 +619,7 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domClass, domGeo
 
         notif_placedCard: function(notification) {
             var playerId = notification.args.playerId;
+            this.updateHandCount(playerId, notification.args.handCount);
             if (playerId === this.player_id) {
                 return;
             }
@@ -659,10 +629,9 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domClass, domGeo
             var cardType = notification.args.typeKey;
             var color = notification.args.playerColor;
             var cardNode = this.createBattlefieldCard({type: cardType}, color);
-            var handCardsNode = this.getPlayerHandCardsNode(playerId);
+            var handCardsNode = this.getPlayerHandCardsIconNode(playerId);
             var position = this.getOrCreatePlacementPosition(x, y);
 
-            dojo.destroy(this.getPlayerHandCardsNodeList(playerId).pop());
             this.slideNewElementTo(handCardsNode, cardNode, position)
                 .on("End", lang.hitch(this, function() {
                     dojo.place(this.recoverFromAnimation(cardNode), position);
@@ -686,19 +655,22 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domClass, domGeo
 
         notif_playedAirStrike: function(notification) {
             var playerId = notification.args.playerId;
+            this.updateAirStrikeCount(playerId, notification.args.count);
             if (playerId === this.player_id) {
                 return;
             }
 
             var x = notification.args.x;
             var y = notification.args.y;
-            var airStrikeCardNode = this.getRandomAirStrikeCardNode(playerId);
+            var airStrikeDeckNode = this.getAirStrikeDeckNode(playerId);
+            var airStrikeCard = this.createHiddenPlayerAirStrikeCard(notification.args.playerColor);
             var position = this.getOrCreatePlacementPosition(x, y);
 
-            this.slideToObjectAndDestroy(this.prepareForAnimation(airStrikeCardNode), position, SLIDE_ANIMATION_DURATION);
-            setTimeout(lang.hitch(this, function() {
-                dojo.destroy(position);
-            }), SLIDE_ANIMATION_DURATION);
+            this.slideNewElementTo(airStrikeDeckNode, airStrikeCard, position)
+                .on("End", lang.hitch(this, function() {
+                    dojo.destroy(airStrikeCard);
+                    dojo.destroy(position);
+                }));
         },
 
         notif_iPlayedAirStrike: function(notification) {
@@ -716,29 +688,8 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domClass, domGeo
 
         notif_cardsDrawn: function(notification) {
             var playerId = notification.args.playerId;
-            if (playerId === this.player_id) {
-                return;
-            }
-
-            var playerColor = notification.args.playerColor;
-            var numCards = notification.args.numCards;
-            array.forEach(
-                array.map(
-                    new Array(numCards),
-                    lang.hitch(this, function() {
-                        return this.createHiddenPlayerHandCard({type: 'back'}, playerColor);
-                    })
-                ),
-                lang.hitch(this, function (cardDisplay, i) {
-                    var offset = i * 20;
-                    this.slideNewElementTo(
-                        this.getPlayerDeckNode(playerId),
-                        cardDisplay,
-                        this.getPlayerHandCardsNode(playerId),
-                        {x: offset, y: offset}
-                    ).on("End", lang.hitch(this, function(card) { this.placeInPlayerHand(playerId, card); }));
-                })
-            );
+            this.updateHandCount(playerId, notification.args.handCount);
+            this.updateDeckCount(playerId, notification.args.deckCount);
         },
 
         notif_myCardsDrawn: function(notification) {
@@ -764,29 +715,8 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domClass, domGeo
 
         notif_returnedToDeck: function(notification) {
             var playerId = notification.args.playerId;
-            if (playerId === this.player_id) {
-                return;
-            }
-
-            var numCards = notification.args.numCards;
-            // Just use random cards - doesn't matter which one actually moved
-            var handCards = this.getPlayerHandCardsNodeList(playerId);
-            var cardNodesToMove = [];
-            while (cardNodesToMove.length < numCards) {
-                var proposedCard = handCards[Math.floor(Math.random() * handCards.length)];
-                if (cardNodesToMove.indexOf(proposedCard) === -1) {
-                    cardNodesToMove.push(proposedCard);
-                }
-            }
-            array.forEach(
-                cardNodesToMove.sort(lang.hitch(this,
-                    function(card1, card2) { return handCards.indexOf(card2) - handCards.indexOf(card1); }
-                )),
-                lang.hitch(
-                    this,
-                    function(card) { this.slideToDeckAndDestroy(card, this.getPlayerDeckNode(playerId)); }
-                )
-            );
+            this.updateHandCount(playerId, notification.args.handCount);
+            this.updateDeckCount(playerId, notification.args.deckCount);
         },
 
         notif_newScores: function(notification) {
@@ -796,10 +726,6 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domClass, domGeo
                     this.scoreCtrl[playerId].toValue(score);
                 }
             }
-        },
-
-        notif_newDeckCount: function(notification) {
-            this.updateDeckCount(notification.args.playerId, notification.args.count);
         }
    });             
 });

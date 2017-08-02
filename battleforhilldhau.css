@@ -6,13 +6,13 @@
     overflow: hidden;
 }
 #players-panel {
-    width: 352px;
+    width: 100px;
     float: right;
 }
 #battlefield-panel {
     width: auto;
     overflow: hidden;
-    margin-right: 362px;
+    margin-right: 110px;
 }
 
 /* Cards */
@@ -74,29 +74,22 @@
 
 /* Hands */
 .player-cards .air-strikes {
-    /*text-align: center;*/
+
 }
 .player-cards .playable-card {
-    display: inline-block;
+    display: block;
     margin-bottom: 4px;
-    margin-left: 4px;
-}
-.player-cards.current-player .hand-cards {
-    margin-left: -4px;
 }
 .clickable .playable-card {
     cursor: pointer;
 }
-.player-cards.current-player .playable-card .selected-border {
+.player-cards .playable-card .selected-border {
     display: none;
     background-position: -640px -112px;
     position: absolute;
 }
 .clickable .playable-card.selected .selected-border {
     display: inline-block;
-}
-.player-cards.hidden-player .hand-cards .hand-card {
-    margin-right: -44px;
 }
 
 /* Battlefield */
@@ -181,9 +174,17 @@
 /* icons */
 .deck-count-icon {
     display: inline-block;
-    width: 24px;
+    width: 22px;
     height: 24px;
     background-position: 0 -224px;
+    background-image: url(img/cards.png);
+    background-repeat: no-repeat;
+}
+.hand-count-icon {
+    display: inline-block;
+    width: 27px;
+    height: 24px;
+    background-position: -22px -224px;
     background-image: url(img/cards.png);
     background-repeat: no-repeat;
 }
@@ -191,7 +192,7 @@
     display: inline-block;
     width: 26px;
     height: 23px;
-    background-position: -24px -224px;
+    background-position: -49px -224px;
     background-image: url(img/cards.png);
     background-repeat: no-repeat;
 }
@@ -199,7 +200,7 @@
     display: inline-block;
     width: 26px;
     height: 23px;
-    background-position: -50px -224px;
+    background-position: -75px -224px;
     background-image: url(img/cards.png);
     background-repeat: no-repeat;
 }

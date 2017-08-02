@@ -84,6 +84,7 @@ class PlayCardTest extends TestCase
                         'playerName' => nonEmptyString(),
                         'typeName' => nonEmptyString(),
                         'typeKey' => nonEmptyString(),
+                        'handCount' => 4,
                         'x' => 0,
                         'y' => 1
                     ])
@@ -163,6 +164,7 @@ class PlayCardTest extends TestCase
                         'playerName' => nonEmptyString(),
                         'typeName' => nonEmptyString(),
                         'typeKey' => nonEmptyString(),
+                        'handCount' => 5,
                         'x' => 0,
                         'y' => -1
                     ])
@@ -271,7 +273,8 @@ class PlayCardTest extends TestCase
                         'playerId' => 66,
                         'playerName' => nonEmptyString(),
                         'x' => 0,
-                        'y' => -1
+                        'y' => -1,
+                        'count' => 1
                     ])
                 ]),
                 M\hasEntries([

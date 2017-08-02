@@ -113,6 +113,7 @@ CSS
     {
         $iconNames = [
             'Deck Icon.png',
+            'Hand Icon.png',
             'Air Strike Green Icon.png',
             'Air Strike Blue Icon.png'
         ];

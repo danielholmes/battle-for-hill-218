@@ -63,14 +63,10 @@ class DrawCardsTest extends TestCase
                     'log' => '${playerName} has drawn ${numCards} card',
                     'args' => M\hasEntries([
                         'numCards' => 1,
+                        'handCount' => 4,
+                        'deckCount' => 20,
                         'playerId' => 66
                     ])
-                ]),
-                M\hasEntries([
-                    'playerId' => 'all',
-                    'type' => 'newDeckCount',
-                    'log' => '',
-                    'args' => ['playerId' => 66, 'count' => 20]
                 ])
             )
         );
@@ -110,13 +106,11 @@ class DrawCardsTest extends TestCase
                     'playerId' => 'all',
                     'type' => 'cardsDrawn',
                     'log' => '${playerName} has drawn ${numCards} cards',
-                    'args' => hasEntry('numCards', 2)
-                ]),
-                M\hasEntries([
-                    'playerId' => 'all',
-                    'type' => 'newDeckCount',
-                    'log' => '',
-                    'args' => ['playerId' => 77, 'count' => 19]
+                    'args' => M\hasEntries([
+                        'numCards' => 2,
+                        'handCount' => 5,
+                        'deckCount' => 19
+                    ])
                 ])
             )
         );

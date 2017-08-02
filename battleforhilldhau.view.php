@@ -4,6 +4,9 @@ require_once(APP_BASE_PATH . "view/common/game.view.php");
 
 use Functional as F;
 
+/**
+ * @property BattleForHillDhau $game
+ */
 class view_battleforhilldhau_battleforhilldhau extends game_view
 {
     public function getGameName()
@@ -39,20 +42,9 @@ class view_battleforhilldhau_battleforhilldhau extends game_view
 
         $this->page->begin_block("battleforhilldhau_battleforhilldhau", "player_cards");
         foreach ($players as $player) {
-            $playerLabel = $player['name'];
-            $extraContainerClass = 'hidden-player';
             if ($player['id'] === $currentPlayerId) {
-                $playerLabel = 'My cards';
-                $extraContainerClass = 'current-player';
+                $this->page->insert_block("player_cards");
             }
-            $this->page->insert_block(
-                "player_cards",
-                array(
-                    'PLAYER_LABEL' => $playerLabel,
-                    'PLAYER_ID' => $player['id'],
-                    'EXTRA_CONTAINER_CLASS' => $extraContainerClass
-                )
-            );
         }
     }
 }
