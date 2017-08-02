@@ -25,12 +25,13 @@
   "bin": ["bin/bgawb"],
   "require": {
     "php": ">=7.0.0",
+    "ext-pdo_mysql": "*",
     "phpoption/phpoption": "1.5.0",
     "lstrojny/functional-php": "1.6.0"
   },
-  "_extensions": ["gd", "mysql"],
   "require-dev": {
     "php": ">=7.0.0",
+    "ext-imagick": "*",
 
     "classpreloader/classpreloader": "^3.1.0",
     "classpreloader/console": "^2.0.0",
