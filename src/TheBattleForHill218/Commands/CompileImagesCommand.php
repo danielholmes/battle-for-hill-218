@@ -16,11 +16,8 @@ class CompileImagesCommand extends Command
     const OUTPUT_RELATIVE_PATHNAME = 'img/cards.png';
 
     const CARD_CORNER_RADIUS = 5;
-    const CARD_CSS_WIDTH = 80;
-    const CARD_CSS_HEIGHT = 112;
-    const CARD_SIZE_RATIO = 1.5;
-    const CARD_WIDTH = self::CARD_CSS_WIDTH * self::CARD_SIZE_RATIO;
-    const CARD_HEIGHT = self::CARD_CSS_HEIGHT * self::CARD_SIZE_RATIO;
+    const CARD_WIDTH = 160;
+    const CARD_HEIGHT = 224;
 
     /**
      * @var Image
@@ -48,7 +45,7 @@ class CompileImagesCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $start = microtime(true);
-        $this->imageManager = new ImageManager(['driver' => 'gd']);
+        $this->imageManager = new ImageManager(['driver' => 'imagick']);
         $tileRows = F\reduce_left(
             [
                 new TileSpec(self::CARDS_DIRPATH . '/' . 'Hill.jpg', 'hill'),
@@ -67,8 +64,9 @@ class CompileImagesCommand extends Command
         $imageRows = $this->createImageRows($tileRows);
         $image = $this->combineImages($imageRows);
         $fullImage = $this->appendIcons($image, $imageRows);
-        $fullImage->save(__DIR__ . '/../../../' . self::OUTPUT_RELATIVE_PATHNAME);
-        $cssContent = $this->createCss($tileRows);
+        $fullImage->limitColors(255)
+            ->save(__DIR__ . '/../../../' . self::OUTPUT_RELATIVE_PATHNAME);
+        $cssContent = $this->createCss($tileRows, $fullImage);
 
         $took = microtime(true) - $start;
         $output->writeln($cssContent);
@@ -81,49 +79,84 @@ class CompileImagesCommand extends Command
 
     /**
      * @param array $tileRows
+     * @param Image $image
      * @return string
      */
-    private function createCss(array $tileRows)
+    private function createCss(array $tileRows, Image $image)
     {
-        return $this->createSheetCss($tileRows, 'card', self::CARD_CSS_WIDTH, self::CARD_CSS_HEIGHT) . "\n\n" .
-            $this->createSheetCss($tileRows, 'tooltip-card', self::CARD_WIDTH, self::CARD_HEIGHT);
+        return join(
+            "\n\n",
+            [
+                $this->createSheetCss($tileRows, $image, 'Cards', 'card', 0.5),
+                $this->createSheetCss($tileRows, $image, 'Tooltip Cards', 'tooltip-card', 1)
+            ]
+        );
     }
 
     /**
      * @param array $tileRows
+     * @param Image $image
+     * @param string $name
      * @param string $cssPrefix
-     * @param int $width
-     * @param int $height
+     * @param float $ratio
      * @return string
      */
-    private function createSheetCss(array $tileRows, $cssPrefix, $width, $height)
+    private function createSheetCss(array $tileRows, Image $image, $name, $cssPrefix, $ratio)
     {
+        $width = (int) round(self::CARD_WIDTH * $ratio);
+        $height = (int) round(self::CARD_HEIGHT * $ratio);
         return join(
             "\n",
-            F\map(
-                $tileRows,
-                function (array $tileRow, $row) use ($cssPrefix, $width, $height) {
-                    return join(
-                        "\n",
-                        F\map(
-                            $tileRow,
-                            function (TileSpec $tile, $col) use ($row, $cssPrefix, $width, $height) {
-                                return sprintf(
-                                    <<<CSS
+            array_merge(
+                [
+                    sprintf(
+                        <<<CSS
+/* %s */
+.%s {
+    width: %dpx;
+    height: %dpx;
+    background-image: url(img/cards.png);
+    background-size: %dpx %dpx;
+    background-position: %dpx %dpx;
+    background-repeat: no-repeat;
+}
+CSS
+                        ,
+                        $name,
+                        $cssPrefix,
+                        $width,
+                        $height,
+                        (int) round($image->width() * $ratio),
+                        (int) round($image->height() * $ratio),
+                        $width,
+                        $height
+                    )
+                ],
+                F\map(
+                    $tileRows,
+                    function (array $tileRow, $row) use ($cssPrefix, $width, $height) {
+                        return join(
+                            "\n",
+                            F\map(
+                                $tileRow,
+                                function (TileSpec $tile, $col) use ($row, $cssPrefix, $width, $height) {
+                                    return sprintf(
+                                        <<<CSS
 .%s.%s {
     background-position: %dpx %dpx;
 }
 CSS
-                                    ,
-                                    $cssPrefix,
-                                    $tile->getCssName(),
-                                    -1 * $col * $width,
-                                    -1 * $row * $height
-                                );
-                            }
-                        )
-                    );
-                }
+                                        ,
+                                        $cssPrefix,
+                                        $tile->getCssName(),
+                                        -1 * $col * $width,
+                                        -1 * $row * $height
+                                    );
+                                }
+                            )
+                        );
+                    }
+                )
             )
         );
     }
@@ -277,7 +310,7 @@ CSS
 
         $cardDiameter = 2 * self::CARD_CORNER_RADIUS;
         $styleCallback = function (AbstractShape $shape) {
-            $shape->background(0xff0000);
+            $shape->background(0xffff0000);
         };
         $this->cardMask = $this->imageManager
             ->canvas(self::CARD_WIDTH, self::CARD_HEIGHT)
