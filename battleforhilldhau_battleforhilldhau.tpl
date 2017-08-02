@@ -1,16 +1,16 @@
 {OVERALL_GAME_HEADER}
 
 <div id="game-container">
+    <!-- BEGIN player_cards -->
     <div id="players-panel">
-        <!-- BEGIN player_cards -->
         <div id="my-cards" class="player-cards whiteblock">
             <h3>My cards</h3>
             <div class="air-strikes"></div>
             <div class="hand-cards"></div>
         </div>
-        <!-- END player_cards -->
     </div>
-    <div id="battlefield-panel" class="whiteblock">
+    <!-- END player_cards -->
+    <div id="battlefield-panel" class="whiteblock {BATTLEFIELD_PANEL_CLASS}">
         <div id="map_container">
             <div id="map_scrollable"></div>
             <div id="map_surface"></div>

@@ -15,9 +15,12 @@ class CompileImagesCommand extends Command
     const CARDS_DIRPATH = 'resources/cards';
     const OUTPUT_RELATIVE_PATHNAME = 'img/cards.png';
 
-    const CARD_WIDTH = 80;
-    const CARD_HEIGHT = 112;
     const CARD_CORNER_RADIUS = 5;
+    const CARD_CSS_WIDTH = 80;
+    const CARD_CSS_HEIGHT = 112;
+    const CARD_SIZE_RATIO = 1.5;
+    const CARD_WIDTH = self::CARD_CSS_WIDTH * self::CARD_SIZE_RATIO;
+    const CARD_HEIGHT = self::CARD_CSS_HEIGHT * self::CARD_SIZE_RATIO;
 
     /**
      * @var Image
@@ -44,6 +47,7 @@ class CompileImagesCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        $start = microtime(true);
         $this->imageManager = new ImageManager(['driver' => 'gd']);
         $tileRows = F\reduce_left(
             [
@@ -66,8 +70,13 @@ class CompileImagesCommand extends Command
         $fullImage->save(__DIR__ . '/../../../' . self::OUTPUT_RELATIVE_PATHNAME);
         $cssContent = $this->createCss($tileRows);
 
+        $took = microtime(true) - $start;
         $output->writeln($cssContent);
-        $output->writeln(sprintf('Done: %s', self::OUTPUT_RELATIVE_PATHNAME));
+        $output->writeln(sprintf(
+            'Image: %s done in %ss',
+            self::OUTPUT_RELATIVE_PATHNAME,
+            round($took, 1)
+        ));
     }
 
     /**
@@ -76,26 +85,40 @@ class CompileImagesCommand extends Command
      */
     private function createCss(array $tileRows)
     {
+        return $this->createSheetCss($tileRows, 'card', self::CARD_CSS_WIDTH, self::CARD_CSS_HEIGHT) . "\n\n" .
+            $this->createSheetCss($tileRows, 'tooltip-card', self::CARD_WIDTH, self::CARD_HEIGHT);
+    }
+
+    /**
+     * @param array $tileRows
+     * @param string $cssPrefix
+     * @param int $width
+     * @param int $height
+     * @return string
+     */
+    private function createSheetCss(array $tileRows, $cssPrefix, $width, $height)
+    {
         return join(
-            '',
+            "\n",
             F\map(
                 $tileRows,
-                function (array $tileRow, $row) {
+                function (array $tileRow, $row) use ($cssPrefix, $width, $height) {
                     return join(
                         "\n",
                         F\map(
                             $tileRow,
-                            function (TileSpec $tile, $col) use ($row) {
+                            function (TileSpec $tile, $col) use ($row, $cssPrefix, $width, $height) {
                                 return sprintf(
                                     <<<CSS
-.card.%s {
+.%s.%s {
     background-position: %dpx %dpx;
 }
 CSS
                                     ,
+                                    $cssPrefix,
                                     $tile->getCssName(),
-                                    -1 * $col * self::CARD_WIDTH,
-                                    -1 * $row * self::CARD_HEIGHT
+                                    -1 * $col * $width,
+                                    -1 * $row * $height
                                 );
                             }
                         )

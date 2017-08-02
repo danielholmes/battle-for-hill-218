@@ -14,12 +14,16 @@
     overflow: hidden;
     margin-right: 110px;
 }
+#battlefield-panel.spectator-view {
+    margin-right: 0;
+}
 
 /* Cards */
 .card {
     width: 80px;
     height: 112px;
     background-image: url(img/cards.png);
+    background-size: 800px 240px;
     background-position: 80px 112px;
     background-repeat: no-repeat;
 }
@@ -72,6 +76,57 @@
     background-position: -560px -112px;
 }
 
+/* Tooltip Cards */
+.tooltip-card {
+    width: 120px;
+    height: 168px;
+    background-image: url(img/cards.png);
+    background-position: 120px 168px;
+    background-repeat: no-repeat;
+}
+.tooltip-card.artillery.color-04237b {
+    background-position: 0px 0px;
+}
+.tooltip-card.heavy-weapons.color-04237b {
+    background-position: -120px 0px;
+}
+.tooltip-card.infantry.color-04237b {
+    background-position: -240px 0px;
+}
+.tooltip-card.paratroopers.color-04237b {
+    background-position: -360px 0px;
+}
+.tooltip-card.special-forces.color-04237b {
+    background-position: -480px 0px;
+}
+.tooltip-card.tank.color-04237b {
+    background-position: -600px 0px;
+}
+.tooltip-card.air-strike.color-04237b {
+    background-position: -720px 0px;
+}
+.tooltip-card.artillery.color-3b550c {
+    background-position: 0px -168px;
+}
+.tooltip-card.heavy-weapons.color-3b550c {
+    background-position: -120px -168px;
+}
+.tooltip-card.infantry.color-3b550c {
+    background-position: -240px -168px;
+}
+.tooltip-card.paratroopers.color-3b550c {
+    background-position: -360px -168px;
+}
+.tooltip-card.special-forces.color-3b550c {
+    background-position: -480px -168px;
+}
+.tooltip-card.tank.color-3b550c {
+    background-position: -600px -168px;
+}
+.tooltip-card.air-strike.color-3b550c {
+    background-position: -720px -168px;
+}
+
 /* Hands */
 .player-cards .air-strikes {
 
@@ -107,6 +162,7 @@
     width: 80px;
     height: 112px;
     background-image: url(img/cards.png);
+    background-size: 800px 240px;
     background-position: -720px 0px;
     background-repeat: no-repeat;
 }

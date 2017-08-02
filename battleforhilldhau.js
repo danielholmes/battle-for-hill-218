@@ -122,7 +122,10 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domClass, domGeo
             this.possiblePlacementsByCardId = possiblePlacementsByCardId;
             this.enablePlayableCardsClick(
                 this.onHandCardPlayClick,
-                'Play this card on the battlefield',
+                '<div>\
+                    <strong>Play this card on the battlefield</strong>\
+                    <div class="tooltip-card {cardType} color-{cardColor}"></div>\
+                </div>',
                 'Deselect this card'
             );
 
@@ -357,14 +360,27 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domClass, domGeo
             this.enableCardsClick(handler, '.hand-cards', tooltip, selectedTooltip);
         },
 
-        enablePlayableCardsClick: function(handler, tooltip, selectedTooltip) {
-            this.enableCardsClick(handler, null, tooltip, selectedTooltip);
+        enablePlayableCardsClick: function(handler, tooltip, selectedTooltip, tooltipIsHtml) {
+            this.enableCardsClick(handler, null, tooltip, selectedTooltip, tooltipIsHtml);
         },
 
-        enableCardsClick: function(handler, subSelector, tooltip, selectedTooltip) {
+        enableCardsClick: function(handler, subSelector, tooltip, selectedTooltip, tooltipIsHtml) {
             var cardsContainer = this.getCurrentPlayerCardsNode();
             if (cardsContainer === null) {
                 return;
+            }
+
+            var formatTooltip = function(card, tooltip) {
+                return tooltip.replace('{cardColor}', query(card).attr('data-color').pop())
+                    .replace('{cardType}', query(card).attr('data-type').pop());
+            };
+            var applyTooltip = lang.hitch(this, function(node, tooltip) {
+                this.addTooltip(node.id, '', formatTooltip(node, tooltip));
+            });
+            if (tooltipIsHtml) {
+                applyTooltip = lang.hitch(this, function(node, tooltip) {
+                    this.addTooltipHtml(node.id, formatTooltip(node, tooltip));
+                });
             }
 
             handler = lang.hitch(this, handler);
@@ -385,7 +401,7 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domClass, domGeo
                     if (!cardNode.id) {
                         console.error('Trying to add tooltip to node without id', cardNode);
                     }
-                    this.addTooltip(cardNode.id, '', _(tooltip));
+                    applyTooltip(cardNode, _(tooltip));
                 }));
 
             // TODO: Work out how to do this handling properly
@@ -398,9 +414,9 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domClass, domGeo
                         handler({target: cardNode});
                         this.removeTooltip(cardNode.id);
                         if (domClass.contains(cardNode, 'selected')) {
-                            this.addTooltip(cardNode.id, '', _(selectedTooltip));
+                            applyTooltip(cardNode, _(selectedTooltip));
                         } else {
-                            this.addTooltip(cardNode.id, '', _(tooltip));
+                            applyTooltip(cardNode, _(tooltip));
                         }
                     })();
                 }
