@@ -1,16 +1,15 @@
 {OVERALL_GAME_HEADER}
 
-<div id="game-container">
+<div id="game-container" class="{GAME_CONTAINER_CLASS}">
     <!-- BEGIN player_cards -->
     <div id="players-panel">
         <div id="my-cards" class="player-cards whiteblock">
-            <h3>My cards</h3>
-            <div class="air-strikes"></div>
+            <h3>Your hand</h3>
             <div class="hand-cards"></div>
         </div>
     </div>
     <!-- END player_cards -->
-    <div id="battlefield-panel" class="whiteblock {BATTLEFIELD_PANEL_CLASS}">
+    <div id="battlefield-panel" class="whiteblock">
         <div id="map_container">
             <div id="map_scrollable"></div>
             <div id="map_surface"></div>
@@ -24,8 +23,8 @@
 </div>
 
 <script type="text/javascript">
-    var jstpl_air_strike_card = '<div id="playable-card-${id}" class="playable-card" data-id="${id}" data-type="${type}" data-color="${color}">\
-        <div class="selected-border card"></div><div class="card ${type} color-${color}"></div>\
+    var jstpl_air_strike_card = '<div id="playable-card-${type}-${color}" class="playable-card">\
+        <div class="card ${type} color-${color}"></div>\
     </div>';
     var jstpl_hand_card = '<div id="playable-card-${id}" class="playable-card hand-card" data-id="${id}" data-type="${type}" data-color="${color}">\
         <div class="selected-border card"></div><div class="card ${type} color-${color}"></div>\

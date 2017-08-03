@@ -68,13 +68,6 @@ following command which compiles:
 `classpreloader.php compile --config=build-config.csv.php --output=build/out.php --strip_comments=1`
 
 
-## Current Studio Versions
-
- - OS: Ubuntu 16.04.1
- - MySQL: 5.7.18-0ubuntu0.16.04.1
- - PHP: 7.0.18-0ubuntu0.16.04.1
-
-
 ## Known Workbench Issues
 
  - When using the watch command - a changed file during the initial deploy won't redeploy
@@ -84,3 +77,34 @@ following command which compiles:
 ## Git Pre-Commit Hook
 
 Available in `etc/pre-commit`. Runs an auto style detection + fixer.
+
+
+## TODO
+ - remove selected border on air strike once played. Probably just a matter of full cleanup onLeave
+  
+ - tooltips on cards -> I think you should always display the tooltips when hovering over the card (not just for cards 
+   in hand when it's your turn to play)
+  
+ - there should be tooltips on player panel icons (air strikes, hand, player deck)
+  
+ - log messages could be more detailed (indicating the attacking card, the attacked card, then the destroyed card)
+ 
+ - display the cards on the battlefield at a bigger size. The information from the cards are too important
+
+ - when destroying a card, it would be nice to have the explosion symbol briefly displayed over it :)
+  
+ - It would be easier if the battlefield was always shown from the same side, no matter which color you are playing. By 
+   this I mean that if I'm red, I play my cards from the bottom, if I'm blue, I still play my cards from the bottom. You 
+   would have to do some magic with the view.php and the .tpl file
+
+ - I would rotate the other players' cards to be upside down, because honestly I don't care about the name, I care about 
+   which unit attacks where. This is especially important for the artillery that doesn't have a mirror pattern for its 
+   attack.
+
+ - make sure the cards are inside the "map_scrollable" div. Currently you cannot move the map around when you click on a 
+   card because they are in the "map_scrollable_oversurface".
+
+ - I think it would be very useful to have a zoom functionality on the play zone (you can get a readonly copy of Gaia 
+   project from the project page to check out how to do that)
+ 
+ - at the start of the game having 'player 1 base' & 'player 2 base' displayed like in the rulebook would help beginners

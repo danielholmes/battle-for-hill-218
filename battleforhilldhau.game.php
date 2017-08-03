@@ -453,7 +453,10 @@ SQL
             "SELECT id, type FROM playable_card WHERE player_id = {$playerId} AND id IN ({$idList})"
         );
         if (count($returnCards) !== Hill218Setup::NUMBER_OF_INITIAL_CARDS_TO_RETURN) {
-            throw new BgaUserException("Card no longer playable");
+            throw new BgaUserException('Card no longer playable');
+        }
+        if (F\contains(F\pluck($returnCards, 'type'), 'air-strike')) {
+            throw new BgaUserException('Can\'t return Air Strikes');
         }
         self::DBQuery("DELETE FROM playable_card WHERE id IN ({$idList})");
 
@@ -572,6 +575,7 @@ SQL
             'iPlayedAirStrike',
             '',
             [
+                'playerColor' => $player['player_color'],
                 'cardId' => $cardId,
                 'x' => $position->getX(),
                 'y' => $position->getY()

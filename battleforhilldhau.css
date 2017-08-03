@@ -6,25 +6,17 @@
     overflow: hidden;
 }
 #players-panel {
-    width: 100px;
-    float: right;
+    width: auto;
 }
 #battlefield-panel {
     width: auto;
     overflow: hidden;
-    margin-right: 110px;
-}
-#battlefield-panel.spectator-view {
-    margin-right: 0;
 }
 
 /* Hands */
-.player-cards .air-strikes {
-
-}
 .player-cards .playable-card {
-    display: block;
-    margin-bottom: 4px;
+    display: inline-block;
+    margin-right: 4px;
 }
 .clickable .playable-card {
     cursor: pointer;
@@ -135,19 +127,25 @@
     background-image: url(img/cards.png);
     background-repeat: no-repeat;
 }
-#player_board_inner_3b550c .air-strike-count-icon {
+.air-strike-count-icon {
     display: inline-block;
     width: 26px;
     height: 23px;
-    background-position: -49px -448px;
+    border: 4px solid transparent;
+}
+.air-strike-count-icon.clickable {
+    cursor: pointer;
+}
+.air-strike-count-icon.clickable.selected {
+    border: 4px dashed red;
+}
+#player_board_inner_3b550c .air-strike-count-icon {
+    background-position: -53px -452px;
     background-image: url(img/cards.png);
     background-repeat: no-repeat;
 }
 #player_board_inner_04237b .air-strike-count-icon {
-    display: inline-block;
-    width: 26px;
-    height: 23px;
-    background-position: -75px -448px;
+    background-position: -87px -452px;
     background-image: url(img/cards.png);
     background-repeat: no-repeat;
 }

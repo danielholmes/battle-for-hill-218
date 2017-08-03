@@ -24,7 +24,7 @@ class ReturnToDeckTest extends TestCase
             ->createActionInstanceForCurrentPlayer(66)
             ->stubArg('ids', '3,4');
 
-        $action->returnToDeck([3, 4]);
+        $action->returnToDeck();
 
         assertThat(
             $this->table->fetchDbRows('deck_card', ['player_id' => 66]),
@@ -54,5 +54,17 @@ class ReturnToDeckTest extends TestCase
                 ])
             )
         );
+    }
+
+    public function testReturnToDeckAirStrikesIsInvalid()
+    {
+        $this->expectException('BgaUserException');
+
+        $action = $this->table
+            ->setupNewGame()
+            ->createActionInstanceForCurrentPlayer(66)
+            ->stubArg('ids', '1,2');
+
+        $action->returnToDeck();
     }
 }

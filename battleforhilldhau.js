@@ -44,28 +44,22 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domClass, domGeo
             for (var id in players) {
                 if (players.hasOwnProperty(id)) {
                     var player = players[id];
-                    if (id.toString() === this.player_id.toString()) {
-                        this.setupCurrentPlayerCards(player);
-                    }
                     dojo.place(this.format_block('jstpl_counter_icons', {}), this.getPlayerBoardNode(id));
                     this.updateDeckCount(id, player.deckSize);
                     this.updateHandCount(id, player.handSize);
                     this.updateAirStrikeCount(id, player.numAirStrikes);
+                    if (id.toString() === this.player_id.toString()) {
+                        this.setupCurrentPlayerCards(player);
+                    }
                 }
             }
         },
 
         setupCurrentPlayerCards: function(data) {
-            var cardsContainer = this.getCurrentPlayerCardsNode();
-
             // Air strikes
-            var airStrikeCards = array.filter(data.cards, function(card) { return card.type === 'air-strike'; });
-            array.forEach(airStrikeCards, lang.hitch(this, function(card) {
-                dojo.place(
-                    this.createCurrentPlayerAirStrikeCard(card, data.color),
-                    query(cardsContainer).query('.air-strikes').pop()
-                );
-            }));
+            var airStrikeIds = array.filter(data.cards, function(card) { return card.type === 'air-strike'; })
+                .map(function(card) { return card.id; });
+            this.getAirStrikeDeckNodeList(this.player_id).data('ids', airStrikeIds);
 
             // Hand
             var handCards = array.filter(data.cards, function(card) { return card.type !== 'air-strike'; });
@@ -120,13 +114,16 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domClass, domGeo
 
         onEnterPlayCard: function(possiblePlacementsByCardId) {
             this.possiblePlacementsByCardId = possiblePlacementsByCardId;
-            this.enablePlayableCardsClick(
+
+            this.enableHandCardsClick(
                 this.onHandCardPlayClick,
+                // TODO: Change to jstpl once refactor in a way that can
                 '<div>\
                     <strong>Play this card on the battlefield</strong>\
                     <div class="tooltip-card {cardType} color-{cardColor}"></div>\
                 </div>',
-                'Deselect this card'
+                'Deselect this card',
+                true
             );
 
             var _this = this;
@@ -134,6 +131,18 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domClass, domGeo
                 '.battlefield-position.clickable:click',
                 function() { lang.hitch(_this, _this.onPlacePositionClick)({target: this}); }
             );
+
+            var airStrikeNode = this.getAirStrikeDeckNodeList(this.player_id);
+            var airStrikeIds = airStrikeNode.data('ids')[0];
+            if (airStrikeIds.length > 0) {
+                airStrikeNode.addClass('clickable');
+                airStrikeNode.on('click', lang.hitch(this, function() {
+                    var remainingIds = this.getAirStrikeDeckNodeList(this.player_id).data('ids')[0];
+                    if (remainingIds.length > 0) {
+                        this.playCard(remainingIds[0]);
+                    }
+                }));
+            }
         },
 
         onEnterChooseAttack: function(possiblePlacements) {
@@ -235,8 +244,8 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domClass, domGeo
             return query('#overall_player_board_' + playerId).query('.deck-count-icon').pop();
         },
 
-        getAirStrikeDeckNode: function(playerId) {
-            return query('#overall_player_board_' + playerId).query('.air-strike-count-icon').pop();
+        getAirStrikeDeckNodeList: function(playerId) {
+            return query('#overall_player_board_' + playerId).query('.air-strike-count-icon');
         },
 
         getPlayerHandCardsIconNode: function(playerId) {
@@ -255,8 +264,14 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domClass, domGeo
             return query(this.getCurrentPlayerCardsNode()).query('.playable-card');
         },
 
-        getCurrentPlayerSelectedPlayableCardNodeList: function() {
-            return this.getCurrentPlayerPlayableCardNodeList().filter('.selected');
+        getCurrentPlayerSelectedCardIds: function() {
+            var selectedIds = this.getCurrentPlayerPlayableCardNodeList().filter('.selected').attr('data-id');
+            var airStrikeNodeList = this.getAirStrikeDeckNodeList(this.player_id);
+            var airStrikeIds = airStrikeNodeList.data('ids')[0];
+            if (domClass.contains(airStrikeNodeList.pop(), 'selected') && airStrikeIds.length > 0) {
+                selectedIds.push(airStrikeIds[0]);
+            }
+            return selectedIds;
         },
 
         createHiddenPlayerAirStrikeCard: function(color) {
@@ -264,9 +279,9 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domClass, domGeo
             return domConstruct.toDom(this.format_block('jstpl_opponent_air_strike_card', card));
         },
 
-        createCurrentPlayerAirStrikeCard: function(card, color) {
-            var coloredCard = lang.mixin({}, card, {color: color});
-            return domConstruct.toDom(this.format_block('jstpl_air_strike_card', coloredCard));
+        createCurrentPlayerAirStrikeCard: function(color) {
+            var card = {type: 'air-strike', color: color};
+            return domConstruct.toDom(this.format_block('jstpl_air_strike_card', card));
         },
 
         createCurrentPlayerHandCard: function(card, color) {
@@ -356,15 +371,8 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domClass, domGeo
 
         ///////////////////////////////////////////////////
         // Interaction utility methods
-        enableHandCardsClick: function(handler, tooltip, selectedTooltip) {
-            this.enableCardsClick(handler, '.hand-cards', tooltip, selectedTooltip);
-        },
-
-        enablePlayableCardsClick: function(handler, tooltip, selectedTooltip, tooltipIsHtml) {
-            this.enableCardsClick(handler, null, tooltip, selectedTooltip, tooltipIsHtml);
-        },
-
-        enableCardsClick: function(handler, subSelector, tooltip, selectedTooltip, tooltipIsHtml) {
+        enableHandCardsClick: function(handler, tooltip, selectedTooltip, tooltipIsHtml) {
+            var subSelector = '.hand-cards';
             var cardsContainer = this.getCurrentPlayerCardsNode();
             if (cardsContainer === null) {
                 return;
@@ -491,7 +499,7 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domClass, domGeo
                 return;
             }
 
-            var selectedIds = this.getCurrentPlayerSelectedPlayableCardNodeList().attr('data-id');
+            var selectedIds = this.getCurrentPlayerSelectedCardIds();
             // TODO: Where should this business logic go?
             if (selectedIds.length !== 2) {
                 this.showMessage( _('You must select exactly 2 cards to return'), 'error');
@@ -527,21 +535,34 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domClass, domGeo
 
         onHandCardPlayClick: function(e) {
             var clickedCard = e.target;
-            this.getCurrentPlayerSelectedPlayableCardNodeList().forEach(function(card) {
-                if (card !== clickedCard) {
+            this.playCard(query(clickedCard).attr('data-id')[0]);
+        },
+
+        playCard: function(cardId) {
+            this.getCurrentPlayerPlayableCardNodeList().forEach(function(card) {
+                if (query(card).attr('data-id')[0] === cardId) {
+                    query(card).toggleClass('selected');
+                } else {
                     query(card).removeClass('selected');
                 }
             });
-            query(clickedCard).toggleClass('selected');
+
+            var airStrikeNodeList = this.getAirStrikeDeckNodeList(this.player_id);
+            var airStrikeIds = airStrikeNodeList.data('ids')[0];
+            if (airStrikeIds.indexOf(cardId) >= 0) {
+                airStrikeNodeList.toggleClass('selected');
+            } else {
+                airStrikeNodeList.removeClass('selected');
+            }
 
             this.deactivateAllPlacementPositions();
-            var selectedIds = this.getCurrentPlayerSelectedPlayableCardNodeList().attr('data-id');
+            var selectedIds = this.getCurrentPlayerSelectedCardIds();
             if (selectedIds.length === 0) {
                 return;
             }
 
-            var cardId = selectedIds.pop();
-            var possiblePlacements = this.possiblePlacementsByCardId[cardId];
+            var selectedId = selectedIds.pop();
+            var possiblePlacements = this.possiblePlacementsByCardId[selectedId];
             array.forEach(
                 possiblePlacements,
                 lang.hitch(this, function(possiblePlacement) {
@@ -555,7 +576,7 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domClass, domGeo
                 return;
             }
 
-            var id = this.getCurrentPlayerSelectedPlayableCardNodeList().attr('data-id').pop();
+            var id = this.getCurrentPlayerSelectedCardIds()[0];
             var position = query(e.target);
             var x = position.attr('data-x').pop();
             var y = position.attr('data-y').pop();
@@ -678,7 +699,7 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domClass, domGeo
 
             var x = notification.args.x;
             var y = notification.args.y;
-            var airStrikeDeckNode = this.getAirStrikeDeckNode(playerId);
+            var airStrikeDeckNode = this.getAirStrikeDeckNodeList(playerId).pop();
             var airStrikeCard = this.createHiddenPlayerAirStrikeCard(notification.args.playerColor);
             var position = this.getOrCreatePlacementPosition(x, y);
 
@@ -691,15 +712,23 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domClass, domGeo
 
         notif_iPlayedAirStrike: function(notification) {
             var cardId = notification.args.cardId;
-            var cardNode = this.getCurrentPlayerPlayableCardNodeByCardId(cardId);
+            var airStrikesNode = this.getAirStrikeDeckNodeList(this.player_id);
+            var airStrikeIds = airStrikesNode.data('ids')[0];
+            var idIndex = airStrikeIds.indexOf(cardId);
+            if (idIndex >= 0) {
+                airStrikeIds.splice(idIndex, 1);
+                airStrikesNode.data('ids', airStrikeIds);
+            }
             var x = notification.args.x;
             var y = notification.args.y;
 
             var position = this.getOrCreatePlacementPosition(x, y);
-            this.slideToObjectAndDestroy(this.prepareForAnimation(cardNode), position, SLIDE_ANIMATION_DURATION);
-            setTimeout(lang.hitch(this, function() {
-                dojo.destroy(position);
-            }), SLIDE_ANIMATION_DURATION);
+            var cardNode = this.createCurrentPlayerAirStrikeCard(notification.args.playerColor);
+            this.slideNewElementTo(airStrikesNode.pop(), cardNode, position)
+                .on('End', function() {
+                    dojo.destroy(cardNode);
+                    dojo.destroy(position);
+                });
         },
 
         notif_cardsDrawn: function(notification) {

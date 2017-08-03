@@ -24,7 +24,7 @@ class view_battleforhilldhau_battleforhilldhau extends game_view
 
         // Spectator
         if (!isset($players[$currentPlayerId])) {
-            $this->tpl['BATTLEFIELD_PANEL_CLASS'] = 'spectator-view';
+            $this->tpl['GAME_CONTAINER_CLASS'] = 'spectator-view';
             return;
         }
 
