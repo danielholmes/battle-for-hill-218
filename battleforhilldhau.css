@@ -111,40 +111,45 @@
     margin-left:-16px;
 }
 /* icons */
-.deck-count-icon {
+.counter-cell {
     display: inline-block;
+}
+.counter-cell .counter-icon {
+    display: inline-block;
+}
+.counter-cell.deck-count .counter-icon {
     width: 22px;
     height: 24px;
     background-position: 0 -460px;
     background-image: url(img/cards.png);
     background-repeat: no-repeat;
 }
-.hand-count-icon {
-    display: inline-block;
+.counter-cell.hand-count .counter-icon {
     width: 27px;
     height: 24px;
     background-position: -22px -460px;
     background-image: url(img/cards.png);
     background-repeat: no-repeat;
 }
-.air-strike-count-icon {
-    display: inline-block;
-    width: 26px;
-    height: 23px;
+.counter-cell.air-strike-count {
     border: 4px solid transparent;
 }
-.air-strike-count-icon.clickable {
+.counter-cell.air-strike-count.clickable {
     cursor: pointer;
 }
-.air-strike-count-icon.clickable.selected {
+.counter-cell.air-strike-count.clickable.selected {
     border: 4px dashed red;
 }
-#player_board_inner_3b550c .air-strike-count-icon {
+.counter-cell.air-strike-count .counter-icon {
+    width: 26px;
+    height: 23px;
+}
+#player_board_inner_3b550c .counter-cell.air-strike-count .counter-icon {
     background-position: -53px -464px;
     background-image: url(img/cards.png);
     background-repeat: no-repeat;
 }
-#player_board_inner_04237b .air-strike-count-icon {
+#player_board_inner_04237b .counter-cell.air-strike-count .counter-icon {
     background-position: -87px -464px;
     background-image: url(img/cards.png);
     background-repeat: no-repeat;

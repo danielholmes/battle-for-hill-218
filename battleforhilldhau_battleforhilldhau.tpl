@@ -35,10 +35,19 @@
         <div class="clickable-indicator"></div>\
     </div>';
     var jstpl_battlefield_card = '<div class="battlefield-card"><div class="card ${type} color-${color}"></div></div>';
-    var jstpl_counter_icons = '<div id="counter-icons">\
-        <div class="air-strike-count-icon"></div><span class="air-strike-count"></span>\
-        <div class="hand-count-icon"></div><span class="hand-count"></span>\
-        <div class="deck-count-icon"></div><span class="deck-count"></span>\
+    var jstpl_counter_icons = '<div>\
+        <div id="air-strike-count-${playerId}" class="counter-cell air-strike-count">\
+            <span class="counter-icon"></span>\
+            <span class="counter-text"></span>\
+        </div>\
+        <div id="hand-count-${playerId}" class="counter-cell hand-count">\
+            <span class="counter-icon"></span>\
+            <span class="counter-text"></span>\
+        </div>\
+        <div id="deck-count-${playerId}" class="counter-cell deck-count">\
+            <span class="counter-icon"></span>\
+            <span class="counter-text"></span>\
+        </div>\
     </div>';
 </script>
 

@@ -61,7 +61,7 @@ $machinestates = array(
 
     10 => array(
         "name" => "returnToDeck",
-        "description" => clienttranslate('Some players must choose 2 cards to return to their deck'),
+        "description" => clienttranslate('Opponent must choose 2 cards to return to their deck'),
         "descriptionmyturn" => clienttranslate('${you} must choose 2 cards to return to the bottom of your deck'),
         "type" => "multipleactiveplayer",
         "possibleactions" => array("returnToDeck"),

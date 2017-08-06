@@ -62,8 +62,8 @@ bgawb watch
 
 ## Compilation WIP
 
-It's possible extra files aren't allowed in preproduction and production. If not have been working on the 
-following command which compiles:
+It's possible extra files aren't allowed in preproduction and production. If not have been working on the following 
+command which compiles:
 
 `classpreloader.php compile --config=build-config.csv.php --output=build/out.php --strip_comments=1`
 
@@ -76,13 +76,11 @@ following command which compiles:
 
 ## Git Pre-Commit Hook
 
-Available in `etc/pre-commit`. Runs an auto style detection + fixer.
+Available in `etc/pre-commit`. Runs an auto style detection and prevents commit if any issues.
 
 
 ## TODO
 
- - there should be tooltips on player panel icons (air strikes, hand, player deck)
-  
  - tooltips on cards -> I think you should always display the tooltips when hovering over the card (not just for cards 
    in hand when it's your turn to play)
    

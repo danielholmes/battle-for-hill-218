@@ -27,8 +27,7 @@
     "php": ">=7.0.0",
     "ext-pdo_mysql": "*",
     "phpoption/phpoption": "1.5.0",
-    "lstrojny/functional-php": "1.6.0",
-    "ps/image-optimizer": "^1.1"
+    "lstrojny/functional-php": "1.6.0"
   },
   "require-dev": {
     "php": ">=7.0.0",
@@ -51,6 +50,7 @@
 
     "hamcrest/hamcrest-php": "^2.0.0",
     "intervention/image": "^2.4.0",
+    "ps/image-optimizer": "^1.1",
 
     "phpunit/phpunit": "^6.2.3",
     "squizlabs/php_codesniffer": "^3.0.0"

@@ -44,7 +44,10 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domClass, domGeo
             for (var id in players) {
                 if (players.hasOwnProperty(id)) {
                     var player = players[id];
-                    dojo.place(this.format_block('jstpl_counter_icons', {}), this.getPlayerBoardNode(id));
+                    dojo.place(this.format_block('jstpl_counter_icons', {playerId: id}), this.getPlayerBoardNode(id));
+                    this.addTooltip('deck-count-' + id, _('Number of cards left in deck'), '');
+                    this.addTooltip('hand-count-' + id, _('Number of battlefield cards in hand'), '');
+                    this.setAirStrikeTooltipToDefault(id);
                     this.updateDeckCount(id, player.deckSize);
                     this.updateHandCount(id, player.handSize);
                     this.updateAirStrikeCount(id, player.numAirStrikes);
@@ -132,6 +135,7 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domClass, domGeo
                 function() { lang.hitch(_this, _this.onPlacePositionClick)({target: this}); }
             );
 
+            this.setAirStrikeTooltip(this.player_id, null, _('Play Air Strike card'));
             var airStrikeNode = this.getAirStrikeDeckNodeList(this.player_id);
             var airStrikeIds = airStrikeNode.data('ids')[0];
             if (airStrikeIds.length > 0) {
@@ -190,6 +194,7 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domClass, domGeo
             this.deactivateAllPlacementPositions();
             this.disablePlayableCardsClick();
             this.disableAirStrikesClick();
+            this.setAirStrikeTooltipToDefault(this.player_id);
         },
 
         onLeaveChooseAttack: function() {
@@ -242,15 +247,15 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domClass, domGeo
         },
 
         getPlayerDeckNode: function(playerId) {
-            return query('#overall_player_board_' + playerId).query('.deck-count-icon').pop();
+            return query('#overall_player_board_' + playerId).query('.deck-count').pop();
         },
 
         getAirStrikeDeckNodeList: function(playerId) {
-            return query('#overall_player_board_' + playerId).query('.air-strike-count-icon');
+            return query('#overall_player_board_' + playerId).query('.air-strike-count');
         },
 
         getPlayerHandCardsIconNode: function(playerId) {
-            return query('#overall_player_board_' + playerId).query('.hand-count-icon').pop();
+            return query('#overall_player_board_' + playerId).query('.hand-count').pop();
         },
 
         getCurrentPlayerDeckNode: function() {
@@ -301,15 +306,33 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domClass, domGeo
         },
 
         updateDeckCount: function(playerId, count) {
-            query(this.getPlayerBoardNode(playerId)).query('.deck-count').pop().innerHTML = count;
+            this.updateCounter('.deck-count', playerId, count);
         },
 
         updateHandCount: function(playerId, count) {
-            query(this.getPlayerBoardNode(playerId)).query('.hand-count').pop().innerHTML = count;
+            this.updateCounter('.hand-count', playerId, count);
         },
 
         updateAirStrikeCount: function(playerId, count) {
-            query(this.getPlayerBoardNode(playerId)).query('.air-strike-count').pop().innerHTML = count;
+            this.updateCounter('.air-strike-count', playerId, count);
+        },
+
+        updateCounter: function(counterSelector, playerId, count) {
+            query(this.getPlayerBoardNode(playerId)).query(counterSelector).query('.counter-text').pop().innerHTML = count;
+        },
+
+        setAirStrikeTooltipToDefault: function(playerId) {
+            this.setAirStrikeTooltip(playerId, _('Number of air strike cards left in hand'));
+        },
+
+        setAirStrikeTooltip: function(playerId, tooltip, action) {
+            if (!action) {
+                action = '';
+            }
+            if (!tooltip) {
+                tooltip = '';
+            }
+            this.addTooltip('air-strike-count-' + playerId, tooltip, action);
         },
 
         ///////////////////////////////////////////////////
@@ -717,7 +740,7 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domClass, domGeo
         },
 
         notif_iPlayedAirStrike: function(notification) {
-            var cardId = notification.args.cardId;
+            var cardId = parseInt(notification.args.cardId);
             var airStrikesNode = this.getAirStrikeDeckNodeList(this.player_id);
             var airStrikeIds = airStrikesNode.data('ids')[0];
             var idIndex = airStrikeIds.indexOf(cardId);
