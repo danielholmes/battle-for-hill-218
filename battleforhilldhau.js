@@ -136,7 +136,7 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domClass, domGeo
             var airStrikeIds = airStrikeNode.data('ids')[0];
             if (airStrikeIds.length > 0) {
                 airStrikeNode.addClass('clickable');
-                airStrikeNode.on('click', lang.hitch(this, function() {
+                this.placeAirStrikeClickSignal = airStrikeNode.on('click', lang.hitch(this, function() {
                     var remainingIds = this.getAirStrikeDeckNodeList(this.player_id).data('ids')[0];
                     if (remainingIds.length > 0) {
                         this.playCard(remainingIds[0]);
@@ -183,8 +183,13 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domClass, domGeo
                 this.placePositionClickSignal.remove();
                 this.placePositionClickSignal = null;
             }
+            if (this.placeAirStrikeClickSignal) {
+                this.placeAirStrikeClickSignal.remove();
+                this.placeAirStrikeClickSignal = null;
+            }
             this.deactivateAllPlacementPositions();
             this.disablePlayableCardsClick();
+            this.disableAirStrikesClick();
         },
 
         onLeaveChooseAttack: function() {
@@ -234,10 +239,6 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domClass, domGeo
 
         getCurrentPlayerHandCardNodeByCardId: function(cardId) {
             return query(this.getCurrentPlayerHandCardsNodeList()).filter('[data-id=' + cardId + ']').pop();
-        },
-
-        getCurrentPlayerPlayableCardNodeByCardId: function(cardId) {
-            return this.getCurrentPlayerPlayableCardNodeList().filter('[data-id=' + cardId + ']').pop();
         },
 
         getPlayerDeckNode: function(playerId) {
@@ -438,6 +439,11 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domClass, domGeo
                 nodeList.children(),
                 lang.hitch(this, this.removeClickableOnNodeAndChildren)
             );
+        },
+
+        disableAirStrikesClick: function() {
+            var airStrikeNodeList = this.getAirStrikeDeckNodeList(this.player_id);
+            airStrikeNodeList.removeClass('selected').removeClass('clickable');
         },
 
         disablePlayableCardsClick: function() {

@@ -64,7 +64,7 @@ class CompileImagesCommand extends Command
         $imageRows = $this->createImageRows($tileRows);
         $image = $this->combineImages($imageRows);
         $fullImage = $this->appendIcons($image, $imageRows);
-        $fullImage->limitColors(255)
+        $fullImage->limitColors(256)
             ->save(__DIR__ . '/../../../' . self::OUTPUT_RELATIVE_PATHNAME);
         $cssContent = $this->createCss($tileRows, $fullImage);
 
@@ -310,7 +310,7 @@ CSS
 
         $cardDiameter = 2 * self::CARD_CORNER_RADIUS;
         $styleCallback = function (AbstractShape $shape) {
-            $shape->background(0xffff0000);
+            $shape->background(0xff00ff00);
         };
         $this->cardMask = $this->imageManager
             ->canvas(self::CARD_WIDTH, self::CARD_HEIGHT)

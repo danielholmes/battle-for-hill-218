@@ -80,10 +80,13 @@ Available in `etc/pre-commit`. Runs an auto style detection + fixer.
 
 
 ## TODO
+
  - remove selected border on air strike once played. Probably just a matter of full cleanup onLeave
   
  - tooltips on cards -> I think you should always display the tooltips when hovering over the card (not just for cards 
    in hand when it's your turn to play)
+ 
+ - check placedCard vs iPlacedCard - can use _private like in getAllDatas?
   
  - there should be tooltips on player panel icons (air strikes, hand, player deck)
   
