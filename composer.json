@@ -27,7 +27,8 @@
     "php": ">=7.0.0",
     "ext-pdo_mysql": "*",
     "phpoption/phpoption": "1.5.0",
-    "lstrojny/functional-php": "1.6.0"
+    "lstrojny/functional-php": "1.6.0",
+    "ps/image-optimizer": "^1.1"
   },
   "require-dev": {
     "php": ">=7.0.0",

@@ -2,6 +2,7 @@
 
 namespace TheBattleForHill218\Commands;
 
+use ImageOptimizer\OptimizerFactory;
 use Intervention\Image\AbstractShape;
 use Intervention\Image\Image;
 use Intervention\Image\ImageManager;
@@ -45,6 +46,7 @@ class CompileImagesCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $start = microtime(true);
+
         $this->imageManager = new ImageManager(['driver' => 'imagick']);
         $tileRows = F\reduce_left(
             [
@@ -63,18 +65,31 @@ class CompileImagesCommand extends Command
         );
         $imageRows = $this->createImageRows($tileRows);
         $image = $this->combineImages($imageRows);
-        $fullImage = $this->appendIcons($image, $imageRows);
-        $fullImage->limitColors(256)
-            ->save(__DIR__ . '/../../../' . self::OUTPUT_RELATIVE_PATHNAME);
+        $fullImage = $this->appendIcons($image);
+        $fullImagePath = __DIR__ . '/../../../' . self::OUTPUT_RELATIVE_PATHNAME;
+        $fullImage->save($fullImagePath);
+        $this->optimiseImage($fullImagePath);
+
         $cssContent = $this->createCss($tileRows, $fullImage);
 
         $took = microtime(true) - $start;
         $output->writeln($cssContent);
         $output->writeln(sprintf(
-            'Image: %s done in %ss',
+            'Image: %s [%sKB] done in %ss',
             self::OUTPUT_RELATIVE_PATHNAME,
+            ceil(filesize($fullImagePath) / 1000),
             round($took, 1)
         ));
+    }
+
+    /**
+     * @param string $path
+     */
+    private function optimiseImage($path)
+    {
+        $factory = new OptimizerFactory(['ignore_errors' => false]);
+        $optimizer = $factory->get('pngquant');
+        $optimizer->optimize($path);
     }
 
     /**

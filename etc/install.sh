@@ -14,6 +14,9 @@ echo "PATH=\$PATH:$PROJECT_DIR/bin" >> "$HOME_DIR/.bashrc"
 # Install essential packages from Apt
 apt-get update -y
 
+# Image optimisation
+apt-get install pngquant
+
 # PHP and packages
 apt-get install -y php7.0-cli php7.0-mbstring php7.0-dom php7.0-zip php7.0-mysql php-imagick
 
