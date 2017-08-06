@@ -16,9 +16,9 @@ class CompileImagesCommand extends Command
     const CARDS_DIRPATH = 'resources/cards';
     const OUTPUT_RELATIVE_PATHNAME = 'img/cards.png';
 
-    const CARD_CORNER_RADIUS = 5;
+    const CARD_CORNER_RADIUS = 6;
     const CARD_WIDTH = 160;
-    const CARD_HEIGHT = 224;
+    const CARD_HEIGHT = 230;
 
     /**
      * @var Image
@@ -118,8 +118,11 @@ class CompileImagesCommand extends Command
      */
     private function createSheetCss(array $tileRows, Image $image, $name, $cssPrefix, $ratio)
     {
-        $width = (int) round(self::CARD_WIDTH * $ratio);
-        $height = (int) round(self::CARD_HEIGHT * $ratio);
+        $width = self::CARD_WIDTH * $ratio;
+        $height = self::CARD_HEIGHT * $ratio;
+        if ($width % 1 !== 0 || $height % 1 !== 0) {
+            throw new \InvalidArgumentException("Invalid ratio {$ratio} - results in non int size {$width}x{$height}");
+        }
         return join(
             "\n",
             array_merge(

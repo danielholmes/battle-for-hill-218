@@ -20,7 +20,7 @@ define([
 ],
 function (dojo, declare, lang, dom, query, array, domConstruct, domClass, domGeom, fx) {
     var CARD_WIDTH = 80;
-    var CARD_HEIGHT = 112;
+    var CARD_HEIGHT = 115;
     var SLIDE_ANIMATION_DURATION = 700;
     
     return declare("bgagame.battleforhilldhau", ebg.core.gamegui, {

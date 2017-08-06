@@ -23,7 +23,7 @@
 }
 .player-cards .playable-card .selected-border {
     display: none;
-    background-position: -640px -112px;
+    background-position: -640px -115px;
     position: absolute;
 }
 .clickable .playable-card.selected .selected-border {
@@ -34,7 +34,7 @@
 .battlefield-position {
     position: absolute;
     width: 80px;
-    height: 112px;
+    height: 115px;
 }
 .battlefield-position.clickable {
     cursor: pointer;
@@ -43,7 +43,7 @@
     display: none;
     position: absolute;
     width: 80px;
-    height: 112px;
+    height: 115px;
     background-image: url(img/cards.png);
     background-size: 800px 240px;
     background-position: -720px 0px;
@@ -115,7 +115,7 @@
     display: inline-block;
     width: 22px;
     height: 24px;
-    background-position: 0 -448px;
+    background-position: 0 -460px;
     background-image: url(img/cards.png);
     background-repeat: no-repeat;
 }
@@ -123,7 +123,7 @@
     display: inline-block;
     width: 27px;
     height: 24px;
-    background-position: -22px -448px;
+    background-position: -22px -460px;
     background-image: url(img/cards.png);
     background-repeat: no-repeat;
 }
@@ -140,12 +140,12 @@
     border: 4px dashed red;
 }
 #player_board_inner_3b550c .air-strike-count-icon {
-    background-position: -53px -452px;
+    background-position: -53px -464px;
     background-image: url(img/cards.png);
     background-repeat: no-repeat;
 }
 #player_board_inner_04237b .air-strike-count-icon {
-    background-position: -87px -452px;
+    background-position: -87px -464px;
     background-image: url(img/cards.png);
     background-repeat: no-repeat;
 }
@@ -153,10 +153,10 @@
 /* Cards */
 .card {
     width: 80px;
-    height: 112px;
+    height: 115px;
     background-image: url(img/cards.png);
-    background-size: 800px 236px;
-    background-position: 80px 112px;
+    background-size: 800px 246px;
+    background-position: 80px 115px;
     background-repeat: no-repeat;
 }
 .card.artillery.color-04237b {
@@ -190,40 +190,40 @@
     background-position: -720px 0px;
 }
 .card.artillery.color-3b550c {
-    background-position: 0px -112px;
+    background-position: 0px -115px;
 }
 .card.heavy-weapons.color-3b550c {
-    background-position: -80px -112px;
+    background-position: -80px -115px;
 }
 .card.infantry.color-3b550c {
-    background-position: -160px -112px;
+    background-position: -160px -115px;
 }
 .card.paratroopers.color-3b550c {
-    background-position: -240px -112px;
+    background-position: -240px -115px;
 }
 .card.special-forces.color-3b550c {
-    background-position: -320px -112px;
+    background-position: -320px -115px;
 }
 .card.tank.color-3b550c {
-    background-position: -400px -112px;
+    background-position: -400px -115px;
 }
 .card.air-strike.color-3b550c {
-    background-position: -480px -112px;
+    background-position: -480px -115px;
 }
 .card.back {
-    background-position: -560px -112px;
+    background-position: -560px -115px;
 }
 .card.red-dashed {
-    background-position: -640px -112px;
+    background-position: -640px -115px;
 }
 
 /* Tooltip Cards */
 .tooltip-card {
     width: 160px;
-    height: 224px;
+    height: 230px;
     background-image: url(img/cards.png);
-    background-size: 1600px 472px;
-    background-position: 160px 224px;
+    background-size: 1600px 491px;
+    background-position: 160px 230px;
     background-repeat: no-repeat;
 }
 .tooltip-card.artillery.color-04237b {
@@ -257,29 +257,29 @@
     background-position: -1440px 0px;
 }
 .tooltip-card.artillery.color-3b550c {
-    background-position: 0px -224px;
+    background-position: 0px -230px;
 }
 .tooltip-card.heavy-weapons.color-3b550c {
-    background-position: -160px -224px;
+    background-position: -160px -230px;
 }
 .tooltip-card.infantry.color-3b550c {
-    background-position: -320px -224px;
+    background-position: -320px -230px;
 }
 .tooltip-card.paratroopers.color-3b550c {
-    background-position: -480px -224px;
+    background-position: -480px -230px;
 }
 .tooltip-card.special-forces.color-3b550c {
-    background-position: -640px -224px;
+    background-position: -640px -230px;
 }
 .tooltip-card.tank.color-3b550c {
-    background-position: -800px -224px;
+    background-position: -800px -230px;
 }
 .tooltip-card.air-strike.color-3b550c {
-    background-position: -960px -224px;
+    background-position: -960px -230px;
 }
 .tooltip-card.back {
-    background-position: -1120px -224px;
+    background-position: -1120px -230px;
 }
 .tooltip-card.red-dashed {
-    background-position: -1280px -224px;
+    background-position: -1280px -230px;
 }

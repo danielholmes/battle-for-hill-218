@@ -81,11 +81,11 @@ Available in `etc/pre-commit`. Runs an auto style detection + fixer.
 
 ## TODO
 
- - tooltips on cards -> I think you should always display the tooltips when hovering over the card (not just for cards 
-   in hand when it's your turn to play)
- 
  - there should be tooltips on player panel icons (air strikes, hand, player deck)
   
+ - tooltips on cards -> I think you should always display the tooltips when hovering over the card (not just for cards 
+   in hand when it's your turn to play)
+   
  - check placedCard vs iPlacedCard - can use _private like in getAllDatas?
 
  - log messages could be more detailed (indicating the attacking card, the attacked card, then the destroyed card)
