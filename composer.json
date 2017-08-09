@@ -22,7 +22,7 @@
       "src/BGAWorkbench/Test/HamcrestMatchers/functions.php"
     ]
   },
-  "bin": ["bin/bgawb"],
+  "bin": ["bin/bgawb", "bin/bfh"],
   "require": {
     "php": ">=7.0.0",
     "ext-pdo_mysql": "*",
