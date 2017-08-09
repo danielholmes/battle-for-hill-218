@@ -356,6 +356,21 @@ class BattleForHillDhau extends Table
     }
 
     /**
+     * @param int $x
+     * @param int $y
+     * @return array
+     */
+    private static function loadCardPlacementByCoordinates($x, $y)
+    {
+        $rawList = self::getObjectListFromDB("SELECT * FROM battlefield_card WHERE x = {$x} AND y = {$y} LIMIT 1");
+        if (empty($rawList)) {
+            throw new InvalidArgumentException("No battlefield card at {$x}x{$y}");
+        }
+
+        return [$rawList[0]['id'], self::parseCardPlacement($rawList[0])];
+    }
+
+    /**
      * @param array $raw
      * @return CardPlacement
      */
@@ -532,23 +547,22 @@ SQL
      */
     private function playAirStrikeCard(AirStrikeCard $card, $cardId, Position $position)
     {
-        $foundInPosition = self::getObjectListFromDB(
-            "SELECT id, player_id FROM battlefield_card WHERE x = {$position->getX()} AND y = {$position->getY()}"
-        );
-        if (empty($foundInPosition)) {
+        try {
+            list($cardInPositionId, $cardInPosition) = self::loadCardPlacementByCoordinates($position->getX(), $position->getY());
+        } catch (InvalidArgumentException $e) {
             throw new BgaUserException("Position {$position->getX()},{$position->getY()} doesn't have opponent card");
         }
-        $cardInPosition = $foundInPosition[0];
-        if ((int) $cardInPosition['player_id'] === $card->getPlayerId()) {
+
+        if ($cardInPosition->getPlayerId()->getOrElse(null) === $card->getPlayerId()) {
             throw new BgaUserException("Can't Air Strike your own card");
         }
-        if ($cardInPosition['player_id'] === null) {
+        if ($cardInPosition->getPlayerId()->isEmpty()) {
             throw new BgaUserException("Can't Air Strike hill");
         }
 
         // Remove from battlefield and playable
         self::DbQuery("DELETE FROM playable_card WHERE id = {$cardId}");
-        self::DbQuery("DELETE FROM battlefield_card WHERE id = {$cardInPosition['id']}");
+        self::DbQuery("DELETE FROM battlefield_card WHERE id = {$cardInPositionId}");
         $this->incStat(1, 'num_defeated_cards', $card->getPlayerId());
 
         $this->updatePlayerScores();
@@ -558,11 +572,12 @@ SQL
         $player = $players[$card->getPlayerId()];
         $this->notifyAllPlayers(
             'playedAirStrike',
-            clienttranslate('${playerName} played an air strike card at ${x},${y}'),
+            clienttranslate('${playerName} played an air strike card destroying the ${destroyedType} card at ${x},${y}'),
             [
                 'playerId' => $card->getPlayerId(),
                 'playerName' => $player['player_name'],
                 'playerColor' => $player['player_color'],
+                'destroyedType' => $cardInPosition->getCard()->getTypeName(),
                 'x' => $position->getX(),
                 'y' => $position->getY(),
                 'count' => self::getIntUniqueValueFromDB(
@@ -670,13 +685,17 @@ SQL
     public function chooseAttack($x, $y)
     {
         $playerId = (int) $this->getActivePlayerId();
-        $attackPosition = new Position($x, $y);
+        try {
+            list($_, $attack) = self::loadCardPlacementByCoordinates($x, $y);
+        } catch (InvalidArgumentException $e) {
+            throw new BgaUserException($e->getMessage());
+        }
         $battlefield = $this->loadBattlefield();
-        $fromPosition = $this->getChooseAttackFromPosition($playerId);
+        $fromPlacement = $this->getChooseAttackFromPlacement($playerId);
         $isAttackablePosition = F\some(
-            $battlefield->getAttackablePlacements($fromPosition),
-            function (CardPlacement $p) use ($attackPosition) {
-                return $p->getPosition() == $attackPosition;
+            $battlefield->getAttackablePlacements($fromPlacement->getPosition()),
+            function (CardPlacement $p) use ($attack) {
+                return $p->getPosition() == $attack->getPosition();
             }
         );
 
@@ -686,31 +705,33 @@ SQL
 
         $this->giveExtraTime($playerId);
 
-        $this->performChooseAttack($playerId, $fromPosition, $attackPosition);
+        $this->performChooseAttack($playerId, $fromPlacement, $attack);
     }
 
     /**
      * @param int $playerId
-     * @param Position $fromPosition
-     * @param Position $attackPosition
+     * @param CardPlacement $from
+     * @param CardPlacement $attack
      */
-    private function performChooseAttack($playerId, Position $fromPosition, Position $attackPosition)
+    private function performChooseAttack($playerId, CardPlacement $from, CardPlacement $attack)
     {
         self::DbQuery(
-            "DELETE FROM battlefield_card WHERE x = {$attackPosition->getX()} AND y = {$attackPosition->getY()} LIMIT 1"
+            "DELETE FROM battlefield_card WHERE x = {$attack->getX()} AND y = {$attack->getY()} LIMIT 1"
         );
         $this->incStat(1, 'num_defeated_cards', $playerId);
         $this->updatePlayerScores();
 
         $this->notifyAllPlayers(
             'cardAttacked',
-            clienttranslate('${playerName} attacked ${x},${y}'),
+            clienttranslate('${playerName} attacked the ${destroyedType} at ${x},${y} with the ${type} at ${fromX},${fromY}'),
             [
                 'playerName' => self::getUniqueValueFromDB("SELECT player_name FROM player WHERE player_id = {$playerId}"),
-                'x' => $attackPosition->getX(),
-                'y' => $attackPosition->getY(),
-                'fromX' => $fromPosition->getX(),
-                'fromY' => $fromPosition->getY()
+                'type' => $from->getCard()->getTypeName(),
+                'destroyedType' => $attack->getCard()->getTypeName(),
+                'x' => $attack->getX(),
+                'y' => $attack->getY(),
+                'fromX' => $from->getX(),
+                'fromY' => $from->getY()
             ]
         );
 
@@ -776,9 +797,19 @@ SQL
      */
     private function getChooseAttackFromPosition($playerId)
     {
+        return $this->getChooseAttackFromPlacement($playerId)->getPosition();
+    }
+
+    /**
+     * @param int $playerId
+     * @return CardPlacement
+     * @throws BgaSystemException
+     */
+    private function getChooseAttackFromPlacement($playerId)
+    {
         // TODO: placed_at timestamp would be better
         $mostRecentList = self::getObjectListFromDB(
-            "SELECT x, y, player_id FROM battlefield_card ORDER BY id DESC LIMIT 1"
+            "SELECT * FROM battlefield_card ORDER BY id DESC LIMIT 1"
         );
         if (empty($mostRecentList)) {
             throw new BgaSystemException('Choosing attack when no battlefield card');
@@ -790,7 +821,7 @@ SQL
             );
         }
 
-        return new Position((int) $mostRecent['x'], (int) $mostRecent['y']);
+        return self::parseCardPlacement($mostRecent);
     }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -941,10 +972,9 @@ SQL
                 break;
             case 'chooseAttack':
                 $battlefield = $this->loadBattlefield();
-                $fromPosition = $this->getChooseAttackFromPosition($activePlayerId);
-                $battlefield->getAttackablePlacements($fromPosition);
-                $possiblePlacements = $battlefield->getAttackablePlacements($fromPosition);
-                $this->performChooseAttack($activePlayerId, $fromPosition, $possiblePlacements[0]->getPosition());
+                $fromPlacement = $this->getChooseAttackFromPlacement($activePlayerId);
+                $possiblePlacements = $battlefield->getAttackablePlacements($fromPlacement->getPosition());
+                $this->performChooseAttack($activePlayerId, $fromPlacement, $possiblePlacements[0]);
                 break;
             default:
                 throw new BgaSystemException("Unknown state for zombie {$state['name']}");

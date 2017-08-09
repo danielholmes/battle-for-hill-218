@@ -262,15 +262,17 @@ class PlayCardTest extends TestCase
                 M\hasEntries(['player_id' => 77, 'player_score' => 0])
             )
         );
+        $expectedLog = '${playerName} played an air strike card destroying the ${destroyedType} card at ${x},${y}';
         assertThat(
             $action->getGame()->getNotifications(),
             containsInAnyOrder(
                 M\hasEntries([
                     'playerId' => 'all',
                     'type' => 'playedAirStrike',
-                    'log' => '${playerName} played an air strike card at ${x},${y}',
+                    'log' => $expectedLog,
                     'args' => M\hasEntries([
                         'playerId' => 66,
+                        'destroyedType' => 'Infantry',
                         'playerName' => nonEmptyString(),
                         'x' => 0,
                         'y' => -1,

@@ -84,10 +84,6 @@ Available in `etc/pre-commit`. Runs an auto style detection and prevents commit 
  - tooltips on cards -> I think you should always display the tooltips when hovering over the card (not just for cards 
    in hand when it's your turn to play)
    
- - check placedCard vs iPlacedCard - can use _private like in getAllDatas?
-
- - log messages could be more detailed (indicating the attacking card, the attacked card, then the destroyed card)
- 
  - display the cards on the battlefield at a bigger size. The information from the cards are too important
 
  - when destroying a card, it would be nice to have the explosion symbol briefly displayed over it :)

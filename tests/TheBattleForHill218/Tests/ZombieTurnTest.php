@@ -96,15 +96,18 @@ class ZombieTurnTest extends TestCase
                 M\hasEntries(['player_id' => 77, 'player_score' => 0])
             )
         );
+        $expectedLog = '${playerName} attacked the ${destroyedType} at ${x},${y} with the ${type} at ${fromX},${fromY}';
         assertThat(
             $game->getNotifications(),
             containsInAnyOrder(
                 M\hasEntries([
                     'playerId' => 'all',
                     'type' => 'cardAttacked',
-                    'log' => '${playerName} attacked ${x},${y}',
+                    'log' => $expectedLog,
                     'args' => M\hasEntries([
                         'playerName' => nonEmptyString(),
+                        'type' => 'Artillery',
+                        'destroyedType' => 'Infantry',
                         'x' => 0,
                         'y' => -1,
                         'fromX' => 1,

@@ -36,6 +36,22 @@ class CardPlacement
     }
 
     /**
+     * @return int
+     */
+    public function getX() : int
+    {
+        return $this->getPosition()->getX();
+    }
+
+    /**
+     * @return int
+     */
+    public function getY() : int
+    {
+        return $this->getPosition()->getY();
+    }
+
+    /**
      * @return Option
      */
     public function getPlayerId() : Option
