@@ -81,6 +81,11 @@ Available in `etc/pre-commit`. Runs an auto style detection and prevents commit 
 
 ## TODO
 
+ - make sure the cards are inside the "map_scrollable" div. Currently you cannot move the map around when you click on a 
+    card because they are in the "map_scrollable_oversurface".
+ 
+ - card animations using small (from hand) into large (battlefield)
+ 
  - tooltips on cards -> I think you should always display the tooltips when hovering over the card (not just for cards 
    in hand when it's your turn to play)
  
@@ -89,9 +94,6 @@ Available in `etc/pre-commit`. Runs an auto style detection and prevents commit 
  - It would be easier if the battlefield was always shown from the same side, no matter which color you are playing. By 
    this I mean that if I'm red, I play my cards from the bottom, if I'm blue, I still play my cards from the bottom. You 
    would have to do some magic with the view.php and the .tpl file
-
- - make sure the cards are inside the "map_scrollable" div. Currently you cannot move the map around when you click on a 
-   card because they are in the "map_scrollable_oversurface".
 
  - I think it would be very useful to have a zoom functionality on the play zone (you can get a readonly copy of Gaia 
    project from the project page to check out how to do that)

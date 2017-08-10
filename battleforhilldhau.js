@@ -223,6 +223,10 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domClass, domGeo
         ///////////////////////////////////////////////////
         //// DOM Node Utility methods
         getBattlefieldNode: function() {
+            return query('#map_scrollable').pop();
+        },
+
+        getBattlefieldInteractionNode: function() {
             return query('#map_scrollable_oversurface').pop();
         },
 
@@ -497,9 +501,28 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domClass, domGeo
         },
 
         activatePossiblePlacementPosition: function(position, tooltip) {
-            var placementNode = this.getOrCreatePlacementPosition(position.x, position.y);
-            query(placementNode).addClass('clickable');
-            this.addTooltip(placementNode.id, '', _(tooltip));
+            //var placementNode = this.getOrCreatePlacementPosition(position.x, position.y);
+            //query(placementNode).addClass('clickable');
+            // TODO: Remove clickable from .tpl markup and .css
+            // Can simplify batlefield card? i.e. doesnt need a container
+            var buttonNode = this.getOrCreatePlacementButton(position.x, position.y);
+            this.addTooltip(buttonNode.id, '', _(tooltip));
+        },
+
+        getOrCreatePlacementButton: function(x, y) {
+            var button = query(this.getBattlefieldInteractionNode()).query('[data-x=' + x + '][data-y=' + y + ']').pop();
+            if (button) {
+                return button;
+            }
+
+            var left = -CARD_WIDTH / 2 + (x * CARD_WIDTH);
+            var top = -CARD_HEIGHT / 2 - (y * CARD_HEIGHT);
+            button = domConstruct.toDom(this.format_block(
+                'jstpl_battlefield_button',
+                {x: x, y: y, top: top, left: left}
+            ));
+            dojo.place(button, this.getBattlefieldInteractionNode());
+            return button;
         },
 
         getOrCreatePlacementPosition: function(x, y) {

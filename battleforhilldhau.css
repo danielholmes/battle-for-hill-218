@@ -160,6 +160,13 @@
     transform: rotate(180deg);
 }
 
+.battlefield-button {
+    width: 96px;
+    height: 138px;
+    background: orange;
+    position: absolute;
+}
+
 /* Cards */
 .card {
     width: 80px;
