@@ -83,18 +83,12 @@ Available in `etc/pre-commit`. Runs an auto style detection and prevents commit 
 
  - tooltips on cards -> I think you should always display the tooltips when hovering over the card (not just for cards 
    in hand when it's your turn to play)
-   
- - display the cards on the battlefield at a bigger size. The information from the cards are too important
-
+ 
  - when destroying a card, it would be nice to have the explosion symbol briefly displayed over it :)
   
  - It would be easier if the battlefield was always shown from the same side, no matter which color you are playing. By 
    this I mean that if I'm red, I play my cards from the bottom, if I'm blue, I still play my cards from the bottom. You 
    would have to do some magic with the view.php and the .tpl file
-
- - I would rotate the other players' cards to be upside down, because honestly I don't care about the name, I care about 
-   which unit attacks where. This is especially important for the artillery that doesn't have a mirror pattern for its 
-   attack.
 
  - make sure the cards are inside the "map_scrollable" div. Currently you cannot move the map around when you click on a 
    card because they are in the "map_scrollable_oversurface".

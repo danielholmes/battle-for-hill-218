@@ -19,8 +19,9 @@ define([
     "ebg/scrollmap"
 ],
 function (dojo, declare, lang, dom, query, array, domConstruct, domClass, domGeom, fx) {
-    var CARD_WIDTH = 80;
-    var CARD_HEIGHT = 115;
+    // Should be the same dimensions as battlefield-card in css
+    var CARD_WIDTH = 96;
+    var CARD_HEIGHT = 138;
     var SLIDE_ANIMATION_DURATION = 700;
     
     return declare("bgagame.battleforhilldhau", ebg.core.gamegui, {
