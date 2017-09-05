@@ -11,13 +11,24 @@
     <!-- END player_cards -->
     <div id="battlefield-panel" class="whiteblock">
         <div id="map_container">
-            <div id="map_scrollable"></div>
-            <div id="map_surface"></div>
-            <div id="map_scrollable_oversurface"></div>
-            <a id="movetop" href="#"></a>
-            <a id="moveleft" href="#"></a>
-            <a id="moveright" href="#"></a>
-            <a id="movedown" href="#"></a>
+            <div id="map_scrollable">
+                <div class="zoomable"></div>
+            </div>
+            <div id="map_surface">
+                <div class="zoomable"></div>
+            </div>
+            <div id="map_scrollable_oversurface">
+                <div class="zoomable"></div>
+            </div>
+            <div id="zoom_controls">
+                <a id="reset_map" role="button" class="zoom_control"><i class="fa fa-map-marker" aria-hidden="true"></i></a>
+                <a id="zoom_in" role="button" class="zoom_control"><i class="fa fa-search-plus" aria-hidden="true"></i></a>
+                <a id="zoom_out" role="button" class="zoom_control"><i class="fa fa-search-minus" aria-hidden="true"></i></a>
+            </div>
+            <a id="movetop" role="button"></a>
+            <a id="moveleft" role="button"></a>
+            <a id="moveright" role="button"></a>
+            <a id="movedown" role="button"></a>
         </div>
     </div>
 </div>

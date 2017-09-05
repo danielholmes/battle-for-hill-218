@@ -94,8 +94,5 @@ Available in `etc/pre-commit`. Runs an auto style detection and prevents commit 
  - It would be easier if the battlefield was always shown from the same side, no matter which color you are playing. By 
    this I mean that if I'm red, I play my cards from the bottom, if I'm blue, I still play my cards from the bottom. You 
    would have to do some magic with the view.php and the .tpl file
-
- - I think it would be very useful to have a zoom functionality on the play zone (you can get a readonly copy of Gaia 
-   project from the project page to check out how to do that)
  
  - at the start of the game having 'player 1 base' & 'player 2 base' displayed like in the rulebook would help beginners

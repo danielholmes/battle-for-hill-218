@@ -23,10 +23,13 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domClass, domGeo
     var CARD_WIDTH = 96;
     var CARD_HEIGHT = 138;
     var SLIDE_ANIMATION_DURATION = 700;
+    var MAX_ZOOM = 10;
+    var MIN_ZOOM = 2;
     
     return declare("bgagame.battleforhilldhau", ebg.core.gamegui, {
         constructor: function() {
             this.battlefieldMap = new ebg.scrollmap();
+            this.zoomLevel = MAX_ZOOM;
         },
         
         /**
@@ -83,13 +86,18 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domClass, domGeo
                 $('map_container'),
                 $('map_scrollable'),
                 $('map_surface'),
-                this.getBattlefieldNode()
+                $('map_scrollable_oversurface')
             );
-            this.battlefieldMap.setupOnScreenArrows(150);
-            query('movetop').on('click', lang.hitch(this, this.onMoveTop));
-            query('moveleft').on('click', lang.hitch(this, this.onMoveLeft));
-            query('moveright').on('click', lang.hitch(this, this.onMoveRight));
-            query('movedown').on('click', lang.hitch(this, this.onMoveDown));
+            query('#movetop').on('click', lang.hitch(this, this.onMoveTop));
+            query('#moveleft').on('click', lang.hitch(this, this.onMoveLeft));
+            query('#moveright').on('click', lang.hitch(this, this.onMoveRight));
+            query('#movedown').on('click', lang.hitch(this, this.onMoveDown));
+            query('#zoom_in').on('click', lang.hitch(this, this.onZoomIn));
+            query('#zoom_out').on('click', lang.hitch(this, this.onZoomOut));
+            query('#reset_map').on('click', lang.hitch(this, this.onResetMap));
+            this.applyBattlefieldZoom();
+            this.addTooltip('zoom_in', _('Zoom In'), '');
+            this.addTooltip('zoom_out', _('Zoom Out'), '');
         },
 
         ///////////////////////////////////////////////////
@@ -223,11 +231,11 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domClass, domGeo
         ///////////////////////////////////////////////////
         //// DOM Node Utility methods
         getBattlefieldNode: function() {
-            return query('#map_scrollable').pop();
+            return query('#map_scrollable').query('.zoomable').pop();
         },
 
         getBattlefieldInteractionNode: function() {
-            return query('#map_scrollable_oversurface').pop();
+            return query('#map_scrollable_oversurface').query('.zoomable').pop();
         },
 
         getPlayerBoardNode: function(playerId) {
@@ -668,22 +676,66 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domClass, domGeo
 
         onMoveTop: function(e) {
             e.preventDefault();
-            this.battlefieldMap.scroll(0, CARD_HEIGHT);
+            this.scrollBattlefield(0, 1);
         },
 
         onMoveLeft: function(e) {
             e.preventDefault();
-            this.battlefieldMap.scroll(CARD_WIDTH, 0);
+            this.scrollBattlefield(1, 0);
         },
 
         onMoveRight: function(e) {
             e.preventDefault();
-            this.battlefieldMap.scroll(-CARD_WIDTH, 0);
+            this.scrollBattlefield(-1, 0);
         },
 
         onMoveDown: function(e) {
             e.preventDefault();
-            this.battlefieldMap.scroll(0, -CARD_HEIGHT);
+            this.scrollBattlefield(0, -1);
+        },
+
+        scrollBattlefield: function(xDirection, yDirection) {
+            var zoomRatio = this.zoomLevel / 10.0;
+            this.battlefieldMap.scroll(xDirection * zoomRatio * CARD_WIDTH, yDirection * zoomRatio * CARD_HEIGHT);
+        },
+
+        zoomBattlefield: function(offset) {
+            var newZoomLevel = Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, this.zoomLevel + offset));
+            if (newZoomLevel === this.zoomLevel) {
+                return;
+            }
+
+            query('.zoomable').removeClass('zoom' + this.zoomLevel);
+            this.zoomLevel = newZoomLevel;
+            this.applyBattlefieldZoom();
+        },
+
+        applyBattlefieldZoom: function() {
+            query('.zoomable').addClass('zoom' + this.zoomLevel);
+
+            query('#zoom_in').removeAttr('disabled');
+            query('#zoom_out').removeAttr('disabled');
+            if (this.zoomLevel === MIN_ZOOM) {
+                query('#zoom_out').attr('disabled', 'disabled');
+            }
+            if (this.zoomLevel === MAX_ZOOM) {
+                query('#zoom_in').attr('disabled', 'disabled');
+            }
+        },
+
+        onZoomIn: function(e) {
+            e.preventDefault();
+            this.zoomBattlefield(1);
+        },
+
+        onZoomOut: function(e) {
+            e.preventDefault();
+            this.zoomBattlefield(-1);
+        },
+
+        onResetMap: function(e) {
+            e.preventDefault();
+            this.battlefieldMap.scrollto(0, 0);
         },
         
         ///////////////////////////////////////////////////

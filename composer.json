@@ -44,7 +44,7 @@
     "phpseclib/phpseclib": "2.0.6",
     "qaribou/immutable.php": "1.1.0",
     "nette/reflection": "^2.4.2",
-    "fzaninotto/faker": "1.6.0",
+    "fzaninotto/faker": "^1.7.1",
     "doctrine/dbal": "^2.5.12",
     "phpoption/phpoption": "1.5.0",
 

@@ -9,7 +9,7 @@ Vagrant.configure("2") do |config|
   config.vm.box_url = "http://cloud-images.ubuntu.com/xenial/current/xenial-server-cloudimg-amd64-vagrant.box"
 
   config.vm.provider "virtualbox" do |v|
-    v.memory = 512
+    v.memory = 1024
     v.customize [ "modifyvm", :id, "--uartmode1", "disconnected" ]
   end
 
