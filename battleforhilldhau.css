@@ -36,25 +36,6 @@
     width: 96px;
     height: 138px;
 }
-.battlefield-position.clickable {
-    cursor: pointer;
-}
-.battlefield-position .clickable-indicator {
-    display: none;
-    position: absolute;
-    width: 96px;
-    height: 138px;
-    background-image: url(img/cards.png);
-    background-size: 960px 295px;
-    background-position: -864px 0px;
-    background-repeat: no-repeat;
-}
-.battlefield-position.clickable .clickable-indicator {
-    display: inline-block;
-}
-.state-choose-attack .battlefield-position.clickable .clickable-indicator {
-    background-position: -640px 0px;
-}
 
 /* Battlefield map */
 #map_container {
@@ -148,7 +129,7 @@
 
 .zoom_control {
     display: block;
-    color: #fff;
+    color: black;
     cursor: pointer;
     font-size: 32px;
     margin: 6px;
@@ -215,8 +196,22 @@
 .battlefield-button {
     width: 96px;
     height: 138px;
-    background: orange;
+    background: rgba(255, 255, 0, 0.5);
     position: absolute;
+    display: none;
+}
+.battlefield-button.clickable {
+    display: block;
+    cursor: pointer;
+    width: 96px;
+    height: 138px;
+    background-image: url(img/cards.png);
+    background-size: 960px 295px;
+    background-repeat: no-repeat;
+    background-position: -864px 0px;
+}
+.state-choose-attack .battlefield-button.clickable {
+    background-position: -768px 0px;
 }
 
 /* Cards */

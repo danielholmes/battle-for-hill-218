@@ -80,11 +80,6 @@ Available in `etc/pre-commit`. Runs an auto style detection and prevents commit 
 
 
 ## TODO
-
- - make sure the cards are inside the "map_scrollable" div. Currently you cannot move the map around when you click on a 
-    card because they are in the "map_scrollable_oversurface".
- 
- - card animations using small (from hand) into large (battlefield)
  
  - tooltips on cards -> I think you should always display the tooltips when hovering over the card (not just for cards 
    in hand when it's your turn to play)

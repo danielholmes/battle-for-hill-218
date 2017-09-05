@@ -98,6 +98,7 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domClass, domGeo
             this.applyBattlefieldZoom();
             this.addTooltip('zoom_in', _('Zoom In'), '');
             this.addTooltip('zoom_out', _('Zoom Out'), '');
+            this.addTooltip('reset_map', _('Reset Map'), '');
         },
 
         ///////////////////////////////////////////////////
@@ -139,8 +140,8 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domClass, domGeo
             );
 
             var _this = this;
-            this.placePositionClickSignal = query(this.getBattlefieldNode()).on(
-                '.battlefield-position.clickable:click',
+            this.placeButtonClickSignal = query(this.getBattlefieldInteractionNode()).on(
+                '.battlefield-button.clickable:click',
                 function() { lang.hitch(_this, _this.onPlacePositionClick)({target: this}); }
             );
 
@@ -159,7 +160,7 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domClass, domGeo
         },
 
         onEnterChooseAttack: function(possiblePlacements) {
-            query(this.getBattlefieldNode()).addClass('state-choose-attack');
+            query(this.getBattlefieldInteractionNode()).addClass('state-choose-attack');
             array.forEach(
                 possiblePlacements,
                 lang.hitch(this, function(possiblePlacement) {
@@ -168,8 +169,8 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domClass, domGeo
             );
             
             var _this = this;
-            this.attackPositionClickSignal = query(this.getBattlefieldNode()).on(
-                '.battlefield-position.clickable:click',
+            this.attackPositionClickSignal = query(this.getBattlefieldInteractionNode()).on(
+                '.battlefield-button.clickable:click',
                 function() { lang.hitch(_this, _this.onAttackPositionClick)({target: this}); }
             );
         },
@@ -192,9 +193,9 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domClass, domGeo
         },
 
         onLeavePlayCard: function() {
-            if (this.placePositionClickSignal) {
-                this.placePositionClickSignal.remove();
-                this.placePositionClickSignal = null;
+            if (this.placeButtonClickSignal) {
+                this.placeButtonClickSignal.remove();
+                this.placeButtonClickSignal = null;
             }
             if (this.placeAirStrikeClickSignal) {
                 this.placeAirStrikeClickSignal.remove();
@@ -211,7 +212,7 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domClass, domGeo
                 this.attackPositionClickSignal.remove();
                 this.attackPositionClickSignal = null;
             }
-            query(this.getBattlefieldNode()).removeClass('state-choose-attack');
+            query(this.getBattlefieldInteractionNode()).removeClass('state-choose-attack');
             this.deactivateAllPlacementPositions();
         },
 
@@ -500,10 +501,10 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domClass, domGeo
 
         ///////////////////////////////////////////////////
         //// Battlefield utility methods
-        deactivateAllPlacementPositions: function(position) {
-            var clickablePositions = query(this.getBattlefieldNode()).query('.clickable');
-            clickablePositions.removeClass('clickable');
-            clickablePositions.forEach(lang.hitch(this, function(positionNode) {
+        deactivateAllPlacementPositions: function() {
+            var clickableButtons = query(this.getBattlefieldInteractionNode()).query('.clickable');
+            clickableButtons.removeClass('clickable');
+            clickableButtons.forEach(lang.hitch(this, function(positionNode) {
                 this.removeTooltip(positionNode.id);
             }));
         },
@@ -512,8 +513,9 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domClass, domGeo
             //var placementNode = this.getOrCreatePlacementPosition(position.x, position.y);
             //query(placementNode).addClass('clickable');
             // TODO: Remove clickable from .tpl markup and .css
-            // Can simplify batlefield card? i.e. doesnt need a container
+            // Can simplify battlefield card? i.e. doesnt need a container
             var buttonNode = this.getOrCreatePlacementButton(position.x, position.y);
+            query(buttonNode).addClass('clickable');
             this.addTooltip(buttonNode.id, '', _(tooltip));
         },
 
@@ -595,8 +597,7 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domClass, domGeo
         },
 
         onHandCardPlayClick: function(e) {
-            var clickedCard = e.target;
-            this.playCard(query(clickedCard).attr('data-id')[0]);
+            this.playCard(query(e.target).attr('data-id')[0]);
         },
 
         playCard: function(cardId) {
