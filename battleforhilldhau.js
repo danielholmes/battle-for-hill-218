@@ -582,6 +582,7 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domClass, domGeo
         },
 
         isViewingAsUpwardsPlayer: function() {
+            // TODO: Use class on game container instead so logic only in one place
             for (var i in this.playerData) {
                 var player = this.playerData[i];
                 if (!player.isDownwardPlayer && player.id === this.player_id) {
