@@ -15,7 +15,7 @@ before_script:
 
 script:
   - cp bgaproject.yml.dist bgaproject.yml
-  - bin/bfh compile-images
+  - bin/bfh compile-images > /dev/null
   - bin/bgawb validate
   - vendor/bin/phpcs --standard=PSR2 --tab-width=4 --ignore=src/BGAWorkbench/Stubs,tests/bootstrap.php -q -p tests src
   - vendor/bin/phpunit
