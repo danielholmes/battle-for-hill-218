@@ -80,9 +80,6 @@ Available in `etc/pre-commit`. Runs an auto style detection and prevents commit 
 
 
 ## TODO
- 
- - tooltips on cards -> I think you should always display the tooltips when hovering over the card (not just for cards 
-   in hand when it's your turn to play)
   
  - It would be easier if the battlefield was always shown from the same side, no matter which color you are playing. By 
    this I mean that if I'm red, I play my cards from the bottom, if I'm blue, I still play my cards from the bottom. You 

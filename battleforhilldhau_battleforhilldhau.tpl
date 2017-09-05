@@ -47,6 +47,7 @@
     var jstpl_base_indicator = '<div class="battlefield-card"><div class="card base-indicator">${namePlural} base</div></div>';
     var jstpl_battlefield_button = '<div id="battlefield-button-${x}-${y}" class="battlefield-button" style="left: ${left}px;top: ${top}px" data-x="${x}" data-y="${y}"></div>';
     var jstpl_explosion = '<div class="explosion"></div>';
+    var jstpl_card_tooltip = '<div><strong>${message}</strong><div class="tooltip-card ${type} color-${color}"></div></div>';
     var jstpl_counter_icons = '<div>\
         <div id="air-strike-count-${playerId}" class="counter-cell air-strike-count">\
             <span class="counter-icon"></span>\

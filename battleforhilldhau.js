@@ -71,12 +71,17 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domClass, domGeo
 
             // Hand
             var handCards = array.filter(data.cards, function(card) { return card.type !== 'air-strike'; });
+            var handCardNodes = array.map(
+                handCards,
+                lang.hitch(this, function(card) { return this.createCurrentPlayerHandCard(card, data.color); })
+            );
             array.forEach(
-                array.map(
-                    handCards,
-                    lang.hitch(this, function(card) { return this.createCurrentPlayerHandCard(card, data.color); })
-                ),
+                handCardNodes,
                 lang.hitch(this, function(card) { this.placeInCurrentPlayerHand(card); })
+            );
+            array.forEach(
+                handCardNodes,
+                lang.hitch(this, function(card) { this.updatePlayableCardTooltip(card); })
             );
         },
 
@@ -141,16 +146,7 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domClass, domGeo
         onEnterPlayCard: function(possiblePlacementsByCardId) {
             this.possiblePlacementsByCardId = possiblePlacementsByCardId;
 
-            this.enableHandCardsClick(
-                this.onHandCardPlayClick,
-                // TODO: Change to jstpl once refactor in a way that can
-                '<div>\
-                    <strong>Play this card on the battlefield</strong>\
-                    <div class="tooltip-card {cardType} color-{cardColor}"></div>\
-                </div>',
-                'Deselect this card',
-                true
-            );
+            this.enablePlayHandCards();
 
             var _this = this;
             this.placeButtonClickSignal = query(this.getBattlefieldInteractionNode()).on(
@@ -384,6 +380,31 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domClass, domGeo
             this.addTooltip('air-strike-count-' + playerId, tooltip, action);
         },
 
+        updatePlayableCardTooltip: function(cardNode, message) {
+            if (!message) {
+                message = '';
+            }
+            this.addTooltipHtml(
+                cardNode.id,
+                this.format_block(
+                    'jstpl_card_tooltip',
+                    {
+                        message: message,
+                        color: query(cardNode).attr('data-color').pop(),
+                        type: query(cardNode).attr('data-type').pop()
+                    }
+                )
+            );
+        },
+
+        enablePlayHandCards: function() {
+            this.enableHandCardsClick(
+                this.onHandCardPlayClick,
+                'Play this card on the battlefield',
+                'Deselect this card'
+            );
+        },
+
         ///////////////////////////////////////////////////
         //// Animation Utility methods
         prepareForAnimation: function(node) {
@@ -444,24 +465,11 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domClass, domGeo
 
         ///////////////////////////////////////////////////
         // Interaction utility methods
-        enableHandCardsClick: function(handler, tooltip, selectedTooltip, tooltipIsHtml) {
+        enableHandCardsClick: function(handler, tooltip, selectedTooltip) {
             var subSelector = '.hand-cards';
             var cardsContainer = this.getCurrentPlayerCardsNode();
             if (cardsContainer === null) {
                 return;
-            }
-
-            var formatTooltip = function(card, tooltip) {
-                return tooltip.replace('{cardColor}', query(card).attr('data-color').pop())
-                    .replace('{cardType}', query(card).attr('data-type').pop());
-            };
-            var applyTooltip = lang.hitch(this, function(node, tooltip) {
-                this.addTooltip(node.id, '', formatTooltip(node, tooltip));
-            });
-            if (tooltipIsHtml) {
-                applyTooltip = lang.hitch(this, function(node, tooltip) {
-                    this.addTooltipHtml(node.id, formatTooltip(node, tooltip));
-                });
             }
 
             handler = lang.hitch(this, handler);
@@ -482,7 +490,7 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domClass, domGeo
                     if (!cardNode.id) {
                         console.error('Trying to add tooltip to node without id', cardNode);
                     }
-                    applyTooltip(cardNode, _(tooltip));
+                    this.updatePlayableCardTooltip(cardNode, tooltip);
                 }));
 
             // TODO: Work out how to do this handling properly
@@ -493,11 +501,10 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domClass, domGeo
                     var cardNode = this;
                     lang.hitch(_this, function() {
                         handler({target: cardNode});
-                        this.removeTooltip(cardNode.id);
                         if (domClass.contains(cardNode, 'selected')) {
-                            applyTooltip(cardNode, _(selectedTooltip));
+                            this.updatePlayableCardTooltip(cardNode, selectedTooltip);
                         } else {
-                            applyTooltip(cardNode, _(tooltip));
+                            this.updatePlayableCardTooltip(cardNode, tooltip);
                         }
                     })();
                 }
@@ -523,7 +530,7 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domClass, domGeo
             if (cardsContainer !== null) {
                 query(cardsContainer).query('.playable-card')
                     .forEach(lang.hitch(this, function(cardNode) {
-                        this.removeTooltip(cardNode.id);
+                        this.updatePlayableCardTooltip(cardNode);
                     }));
                 this.removeClickableOnNodeAndChildren(cardsContainer);
                 query(cardsContainer).query('.selected').removeClass('selected');
@@ -884,13 +891,14 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domClass, domGeo
 
         notif_myCardsDrawn: function(notification) {
             var playerColor = notification.args.playerColor;
+            var cardNodes = array.map(
+                notification.args.cards,
+                lang.hitch(this, function(card) {
+                    return this.createCurrentPlayerHandCard(card, playerColor);
+                })
+            );
             array.forEach(
-                array.map(
-                    notification.args.cards,
-                    lang.hitch(this, function(card) {
-                        return this.createCurrentPlayerHandCard(card, playerColor);
-                    })
-                ),
+                cardNodes,
                 lang.hitch(this, function (cardDisplay, i) {
                     var offset = i * 20;
                     this.slideNewElementTo(
@@ -898,7 +906,10 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domClass, domGeo
                         cardDisplay,
                         this.getCurrentPlayerHandCardsNode(),
                         {x: offset, y: offset}
-                    ).on("End", lang.hitch(this, this.placeInCurrentPlayerHand));
+                    ).on("End", lang.hitch(this, function(cardNode) {
+                        this.placeInCurrentPlayerHand(cardNode);
+                        this.enablePlayHandCards();
+                    }));
                 })
             );
         },
