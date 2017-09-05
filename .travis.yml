@@ -8,7 +8,7 @@ php:
   - 7.1
 
 before_script:
-  - printf "\n" | pecl install imagick-3.4.2
+  - printf "\n" | pecl install imagick
   - sudo apt-get install -y pngquant
   - composer install
   - echo "USE mysql;\nUPDATE user SET password=PASSWORD('battle218pw') WHERE user='root';\nFLUSH PRIVILEGES;\n" | mysql -u root
