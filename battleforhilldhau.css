@@ -200,6 +200,24 @@
     position: absolute;
     display: none;
 }
+
+/* Base indicators */
+.battlefield-card > .card.base-indicator {
+    word-break: break-word;
+    text-align: center;
+    font-weight: bold;
+    font-size: 14px;
+    background-image: url(img/cards.png);
+    background-size: 960px 295px;
+    background-repeat: no-repeat;
+    background-position: -864px -138px;
+    display: table-cell;
+    vertical-align: middle;
+    padding-left: 6px;
+    padding-right: 6px;
+}
+
+/* Card interactions */
 .battlefield-button.clickable {
     display: block;
     cursor: pointer;
@@ -247,12 +265,6 @@
 .card.hill {
     background-position: -560px 0px;
 }
-.card.red-solid {
-    background-position: -640px 0px;
-}
-.card.white-dashed {
-    background-position: -720px 0px;
-}
 .card.artillery.color-3b550c {
     background-position: 0px -115px;
 }
@@ -276,9 +288,6 @@
 }
 .card.back {
     background-position: -560px -115px;
-}
-.card.red-dashed {
-    background-position: -640px -115px;
 }
 
 /* Battlefield Cards */
@@ -314,12 +323,6 @@
 .battlefield-card > .card.hill {
     background-position: -672px 0px;
 }
-.battlefield-card > .card.red-solid {
-    background-position: -768px 0px;
-}
-.battlefield-card > .card.white-dashed {
-    background-position: -864px 0px;
-}
 .battlefield-card > .card.artillery.color-3b550c {
     background-position: 0px -138px;
 }
@@ -343,9 +346,6 @@
 }
 .battlefield-card > .card.back {
     background-position: -672px -138px;
-}
-.battlefield-card > .card.red-dashed {
-    background-position: -768px -138px;
 }
 
 /* Tooltip Cards */
@@ -381,12 +381,6 @@
 .tooltip-card.hill {
     background-position: -1120px 0px;
 }
-.tooltip-card.red-solid {
-    background-position: -1280px 0px;
-}
-.tooltip-card.white-dashed {
-    background-position: -1440px 0px;
-}
 .tooltip-card.artillery.color-3b550c {
     background-position: 0px -230px;
 }
@@ -410,7 +404,4 @@
 }
 .tooltip-card.back {
     background-position: -1120px -230px;
-}
-.tooltip-card.red-dashed {
-    background-position: -1280px -230px;
 }

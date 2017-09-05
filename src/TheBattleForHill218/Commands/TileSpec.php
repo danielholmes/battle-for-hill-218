@@ -18,7 +18,7 @@ class TileSpec
      * @param string $fileName
      * @param string $cssName
      */
-    public function __construct($fileName, $cssName)
+    public function __construct($fileName, $cssName = null)
     {
         $this->fileName = $fileName;
         $this->cssName = $cssName;
@@ -30,6 +30,14 @@ class TileSpec
     public function getFileName()
     {
         return $this->fileName;
+    }
+
+    /**
+     * @return bool
+     */
+    public function includeInCss()
+    {
+        return $this->cssName !== null;
     }
 
     /**

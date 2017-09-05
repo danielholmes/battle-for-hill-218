@@ -52,9 +52,10 @@ class CompileImagesCommand extends Command
             [
                 new TileSpec(self::CARDS_DIRPATH . '/' . 'Hill.jpg', 'hill'),
                 new TileSpec(self::CARDS_DIRPATH . '/' . 'Back.png', 'back'),
-                new TileSpec(self::CARDS_DIRPATH . '/' . 'Red Solid.png', 'red-solid'),
-                new TileSpec(self::CARDS_DIRPATH . '/' . 'Red Dashed.png', 'red-dashed'),
-                new TileSpec(self::CARDS_DIRPATH . '/' . 'White Dashed.png', 'white-dashed')
+                new TileSpec(self::CARDS_DIRPATH . '/' . 'Red Solid.png'),
+                new TileSpec(self::CARDS_DIRPATH . '/' . 'Red Dashed.png'),
+                new TileSpec(self::CARDS_DIRPATH . '/' . 'White Dashed.png'),
+                new TileSpec(self::CARDS_DIRPATH . '/' . 'Black Dashed.png')
             ],
             function (TileSpec $tile, $i, array $rowImages, array $reduction) {
                 $numRows = count($reduction);
@@ -154,10 +155,13 @@ CSS
                 F\map(
                     $tileRows,
                     function (array $tileRow, $row) use ($cssPrefix, $width, $height) {
+                        $rowWithCss = F\filter($tileRow, function (TileSpec $spec) {
+                            return $spec->includeInCss();
+                        });
                         return join(
                             "\n",
                             F\map(
-                                $tileRow,
+                                $rowWithCss,
                                 function (TileSpec $tile, $col) use ($row, $cssPrefix, $width, $height) {
                                     return sprintf(
                                         <<<CSS

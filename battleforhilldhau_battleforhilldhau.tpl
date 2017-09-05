@@ -42,10 +42,9 @@
     </div>';
     var jstpl_opponent_hand_card = '<div class="playable-card hand-card"><div class="card ${type} color-${color}"></div></div>';
     var jstpl_opponent_air_strike_card = '<div class="playable-card"><div class="card ${type} color-${color}"></div></div>';
-    var jstpl_battlefield_position = '<div id="position-${x}-${y}" class="battlefield-position" style="left: ${left}px;top: ${top}px" data-x="${x}" data-y="${y}">\
-        <div class="clickable-indicator"></div>\
-    </div>';
+    var jstpl_battlefield_position = '<div id="position-${x}-${y}" class="battlefield-position" style="left: ${left}px;top: ${top}px" data-x="${x}" data-y="${y}"></div>';
     var jstpl_battlefield_card = '<div class="battlefield-card"><div class="card ${type} color-${color}"></div></div>';
+    var jstpl_base_indicator = '<div class="battlefield-card"><div class="card base-indicator">${namePlural} base</div></div>';
     var jstpl_battlefield_button = '<div id="battlefield-button-${x}-${y}" class="battlefield-button" style="left: ${left}px;top: ${top}px" data-x="${x}" data-y="${y}"></div>';
     var jstpl_counter_icons = '<div>\
         <div id="air-strike-count-${playerId}" class="counter-cell air-strike-count">\

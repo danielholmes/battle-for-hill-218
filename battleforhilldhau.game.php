@@ -214,15 +214,15 @@ class BattleForHillDhau extends Table
         $_this = $this;
         $players = F\map(
             $players,
-            function (array $player) use ($_this, $allHandCards, $allDeckSizes, $currentPlayerId) {;
+            function (array $player) use ($_this, $allHandCards, $allDeckSizes, $currentPlayerId) {
                 $handCards = $allHandCards[$player['id']];
                 $deckSize = $allDeckSizes[$player['id']];
 
                 if ($player['id'] === $currentPlayerId) {
-                    return array_merge($player, $_this->getMyPlayerData($deckSize, $handCards));
+                    return array_merge($player, $_this->getMyPlayerData($player['color'], $deckSize, $handCards));
                 }
 
-                return array_merge($player, $_this->getPublicPlayerData($deckSize, $handCards));
+                return array_merge($player, $_this->getPublicPlayerData($player['color'], $deckSize, $handCards));
             }
         );
 
@@ -233,14 +233,15 @@ class BattleForHillDhau extends Table
     }
 
     /**
+     * @param string $colour
      * @param int $deckSize
      * @param array $cards
      * @return array
      */
-    public function getMyPlayerData($deckSize, array $cards)
+    public function getMyPlayerData($colour, $deckSize, array $cards)
     {
         return array_merge(
-            $this->getPublicPlayerData($deckSize, $cards),
+            $this->getPublicPlayerData($colour, $deckSize, $cards),
             [
                 'cards' => F\map(
                     $cards,
@@ -253,11 +254,12 @@ class BattleForHillDhau extends Table
     }
 
     /**
+     * @param string $colour
      * @param int $deckSize
      * @param array $cards
      * @return array
      */
-    public function getPublicPlayerData($deckSize, array $cards)
+    public function getPublicPlayerData($colour, $deckSize, array $cards)
     {
         $numAirStrikes = count(
             F\filter(
@@ -269,6 +271,7 @@ class BattleForHillDhau extends Table
         );
         $numCards = count($cards);
         return [
+            'isDownwardPlayer' => self::DOWNWARD_PLAYER_COLOR === $colour,
             'numAirStrikes' => $numAirStrikes,
             'numCards' => $numCards,
             'deckSize' => $deckSize,

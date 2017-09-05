@@ -45,6 +45,7 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domClass, domGeo
         },
 
         setupPlayerCards: function(players) {
+            this.playerData = players;
             for (var id in players) {
                 if (players.hasOwnProperty(id)) {
                     var player = players[id];
@@ -123,6 +124,18 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domClass, domGeo
 
         onEnterReturnToDeck: function() {
             this.enableHandCardsClick(this.onHandCardReturnClick, 'Return this card', 'Don\'t return this card');
+            for (var i in this.playerData) {
+                if (this.playerData.hasOwnProperty(i)) {
+                    var player = this.playerData[i];
+                    var position = null;
+                    if (player.isDownwardPlayer) {
+                        position = this.getOrCreatePlacementPosition(0, -1);
+                    } else {
+                        position = this.getOrCreatePlacementPosition(0, 1);
+                    }
+                    dojo.place(this.createBaseIndicator(player.name), position);
+                }
+            }
         },
 
         onEnterPlayCard: function(possiblePlacementsByCardId) {
@@ -179,6 +192,9 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domClass, domGeo
         // onLeavingState: this method is called each time we are leaving a game state.
         onLeavingState: function(stateName) {
             switch (stateName) {
+                case 'returnToDeck':
+                    this.onLeaveReturnToDeck();
+                    break;
                 case 'playCard':
                     if (this.isCurrentPlayerActive()) {
                         this.onLeavePlayCard();
@@ -190,6 +206,11 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domClass, domGeo
                     }
                     break;
             }
+        },
+
+        onLeaveReturnToDeck: function() {
+            this.fadeOutAndDestroy(query(this.getOrCreatePlacementPosition(0, 1)).pop());
+            this.fadeOutAndDestroy(query(this.getOrCreatePlacementPosition(0, -1)).pop());
         },
 
         onLeavePlayCard: function() {
@@ -312,6 +333,16 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domClass, domGeo
         createBattlefieldCard: function(card, color) {
             var coloredCard = lang.mixin({}, card, {color: color});
             return domConstruct.toDom(this.format_block('jstpl_battlefield_card', coloredCard));
+        },
+
+        createBaseIndicator: function(name) {
+            var namePlural = name;
+            if (namePlural.lastIndexOf('s') === namePlural.length - 1) {
+                namePlural += "'";
+            } else {
+                namePlural += "'s";
+            }
+            return domConstruct.toDom(this.format_block('jstpl_base_indicator', {namePlural: namePlural}));
         },
 
         placeBattlefieldCard: function(card) {
