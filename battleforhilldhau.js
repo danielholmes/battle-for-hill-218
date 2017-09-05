@@ -330,6 +330,10 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domClass, domGeo
             return domConstruct.toDom(this.format_block('jstpl_hand_card', coloredCard));
         },
 
+        createExplosion: function() {
+            return domConstruct.toDom(this.format_block('jstpl_explosion'));
+        },
+
         createBattlefieldCard: function(card, color) {
             var coloredCard = lang.mixin({}, card, {color: color});
             return domConstruct.toDom(this.format_block('jstpl_battlefield_card', coloredCard));
@@ -788,6 +792,10 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domClass, domGeo
             var x = notification.args.x;
             var y = notification.args.y;
             var position = this.getOrCreatePlacementPosition(x, y);
+
+            var explosion = this.createExplosion();
+            dojo.place(explosion, position);
+            this.fadeOutAndDestroy(explosion);
             this.fadeOutAndDestroy(query(position).query('.battlefield-card').pop());
         },
 

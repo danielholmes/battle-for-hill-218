@@ -50,12 +50,13 @@ class CompileImagesCommand extends Command
         $this->imageManager = new ImageManager(['driver' => 'imagick']);
         $tileRows = F\reduce_left(
             [
-                new TileSpec(self::CARDS_DIRPATH . '/' . 'Hill.jpg', 'hill'),
-                new TileSpec(self::CARDS_DIRPATH . '/' . 'Back.png', 'back'),
-                new TileSpec(self::CARDS_DIRPATH . '/' . 'Red Solid.png'),
-                new TileSpec(self::CARDS_DIRPATH . '/' . 'Red Dashed.png'),
-                new TileSpec(self::CARDS_DIRPATH . '/' . 'White Dashed.png'),
-                new TileSpec(self::CARDS_DIRPATH . '/' . 'Black Dashed.png')
+                new TileSpec(self::CARDS_DIRPATH . '/Hill.jpg', 'hill'),
+                new TileSpec(self::CARDS_DIRPATH . '/Back.png', 'back'),
+                new TileSpec(self::CARDS_DIRPATH . '/Red Solid.png'),
+                new TileSpec(self::CARDS_DIRPATH . '/Red Dashed.png'),
+                new TileSpec(self::CARDS_DIRPATH . '/White Dashed.png'),
+                new TileSpec(self::CARDS_DIRPATH . '/Black Dashed.png'),
+                new TileSpec(self::CARDS_DIRPATH . '/Explosion.png')
             ],
             function (TileSpec $tile, $i, array $rowImages, array $reduction) {
                 $numRows = count($reduction);

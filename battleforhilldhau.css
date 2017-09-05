@@ -196,7 +196,6 @@
 .battlefield-button {
     width: 96px;
     height: 138px;
-    background: rgba(255, 255, 0, 0.5);
     position: absolute;
     display: none;
 }
@@ -208,7 +207,7 @@
     font-weight: bold;
     font-size: 14px;
     background-image: url(img/cards.png);
-    background-size: 960px 295px;
+    background-size: 1056px 295px;
     background-repeat: no-repeat;
     background-position: -864px -138px;
     display: table-cell;
@@ -224,7 +223,7 @@
     width: 96px;
     height: 138px;
     background-image: url(img/cards.png);
-    background-size: 960px 295px;
+    background-size: 1056px 295px;
     background-repeat: no-repeat;
     background-position: -864px 0px;
 }
@@ -232,12 +231,25 @@
     background-position: -768px 0px;
 }
 
+/* Card Effects */
+.explosion {
+    position: relative;
+    top: -138px;
+    display: block;
+    width: 96px;
+    height: 138px;
+    background-image: url(img/cards.png);
+    background-size: 1056px 295px;
+    background-repeat: no-repeat;
+    background-position: -960px 0px;
+}
+
 /* Cards */
 .card {
     width: 80px;
     height: 115px;
     background-image: url(img/cards.png);
-    background-size: 800px 246px;
+    background-size: 880px 246px;
     background-position: 80px 115px;
     background-repeat: no-repeat;
 }
@@ -295,7 +307,7 @@
     width: 96px;
     height: 138px;
     background-image: url(img/cards.png);
-    background-size: 960px 295px;
+    background-size: 1056px 295px;
     background-position: 96px 138px;
     background-repeat: no-repeat;
 }
@@ -353,7 +365,7 @@
     width: 160px;
     height: 230px;
     background-image: url(img/cards.png);
-    background-size: 1600px 491px;
+    background-size: 1760px 491px;
     background-position: 160px 230px;
     background-repeat: no-repeat;
 }
