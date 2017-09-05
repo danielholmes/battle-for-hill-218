@@ -19,7 +19,7 @@ class ChooseAttackTest extends TestCase
             ->setPlayersWithIds([66, 77])
             ->overridePlayersPostSetup([
                 66 => ['player_color' => '000000'],
-                77 => ['player_color' => \BattleForHillDhau::DOWNWARD_PLAYER_COLOR]
+                77 => ['player_color' => \BattleForHill::DOWNWARD_PLAYER_COLOR]
             ]);
     }
 

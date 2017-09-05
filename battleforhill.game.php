@@ -2,13 +2,13 @@
  /**
   *------
   * BGA framework: © Gregory Isabelli <gisabelli@boardgamearena.com> & Emmanuel Colin <ecolin@boardgamearena.com>
-  * BattleForHillDhau implementation : © <Daniel Holmes> <daniel@danielholmes.org>
+  * BattleForHill implementation : © <Daniel Holmes> <daniel@danielholmes.org>
   *
   * This code has been produced on the BGA studio platform for use on http://boardgamearena.com.
   * See http://en.boardgamearena.com/#!doc/Studio for more information.
   * -----
   *
-  * battleforhilldhau.game.php
+  * battleforhill.game.php
   *
   * This is the main file for your game logic.
   *
@@ -37,7 +37,7 @@ use TheBattleForHill218\Cards\PlayerCard;
 use TheBattleForHill218\Hill218Setup;
 use TheBattleForHill218\SQLHelper;
 
-class BattleForHillDhau extends Table
+class BattleForHill extends Table
 {
     const DOWNWARD_PLAYER_COLOR = '3b550c';
 
@@ -53,7 +53,7 @@ class BattleForHillDhau extends Table
      */
     protected function getGameName()
     {
-        return "battleforhilldhau";
+        return "battleforhill";
     }
 
     /*
@@ -344,7 +344,7 @@ class BattleForHillDhau extends Table
             (int) $downwardPlayerId,
             F\map(
                 self::getObjectListFromDB('SELECT * FROM battlefield_card'),
-                ['BattleForHillDhau', 'parseCardPlacement']
+                ['BattleForHill', 'parseCardPlacement']
             )
         );
     }
@@ -757,7 +757,7 @@ SQL
                 'active' => array_combine(
                     F\pluck($playableCards, 'id'),
                     F\map(
-                        F\map($playableCards, ['BattleForHillDhau', 'parsePlayableCard']),
+                        F\map($playableCards, ['BattleForHill', 'parsePlayableCard']),
                         function (PlayerCard $card) use ($battlefield) {
                             return F\map(
                                 $card->getPossiblePlacements($battlefield),

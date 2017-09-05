@@ -23,7 +23,7 @@ class NextPlayTest extends TestCase
 
     /**
      * @param callable $callable
-     * @return \BattleForHillDhau
+     * @return \BattleForHill
      */
     private function createGameReadyForNext($callable)
     {

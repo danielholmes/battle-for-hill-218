@@ -3,9 +3,9 @@
 use Functional as F;
 
 /**
- * @property BattleForHillDhau game
+ * @property BattleForHill game
  */
-class action_battleforhilldhau extends APP_GameAction
+class action_battleforhill extends APP_GameAction
 {
     // Constructor: please do not modify
     public function __default()
@@ -14,7 +14,7 @@ class action_battleforhilldhau extends APP_GameAction
             $this->view = "common_notifwindow";
             $this->viewArgs['table'] = $this->getArg("table", AT_posint, true);
         } else {
-            $this->view = "battleforhilldhau_battleforhilldhau";
+            $this->view = "battleforhill_battleforhill";
             self::trace("Complete reinitialization of board game");
         }
     }

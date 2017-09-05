@@ -26,7 +26,7 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domClass, domGeo
     var MAX_ZOOM = 10;
     var MIN_ZOOM = 2;
     
-    return declare("bgagame.battleforhilldhau", ebg.core.gamegui, {
+    return declare("bgagame.battleforhill", ebg.core.gamegui, {
         constructor: function() {
             this.battlefieldMap = new ebg.scrollmap();
             this.zoomLevel = MAX_ZOOM;
@@ -619,7 +619,7 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domClass, domGeo
 
             this.disablePlayableCardsClick();
             this.ajaxcall(
-                "/battleforhilldhau/battleforhilldhau/returnToDeck.html",
+                "/battleforhill/battleforhill/returnToDeck.html",
                 {
                     lock: true,
                     ids: selectedIds.join(',')
@@ -691,7 +691,7 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domClass, domGeo
             var x = position.attr('data-x').pop();
             var y = position.attr('data-y').pop();
             this.ajaxcall(
-                "/battleforhilldhau/battleforhilldhau/playCard.html",
+                "/battleforhill/battleforhill/playCard.html",
                 {
                     lock: true,
                     id: id,
@@ -712,7 +712,7 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domClass, domGeo
             var x = position.attr('data-x').pop();
             var y = position.attr('data-y').pop();
             this.ajaxcall(
-                "/battleforhilldhau/battleforhilldhau/chooseAttack.html",
+                "/battleforhill/battleforhill/chooseAttack.html",
                 {
                     lock: true,
                     x: x,

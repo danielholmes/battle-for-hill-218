@@ -19,7 +19,7 @@ class ProjectTest extends TestCase
     {
         $this->project = new Project(
             new \SplFileInfo(realpath(__DIR__ . '/../../..')),
-            'battleforhilldhau',
+            'battleforhill',
             ImmArray::fromArray([])
         );
     }
@@ -36,12 +36,12 @@ class ProjectTest extends TestCase
                     'img/game_box75.png',
                     'img/game_icon.png',
                     'img/publisher.png',
-                    'battleforhilldhau.css',
-                    'battleforhilldhau.js',
-                    'battleforhilldhau.game.php',
-                    'battleforhilldhau.action.php',
-                    'battleforhilldhau.view.php',
-                    'battleforhilldhau_battleforhilldhau.tpl',
+                    'battleforhill.css',
+                    'battleforhill.js',
+                    'battleforhill.game.php',
+                    'battleforhill.action.php',
+                    'battleforhill.view.php',
+                    'battleforhill_battleforhill.tpl',
                     'states.inc.php',
                     'stats.inc.php',
                     'material.inc.php',
@@ -72,12 +72,12 @@ class ProjectTest extends TestCase
                     'img/game_icon.png',
                     'img/publisher.png',
                     'img/cards.png',
-                    'battleforhilldhau.css',
-                    'battleforhilldhau.js',
-                    'battleforhilldhau.game.php',
-                    'battleforhilldhau.action.php',
-                    'battleforhilldhau.view.php',
-                    'battleforhilldhau_battleforhilldhau.tpl',
+                    'battleforhill.css',
+                    'battleforhill.js',
+                    'battleforhill.game.php',
+                    'battleforhill.action.php',
+                    'battleforhill.view.php',
+                    'battleforhill_battleforhill.tpl',
                     'states.inc.php',
                     'stats.inc.php',
                     'material.inc.php',
@@ -107,12 +107,12 @@ class ProjectTest extends TestCase
                     'img/game_box75.png',
                     'img/game_icon.png',
                     'img/publisher.png',
-                    'battleforhilldhau.css',
-                    'battleforhilldhau.js',
-                    'battleforhilldhau.game.php',
-                    'battleforhilldhau.action.php',
-                    'battleforhilldhau.view.php',
-                    'battleforhilldhau_battleforhilldhau.tpl',
+                    'battleforhill.css',
+                    'battleforhill.js',
+                    'battleforhill.game.php',
+                    'battleforhill.action.php',
+                    'battleforhill.view.php',
+                    'battleforhill_battleforhill.tpl',
                     'states.inc.php',
                     'stats.inc.php',
                     'material.inc.php',
@@ -134,7 +134,7 @@ class ProjectTest extends TestCase
     public function testGetFileVariableValue()
     {
         assertThat(
-            $this->project->getFileVariableValue('version.php', 'game_version_battleforhilldhau'),
+            $this->project->getFileVariableValue('version.php', 'game_version_battleforhill'),
             equalTo(new Some('999999-9999'))
         );
     }

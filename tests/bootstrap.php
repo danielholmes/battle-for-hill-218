@@ -14,7 +14,7 @@ require_once(APP_GAMEMODULE_PATH . 'APP_Action.inc.php');
 require_once(APP_GAMEMODULE_PATH . 'APP_GameAction.inc.php');
 
 require_once($vendorDir . '/autoload.php');
-require_once(__DIR__ . '/../battleforhilldhau.game.php');
+require_once(__DIR__ . '/../battleforhill.game.php');
 
 require_once($vendorDir . '/hamcrest/hamcrest-php/hamcrest/Hamcrest.php');
 require_once(__DIR__ . '/../src/BGAWorkbench/Test/HamcrestMatchers/functions.php');

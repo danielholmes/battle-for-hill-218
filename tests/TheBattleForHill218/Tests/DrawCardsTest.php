@@ -26,7 +26,7 @@ class DrawCardsTest extends TestCase
 
     public function testDrawCardsOnFirstTurn()
     {
-        /** @var \BattleForHillDhau $game */
+        /** @var \BattleForHill $game */
         $game = $this->table
             ->setupNewGame()
             ->createGameInstanceWithNoBoundedPlayer();
@@ -74,7 +74,7 @@ class DrawCardsTest extends TestCase
 
     public function testDrawCardsOnSecondTurn()
     {
-        /** @var \BattleForHillDhau $game */
+        /** @var \BattleForHill $game */
         $game = $this->table
             ->setupNewGame()
             ->createGameInstanceWithNoBoundedPlayer();
