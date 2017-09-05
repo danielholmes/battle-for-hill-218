@@ -24,10 +24,16 @@ class view_battleforhilldhau_battleforhilldhau extends game_view
 
         // Spectator
         if (!isset($players[$currentPlayerId])) {
-            $this->tpl['GAME_CONTAINER_CLASS'] = 'spectator-view';
+            $this->tpl['GAME_CONTAINER_CLASS'] = '';
             return;
         }
 
-        $this->page->insert_block("player_cards");
+        if ($players[$currentPlayerId]['player_color'] !== BattleForHillDhau::DOWNWARD_PLAYER_COLOR) {
+            $this->tpl['GAME_CONTAINER_CLASS'] = 'viewing-as-upwards-player';
+        } else {
+            $this->tpl['GAME_CONTAINER_CLASS'] = '';
+        }
+
+        $this->page->insert_block('player_cards');
     }
 }

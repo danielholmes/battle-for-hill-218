@@ -189,15 +189,23 @@
 }
 
 /* Card view/perspective */
+.battlefield-card > .card.color-3b550c {
+    transform: rotate(0deg);
+}
 .battlefield-card > .card.color-04237b {
     transform: rotate(180deg);
 }
-
-.battlefield-button {
-    width: 96px;
-    height: 138px;
-    position: absolute;
-    display: none;
+.viewing-as-upwards-player > .battlefield-card > .card.color-3b550c {
+    transform: rotate(180deg);
+}
+.viewing-as-upwards-player > .battlefield-card > .card.color-04237b {
+    transform: rotate(0deg);
+}
+.battlefield-card > .card.hill {
+    transform: rotate(0deg);
+}
+.viewing-as-upwards-player .battlefield-card > .card.hill {
+    transform: rotate(180deg);
 }
 
 /* Base indicators */
@@ -217,6 +225,12 @@
 }
 
 /* Card interactions */
+.battlefield-button {
+    width: 96px;
+    height: 138px;
+    position: absolute;
+    display: none;
+}
 .battlefield-button.clickable {
     display: block;
     cursor: pointer;

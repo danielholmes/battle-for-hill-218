@@ -77,10 +77,3 @@ command which compiles:
 ## Git Pre-Commit Hook
 
 Available in `etc/pre-commit`. Runs an auto style detection and prevents commit if any issues.
-
-
-## TODO
-  
- - It would be easier if the battlefield was always shown from the same side, no matter which color you are playing. By 
-   this I mean that if I'm red, I play my cards from the bottom, if I'm blue, I still play my cards from the bottom. You 
-   would have to do some magic with the view.php and the .tpl file

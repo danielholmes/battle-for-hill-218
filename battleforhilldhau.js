@@ -552,45 +552,50 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domClass, domGeo
         },
 
         activatePossiblePlacementPosition: function(position, tooltip) {
-            //var placementNode = this.getOrCreatePlacementPosition(position.x, position.y);
-            //query(placementNode).addClass('clickable');
-            // TODO: Remove clickable from .tpl markup and .css
-            // Can simplify battlefield card? i.e. doesnt need a container
             var buttonNode = this.getOrCreatePlacementButton(position.x, position.y);
             query(buttonNode).addClass('clickable');
             this.addTooltip(buttonNode.id, '', _(tooltip));
         },
 
         getOrCreatePlacementButton: function(x, y) {
-            var button = query(this.getBattlefieldInteractionNode()).query('[data-x=' + x + '][data-y=' + y + ']').pop();
-            if (button) {
-                return button;
-            }
-
-            var left = -CARD_WIDTH / 2 + (x * CARD_WIDTH);
-            var top = -CARD_HEIGHT / 2 - (y * CARD_HEIGHT);
-            button = domConstruct.toDom(this.format_block(
-                'jstpl_battlefield_button',
-                {x: x, y: y, top: top, left: left}
-            ));
-            dojo.place(button, this.getBattlefieldInteractionNode());
-            return button;
+            return this.getOrCreatePlacement(this.getBattlefieldInteractionNode(), 'jstpl_battlefield_button', x, y);
         },
 
         getOrCreatePlacementPosition: function(x, y) {
-            var position = query(this.getBattlefieldNode()).query('[data-x=' + x + '][data-y=' + y + ']').pop();
-            if (position) {
-                return position;
+            return this.getOrCreatePlacement(this.getBattlefieldNode(), 'jstpl_battlefield_position', x, y);
+        },
+
+        getOrCreatePlacement: function(container, templateName, x, y) {
+            var placement = query(container).query('[data-x=' + x + '][data-y=' + y + ']').pop();
+            if (placement) {
+                return placement;
             }
 
             var left = -CARD_WIDTH / 2 + (x * CARD_WIDTH);
             var top = -CARD_HEIGHT / 2 - (y * CARD_HEIGHT);
-            position = domConstruct.toDom(this.format_block(
-                'jstpl_battlefield_position',
-                {x: x, y: y, top: top, left: left}
-            ));
-            dojo.place(position, this.getBattlefieldNode());
-            return position;
+            if (this.isViewingAsUpwardsPlayer()) {
+                top *= -1;
+            }
+            placement = domConstruct.toDom(this.format_block(templateName, {x: x, y: y, top: top, left: left}));
+            dojo.place(placement, container);
+            return placement;
+        },
+
+        isViewingAsUpwardsPlayer: function() {
+            for (var i in this.playerData) {
+                var player = this.playerData[i];
+                if (!player.isDownwardPlayer && player.id === this.player_id) {
+                    return true;
+                }
+            }
+            return false;
+        },
+
+        explodeCard: function(position) {
+            var explosion = this.createExplosion();
+            dojo.place(explosion, position);
+            this.fadeOutAndDestroy(explosion);
+            this.fadeOutAndDestroy(query(position).query('.battlefield-card').pop());
         },
 
         ///////////////////////////////////////////////////
@@ -799,11 +804,7 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domClass, domGeo
             var x = notification.args.x;
             var y = notification.args.y;
             var position = this.getOrCreatePlacementPosition(x, y);
-
-            var explosion = this.createExplosion();
-            dojo.place(explosion, position);
-            this.fadeOutAndDestroy(explosion);
-            this.fadeOutAndDestroy(query(position).query('.battlefield-card').pop());
+            this.explodeCard(position);
         },
 
         notif_placedCard: function(notification) {
@@ -858,7 +859,7 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domClass, domGeo
             this.slideNewElementTo(airStrikeDeckNode, airStrikeCard, position)
                 .on("End", lang.hitch(this, function() {
                     dojo.destroy(airStrikeCard);
-                    dojo.destroy(position);
+                    this.explodeCard(position);
                 }));
         },
 
@@ -877,10 +878,10 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domClass, domGeo
             var position = this.getOrCreatePlacementPosition(x, y);
             var cardNode = this.createCurrentPlayerAirStrikeCard(notification.args.playerColor);
             this.slideNewElementTo(airStrikesNode.pop(), cardNode, position)
-                .on('End', function() {
+                .on('End', lang.hitch(this, function() {
                     dojo.destroy(cardNode);
-                    dojo.destroy(position);
-                });
+                    this.explodeCard(position);
+                }));
         },
 
         notif_cardsDrawn: function(notification) {
