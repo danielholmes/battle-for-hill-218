@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "9f84034cc74f3dcee2ab59bdc4b8c661",
+    "content-hash": "cb6fcbdae016ee3a27463603043bfee4",
     "packages": [
         {
             "name": "lstrojny/functional-php",
@@ -2709,53 +2709,6 @@
                 "simple-cache"
             ],
             "time": "2017-01-02T13:31:39+00:00"
-        },
-        {
-            "name": "qaribou/immutable.php",
-            "version": "1.1.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/jkoudys/immutable.php.git",
-                "reference": "2db1a382dec68ded17fdcc876e2c4ac363b08565"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/jkoudys/immutable.php/zipball/2db1a382dec68ded17fdcc876e2c4ac363b08565",
-                "reference": "2db1a382dec68ded17fdcc876e2c4ac363b08565",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=5.4.0"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "Qaribou\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Joshua Koudys",
-                    "email": "josh@qaribou.com",
-                    "role": "Developer"
-                }
-            ],
-            "description": "Immutable, highly-performant collections, well-suited for functional programming and memory-intensive applications.",
-            "homepage": "http://github.com/jkoudys/immutable.php",
-            "keywords": [
-                "PHP7",
-                "collections",
-                "data structures",
-                "fp",
-                "functional",
-                "immutable",
-                "splfixedarray"
-            ],
-            "time": "2016-12-19T21:23:40+00:00"
         },
         {
             "name": "sebastian/code-unit-reverse-lookup",

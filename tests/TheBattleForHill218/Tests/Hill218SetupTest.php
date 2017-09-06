@@ -3,10 +3,10 @@
 namespace TheBattleForHill218\Tests;
 
 use PHPUnit\Framework\TestCase;
-use Qaribou\Collection\ImmArray;
 use TheBattleForHill218\Cards\AirStrikeCard;
 use TheBattleForHill218\Cards\PlayerCard;
 use TheBattleForHill218\Hill218Setup;
+use Functional as F;
 
 class Hill218SetupTest extends TestCase
 {
@@ -18,11 +18,12 @@ class Hill218SetupTest extends TestCase
         assertThat($deck, arrayWithSize(19));
         assertThat(array_keys($deck), equalTo(range(0, 18)));
         assertThat(
-            ImmArray::fromArray($hand)
-                ->filter(function (PlayerCard $card) {
+            F\filter(
+                $hand,
+                function (PlayerCard $card) {
                     return $card instanceof AirStrikeCard;
-                })
-                ->toArray(),
+                }
+            ),
             arrayWithSize(2)
         );
     }

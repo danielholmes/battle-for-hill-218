@@ -5,8 +5,8 @@ namespace TheBattleForHill218\Tests;
 use BGAWorkbench\Project\Project;
 use PhpOption\Some;
 use PHPUnit\Framework\TestCase;
-use Qaribou\Collection\ImmArray;
 use Symfony\Component\Finder\SplFileInfo;
+use Functional as F;
 
 class ProjectTest extends TestCase
 {
@@ -20,42 +20,45 @@ class ProjectTest extends TestCase
         $this->project = new Project(
             new \SplFileInfo(realpath(__DIR__ . '/../../..')),
             'battleforhill',
-            ImmArray::fromArray([])
+            []
         );
     }
 
     public function testDeveloperLocations()
     {
         assertThat(
-            $this->project->getDevelopmentLocations()->toArray(),
+            $this->project->getDevelopmentLocations(),
             containsInAnyOrder(
-                ImmArray::fromArray([
-                    'img',
-                    'img/game_box.png',
-                    'img/game_box180.png',
-                    'img/game_box75.png',
-                    'img/game_icon.png',
-                    'img/publisher.png',
-                    'battleforhill.css',
-                    'battleforhill.js',
-                    'battleforhill.game.php',
-                    'battleforhill.action.php',
-                    'battleforhill.view.php',
-                    'battleforhill_battleforhill.tpl',
-                    'states.inc.php',
-                    'stats.inc.php',
-                    'material.inc.php',
-                    'gameoptions.inc.php',
-                    'gameinfos.inc.php',
-                    'dbmodel.sql',
-                    'version.php'
-                ])->map(function ($path) {
-                    return $this->project->absoluteToProjectRelativeFile(
-                        new \SplFileInfo(
-                            $this->project->getDirectory()->getPathname() . DIRECTORY_SEPARATOR . $path
-                        )
-                    );
-                })->toArray()
+                F\map(
+                    [
+                        'img',
+                        'img/game_box.png',
+                        'img/game_box180.png',
+                        'img/game_box75.png',
+                        'img/game_icon.png',
+                        'img/publisher.png',
+                        'battleforhill.css',
+                        'battleforhill.js',
+                        'battleforhill.game.php',
+                        'battleforhill.action.php',
+                        'battleforhill.view.php',
+                        'battleforhill_battleforhill.tpl',
+                        'states.inc.php',
+                        'stats.inc.php',
+                        'material.inc.php',
+                        'gameoptions.inc.php',
+                        'gameinfos.inc.php',
+                        'dbmodel.sql',
+                        'version.php'
+                    ],
+                    function ($path) {
+                        return $this->project->absoluteToProjectRelativeFile(
+                            new \SplFileInfo(
+                                $this->project->getDirectory()->getPathname() . DIRECTORY_SEPARATOR . $path
+                            )
+                        );
+                    }
+                )
             )
         );
     }
@@ -63,35 +66,38 @@ class ProjectTest extends TestCase
     public function testAllFiles()
     {
         assertThat(
-            $this->project->getAllFiles()->toArray(),
+            $this->project->getAllFiles(),
             containsInAnyOrder(
-                ImmArray::fromArray([
-                    'img/game_box.png',
-                    'img/game_box180.png',
-                    'img/game_box75.png',
-                    'img/game_icon.png',
-                    'img/publisher.png',
-                    'img/cards.png',
-                    'battleforhill.css',
-                    'battleforhill.js',
-                    'battleforhill.game.php',
-                    'battleforhill.action.php',
-                    'battleforhill.view.php',
-                    'battleforhill_battleforhill.tpl',
-                    'states.inc.php',
-                    'stats.inc.php',
-                    'material.inc.php',
-                    'gameoptions.inc.php',
-                    'gameinfos.inc.php',
-                    'dbmodel.sql',
-                    'version.php'
-                ])->map(function ($path) {
-                    return $this->project->absoluteToProjectRelativeFile(
-                        new \SplFileInfo(
-                            $this->project->getDirectory()->getPathname() . DIRECTORY_SEPARATOR . $path
-                        )
-                    );
-                })->toArray()
+                F\map(
+                    [
+                        'img/game_box.png',
+                        'img/game_box180.png',
+                        'img/game_box75.png',
+                        'img/game_icon.png',
+                        'img/publisher.png',
+                        'img/cards.png',
+                        'battleforhill.css',
+                        'battleforhill.js',
+                        'battleforhill.game.php',
+                        'battleforhill.action.php',
+                        'battleforhill.view.php',
+                        'battleforhill_battleforhill.tpl',
+                        'states.inc.php',
+                        'stats.inc.php',
+                        'material.inc.php',
+                        'gameoptions.inc.php',
+                        'gameinfos.inc.php',
+                        'dbmodel.sql',
+                        'version.php'
+                    ],
+                    function ($path) {
+                        return $this->project->absoluteToProjectRelativeFile(
+                            new \SplFileInfo(
+                                $this->project->getDirectory()->getPathname() . DIRECTORY_SEPARATOR . $path
+                            )
+                        );
+                    }
+                )
             )
         );
     }
@@ -99,34 +105,37 @@ class ProjectTest extends TestCase
     public function testRequiredFiles()
     {
         assertThat(
-            $this->project->getRequiredFiles()->toArray(),
+            $this->project->getRequiredFiles(),
             containsInAnyOrder(
-                ImmArray::fromArray([
-                    'img/game_box.png',
-                    'img/game_box180.png',
-                    'img/game_box75.png',
-                    'img/game_icon.png',
-                    'img/publisher.png',
-                    'battleforhill.css',
-                    'battleforhill.js',
-                    'battleforhill.game.php',
-                    'battleforhill.action.php',
-                    'battleforhill.view.php',
-                    'battleforhill_battleforhill.tpl',
-                    'states.inc.php',
-                    'stats.inc.php',
-                    'material.inc.php',
-                    'gameoptions.inc.php',
-                    'gameinfos.inc.php',
-                    'dbmodel.sql',
-                    'version.php'
-                ])->map(function ($path) {
-                    return $this->project->absoluteToProjectRelativeFile(
-                        new \SplFileInfo(
-                            $this->project->getDirectory()->getPathname() . DIRECTORY_SEPARATOR . $path
-                        )
-                    );
-                })->toArray()
+                F\map(
+                    [
+                        'img/game_box.png',
+                        'img/game_box180.png',
+                        'img/game_box75.png',
+                        'img/game_icon.png',
+                        'img/publisher.png',
+                        'battleforhill.css',
+                        'battleforhill.js',
+                        'battleforhill.game.php',
+                        'battleforhill.action.php',
+                        'battleforhill.view.php',
+                        'battleforhill_battleforhill.tpl',
+                        'states.inc.php',
+                        'stats.inc.php',
+                        'material.inc.php',
+                        'gameoptions.inc.php',
+                        'gameinfos.inc.php',
+                        'dbmodel.sql',
+                        'version.php'
+                    ],
+                    function ($path) {
+                        return $this->project->absoluteToProjectRelativeFile(
+                            new \SplFileInfo(
+                                $this->project->getDirectory()->getPathname() . DIRECTORY_SEPARATOR . $path
+                            )
+                        );
+                    }
+                )
             )
         );
     }
