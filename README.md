@@ -22,9 +22,9 @@ vagrant up
 
 ```
 vagrant ssh
-phpunit
+composer test
 bgawb validate
-composer run-script fix-styles
+composer fix-styles
 ```
 
 
@@ -35,7 +35,7 @@ tilesheet.
 
 ```
 vagrant ssh
-bfh compile-images
+composer compile-images
 ```
 
 Use [https://www.youidraw.com/apps/drawing/](https://www.youidraw.com/apps/drawing/) for creating interaction borders.
@@ -46,7 +46,7 @@ Radius: 5, Dashes: 18, 10, Cap Mode: Left - not overstepping
 
 ```
 vagrant ssh
-bgawb deploy
+composer deploy
 ```
 
 
@@ -56,18 +56,11 @@ Watches development files and deploys them as they change.
 
 ```
 vagrant ssh
-bgawb watch
+composer watch
 ```
 
 
-## Compilation WIP
-
-It's possible extra files aren't allowed in preproduction and production. If not have been working on the following 
-command which compiles:
-
-`classpreloader.php compile --config=build-config.php --output=build/battleforhill.game.php --strip_comments=1`
-
-Probably want a single include that can be used for action, game and view.
+## Compilation Notes
 
 See [https://github.com/mamuz/PhpDependencyAnalysis](https://github.com/mamuz/PhpDependencyAnalysis) if need a better
 class dependency tree extraction.
