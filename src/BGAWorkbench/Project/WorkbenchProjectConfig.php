@@ -4,7 +4,6 @@ namespace BGAWorkbench\Project;
 
 use BGAWorkbench\Utils;
 use PhpOption\Option;
-use Qaribou\Collection\ImmArray;
 use Symfony\Component\Config\Definition\Processor;
 use Symfony\Component\Yaml\Exception\ParseException;
 use Symfony\Component\Yaml\Yaml;
@@ -22,7 +21,7 @@ class WorkbenchProjectConfig
     private $useComposer;
 
     /**
-     * @var ImmArray
+     * @var string[]
      */
     private $extraSrcPaths;
 
@@ -54,7 +53,7 @@ class WorkbenchProjectConfig
     /**
      * @param \SplFileInfo $directory
      * @param bool $useComposer
-     * @param ImmArray $extraSrcPaths
+     * @param string[] $extraSrcPaths
      * @param string $testDbNamePrefix
      * @param string $testDbUsername
      * @param string $testDbPassword
@@ -64,7 +63,7 @@ class WorkbenchProjectConfig
     public function __construct(
         \SplFileInfo $directory,
         bool $useComposer,
-        ImmArray $extraSrcPaths,
+        array $extraSrcPaths,
         string $testDbNamePrefix,
         string $testDbUsername,
         string $testDbPassword,
@@ -179,7 +178,7 @@ class WorkbenchProjectConfig
         return new WorkbenchProjectConfig(
             $directory,
             $processed['useComposer'],
-            ImmArray::fromArray($processed['extraSrc']),
+            $processed['extraSrc'],
             $processed['testDb']['namePrefix'],
             $processed['testDb']['user'],
             $processed['testDb']['pass'],

@@ -4,10 +4,10 @@ namespace BGAWorkbench\Project;
 
 use BGAWorkbench\Utils;
 use Nette\Reflection\AnnotationsParser;
-use Qaribou\Collection\ImmArray;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Finder\SplFileInfo;
 use PhpOption\Option;
+use Functional as F;
 
 class Project
 {
@@ -22,16 +22,16 @@ class Project
     private $name;
 
     /**
-     * @var ImmArray
+     * @var string[]
      */
     private $extraSrcPaths;
 
     /**
      * @param \SplFileInfo $directory
      * @param string $name
-     * @param ImmArray $extraSrcPaths
+     * @param string[] $extraSrcPaths
      */
-    public function __construct(\SplFileInfo $directory, string $name, ImmArray $extraSrcPaths)
+    public function __construct(\SplFileInfo $directory, string $name, array $extraSrcPaths)
     {
         $this->directory = $directory;
         $this->name = $name;
@@ -44,6 +44,22 @@ class Project
     public function getDirectory() : \SplFileInfo
     {
         return $this->directory;
+    }
+
+    /**
+     * @return \SplFileInfo
+     */
+    public function getBuildDirectory() : \SplFileInfo
+    {
+        return $this->getProjectFile('build');
+    }
+
+    /**
+     * @return \SplFileInfo
+     */
+    public function getDistDirectory() : \SplFileInfo
+    {
+        return $this->getProjectFile('dist');
     }
 
     /**
@@ -103,40 +119,43 @@ class Project
     }
 
     /**
-     * @return ImmArray
+     * @return SplFileInfo[]
      */
-    public function getRequiredFiles() : ImmArray
+    public function getRequiredFiles() : array
     {
-        return ImmArray::fromArray([
-            $this->getActionProjectFileRelativePathname(),
-            $this->getGameProjectFileRelativePathname(),
-            "{$this->name}.view.php",
-            "{$this->name}.css",
-            "{$this->name}.js",
-            "{$this->name}_{$this->name}.tpl",
-            $this->getDbModelSqlRelativePathname(),
-            $this->getGameinfosProjectFileRelativePathname(),
-            "gameoptions.inc.php",
-            "material.inc.php",
-            $this->getStatesFileName(),
-            "stats.inc.php",
-            "version.php",
-            "img" . DIRECTORY_SEPARATOR . "game_box.png",
-            "img" . DIRECTORY_SEPARATOR . "game_box75.png",
-            "img" . DIRECTORY_SEPARATOR . "game_box180.png",
-            "img" . DIRECTORY_SEPARATOR . "game_icon.png",
-            "img" . DIRECTORY_SEPARATOR . "publisher.png"
-        ])->map(function ($name) {
-            return $this->getProjectFile($name);
-        });
+        return F\map(
+            [
+                $this->getActionProjectFileRelativePathname(),
+                $this->getGameProjectFileRelativePathname(),
+                "{$this->name}.view.php",
+                "{$this->name}.css",
+                "{$this->name}.js",
+                "{$this->name}_{$this->name}.tpl",
+                $this->getDbModelSqlRelativePathname(),
+                $this->getGameinfosProjectFileRelativePathname(),
+                "gameoptions.inc.php",
+                "material.inc.php",
+                $this->getStatesFileName(),
+                "stats.inc.php",
+                "version.php",
+                "img" . DIRECTORY_SEPARATOR . "game_box.png",
+                "img" . DIRECTORY_SEPARATOR . "game_box75.png",
+                "img" . DIRECTORY_SEPARATOR . "game_box180.png",
+                "img" . DIRECTORY_SEPARATOR . "game_icon.png",
+                "img" . DIRECTORY_SEPARATOR . "publisher.png"
+            ],
+            function ($name) {
+                return $this->getProjectFile($name);
+            }
+        );
     }
 
     /**
      * @param SplFileInfo $file
-     * @param ImmArray $exclude
-     * @return ImmArray
+     * @param SplFileInfo[] $exclude
+     * @return SplFileInfo[]
      */
-    private function getPathFiles(SplFileInfo $file, ImmArray $exclude) : ImmArray
+    private function getPathFiles(SplFileInfo $file, array $exclude) : array
     {
         $finder = Finder::create()
             ->in($file->getPathname())
@@ -147,65 +166,70 @@ class Project
             }
         }
 
-        return ImmArray::fromArray(array_values(iterator_to_array($finder)))
-            ->map(
-                function (SplFileInfo $file) {
-                    return $this->absoluteToProjectRelativeFile($file);
-                }
-            );
+        return F\map(
+            array_values(iterator_to_array($finder)),
+            function (SplFileInfo $file) {
+                return $this->absoluteToProjectRelativeFile($file);
+            }
+        );
     }
 
     /**
-     * @return ImmArray
+     * @return SplFileInfo[]
      */
-    public function getAllFiles() : ImmArray
+    public function getAllFiles() : array
     {
         return $this->getBaseProjectFiles();
     }
 
     /**
-     * @return ImmArray
+     * @return SplFileInfo[]
      */
-    private function getBaseProjectFiles() : ImmArray
+    private function getBaseProjectFiles() : array
     {
-        return $this->getDevelopmentLocations()
-            ->reduce(
-                function (ImmArray $current, SplFileInfo $file) {
-                    if ($file->isFile()) {
-                        return $current->concat(ImmArray::fromArray([$file]));
-                    }
+        return F\reduce_left(
+            $this->getDevelopmentLocations(),
+            function (SplFileInfo $file, $i, $all, array $current) {
+                if ($file->isFile()) {
+                    return array_merge($current, [$file]);
+                }
 
-                    return $current->concat($this->getPathFiles($file, $this->getRequiredFiles()));
-                },
-                ImmArray::fromArray([])
-            );
+                return array_merge($current, $this->getPathFiles($file, $this->getRequiredFiles()));
+            },
+            []
+        );
     }
 
     /**
-     * @return ImmArray
+     * @return SplFileInfo[]
      */
-    public function getDevelopmentPhpFiles() : ImmArray
+    public function getDevelopmentPhpFiles() : array
     {
-        return $this->getBaseProjectFiles()
-            ->filter(function (SplFileInfo $file) {
+        return F\filter(
+            $this->getBaseProjectFiles(),
+            function (SplFileInfo $file) {
                 return $file->getExtension() === 'php';
-            });
+            }
+        );
     }
 
     /**
-     * @return ImmArray
+     * @return SplFileInfo[]
      */
-    public function getDevelopmentLocations() : ImmArray
+    public function getDevelopmentLocations() : array
     {
-        $required = $this->getRequiredFiles();
-        return $required
-            ->concat(
-                $this->extraSrcPaths
-                    ->concat(ImmArray::fromArray(['img']))
-                    ->map(function ($path) {
-                        return $this->getProjectFile($path);
-                    })
-            );
+        return array_merge(
+            $this->getRequiredFiles(),
+            F\map(
+                array_merge(
+                    $this->extraSrcPaths,
+                    ['img']
+                ),
+                function ($path) {
+                    return $this->getProjectFile($path);
+                }
+            )
+        );
     }
 
     /**
@@ -295,20 +319,23 @@ class Project
     {
         $gameFilepath = $this->getProjectFile($relativePathname)->getPathname();
         require_once($gameFilepath);
-        $tableClasses = ImmArray::fromArray(array_keys(AnnotationsParser::parsePhp(file_get_contents($gameFilepath))))
-            ->map(function ($className) {
-                return new \ReflectionClass($className);
-            })
-            ->filter(function ($refClass) use ($class) {
+        $tableClasses = F\filter(
+            F\map(
+                array_keys(AnnotationsParser::parsePhp(file_get_contents($gameFilepath))),
+                function ($className) {
+                    return new \ReflectionClass($className);
+                }
+            ),
+            function (\ReflectionClass $refClass) use ($class) {
                 return $refClass->getParentClass()->getName() === $class;
-            });
-        $numTableClasses = $tableClasses->count();
+            }
+        );
+        $numTableClasses = count($tableClasses);
         if ($numTableClasses !== 1) {
             throw new \RuntimeException(
                 "Expected exactly one Table classes in game file {$gameFilepath}, found exactly {$numTableClasses}"
             );
         }
-        $tableClass = $tableClasses->current();
-        return $tableClass->newInstance();
+        return $tableClasses[0]->newInstance();
     }
 }

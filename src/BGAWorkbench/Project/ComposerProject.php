@@ -2,7 +2,6 @@
 
 namespace BGAWorkbench\Project;
 
-use Qaribou\Collection\ImmArray;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Finder\SplFileInfo;
@@ -19,15 +18,15 @@ class ComposerProject extends Project
     /**
      * @inheritdoc
      */
-    public function getAllFiles(): ImmArray
+    public function getAllFiles(): array
     {
-        return parent::getAllFiles()->concat($this->getVendorFiles());
+        return array_merge(parent::getAllFiles(), $this->getVendorFiles());
     }
 
     /**
-     * @return ImmArray
+     * @return SplFileInfo[]
      */
-    private function getVendorFiles(): ImmArray
+    private function getVendorFiles(): array
     {
         if ($this->vendorFiles === null) {
             $this->vendorFiles = $this->createVendorFiles();
@@ -36,9 +35,9 @@ class ComposerProject extends Project
     }
 
     /**
-     * @return ImmArray
+     * @return SplFileInfo[]
      */
-    private function createVendorFiles(): ImmArray
+    private function createVendorFiles(): array
     {
         $buildDir = $this->buildProdVendors();
 
@@ -49,10 +48,11 @@ class ComposerProject extends Project
             ->notName('composer.json')
             ->notPath('/tests/')
             ->notPath('/bin/');
-        return ImmArray::fromArray(array_values(iterator_to_array($finder)));
+        return array_values(iterator_to_array($finder));
     }
 
     /**
+     * @todo Must be some third party file system helpers to do this
      * @param string $src
      * @param string $dst
      */
@@ -77,7 +77,7 @@ class ComposerProject extends Project
      */
     public function buildProdVendors()
     {
-        $buildDir = new \SplFileInfo($this->getProjectFile('build') . DIRECTORY_SEPARATOR . 'prod-vendors');
+        $buildDir = new \SplFileInfo($this->getBuildDirectory() . DIRECTORY_SEPARATOR . 'prod-vendors');
         if (!file_exists($buildDir->getPathname() . '/src')) {
             mkdir($buildDir->getPathname() . '/src', 0777, true);
         }

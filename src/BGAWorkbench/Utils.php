@@ -5,7 +5,7 @@ namespace BGAWorkbench;
 use PhpOption\None;
 use PhpOption\Option;
 use PhpOption\Some;
-use Qaribou\Collection\ImmArray;
+use Functional as F;
 
 class Utils
 {
@@ -57,16 +57,16 @@ class Utils
 
         include($file->getPathname());
         $definedVars = get_defined_vars();
-        return ImmArray::fromArray(array_keys($definedVars))
-            ->reduce(
-                function (Option $current, $name) use ($namePredicate, $definedVars) {
-                    if ($namePredicate($name)) {
-                        return new Some([$name, $definedVars[$name]]);
-                    }
-                    return $current;
-                },
-                None::create()
-            );
+        return F\reduce_left(
+            array_keys($definedVars),
+            function ($name, $i, $all, Option $current) use ($namePredicate, $definedVars) {
+                if ($namePredicate($name)) {
+                    return new Some([$name, $definedVars[$name]]);
+                }
+                return $current;
+            },
+            None::create()
+        );
     }
 
     /**

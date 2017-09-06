@@ -51,15 +51,25 @@ HELP
      */
     private function validateRequiredFilesExist(Project $project)
     {
-        $notFoundList = $project->getRequiredFiles()
-            ->filter(function (SplFileInfo $file) {
-                return !$file->isFile();
-            })
-            ->sort()
-            ->map(function (SplFileInfo $file) {
-                return $file->getRelativePathname();
-            })
-            ->join(', ');
+        $notFoundList = join(
+            ', ',
+            F\map(
+                F\sort(
+                    F\filter(
+                        $project->getRequiredFiles(),
+                        function (SplFileInfo $file) {
+                            return !$file->isFile();
+                        }
+                    ),
+                    function (SplFileInfo $file) {
+                        return $file->getPathname();
+                    }
+                ),
+                function (SplFileInfo $file) {
+                    return $file->getRelativePathname();
+                }
+            )
+        );
         if (!empty($notFoundList)) {
             throw new \RuntimeException("Missing required files: {$notFoundList}");
         }
@@ -72,22 +82,32 @@ HELP
      */
     private function validateFilesPhp(WorkbenchProjectConfig $config, Project $project, OutputInterface $output)
     {
-        $invalid = $project->getDevelopmentPhpFiles()
-            ->map(function (SplFileInfo $file) use ($config) {
+        $processes = F\map(
+            $project->getDevelopmentPhpFiles(),
+            function (SplFileInfo $file) use ($config) {
                 return ProcessBuilder::create([$config->getLinterPhpBin(), '-l', $file->getPathname()])
                     ->getProcess();
-            })
-            ->walk(function (Process $process) {
+            }
+        );
+        F\each(
+            $processes,
+            function (Process $process) {
                 $process->run();
-            })
-            ->filter(function (Process $process) {
-                return !$process->isSuccessful();
-            })
-            ->map(function (Process $process) {
+            }
+        );
+        $invalid = F\map(
+            F\filter(
+                $processes,
+                function (Process $process) {
+                    return !$process->isSuccessful();
+                }
+            ),
+            function (Process $process) {
                 return $process->getOutput();
-            });
-        if ($invalid->count() > 0) {
-            throw new \RuntimeException($invalid->join(', '));
+            }
+        );
+        if (count($invalid) > 0) {
+            throw new \RuntimeException(join(', ', $invalid));
         }
     }
 

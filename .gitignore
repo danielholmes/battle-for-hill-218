@@ -1,4 +1,5 @@
 /build
+/dist
 /vendor
 /bgaproject.yml
 !/bgaproject.yml.dist

@@ -38,10 +38,11 @@ class BuildCommand extends Command
         $project = $config->loadProject();
         $workingDir = $project->buildProdVendors();
 
-        $configFilepath = $workingDir->getPathname() . '/compiler-config.php';
+        $configFilepath = $project->getBuildDirectory()->getPathname() . '/compiler-config.php';
         $files = $this->createDependenciesFileList($workingDir);
         file_put_contents($configFilepath, '<?php return ' . var_export($files, true) . ';');
-        $outputFilepath = 'build/' . $project->getGameProjectFileRelativePathname();
+        $outputFilepath = $project->getDistDirectory()->getPathname() . '/' .
+            $project->getGameProjectFileRelativePathname();
 
         $process = ProcessBuilder::create([
             'classpreloader.php',
