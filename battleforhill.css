@@ -195,10 +195,10 @@
 .battlefield-card > .card.color-04237b {
     transform: rotate(180deg);
 }
-.viewing-as-upwards-player > .battlefield-card > .card.color-3b550c {
+.viewing-as-upwards-player .battlefield-card > .card.color-3b550c {
     transform: rotate(180deg);
 }
-.viewing-as-upwards-player > .battlefield-card > .card.color-04237b {
+.viewing-as-upwards-player .battlefield-card > .card.color-04237b {
     transform: rotate(0deg);
 }
 .battlefield-card > .card.hill {

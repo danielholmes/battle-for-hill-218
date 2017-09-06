@@ -24,7 +24,7 @@ vagrant up
 vagrant ssh
 phpunit
 bgawb validate
-phpcbf --standard=PSR2 --tab-width=4 --ignore=src/BGAWorkbench/Stubs,tests/bootstrap.php -q -p tests src
+composer run-script fix-styles
 ```
 
 
@@ -65,7 +65,26 @@ bgawb watch
 It's possible extra files aren't allowed in preproduction and production. If not have been working on the following 
 command which compiles:
 
-`classpreloader.php compile --config=build-config.csv.php --output=build/out.php --strip_comments=1`
+`classpreloader.php compile --config=build-config.php --output=build/battleforhill.game.php --strip_comments=1`
+
+Probably want a single include that can be used for action, game and view.
+
+See [https://github.com/mamuz/PhpDependencyAnalysis](https://github.com/mamuz/PhpDependencyAnalysis) if need a better
+class dependency tree extraction.
+
+`phpda analyze -- analysis.yml`
+
+*analysis.yml*
+```yaml
+mode: 'usage'
+source: './src/TheBattleForHill218'
+filePattern: '*.php'
+formatter: 'PhpDA\Writer\Strategy\Json'
+target: 'build/usage.json'
+visitor:
+  - PhpDA\Parser\Visitor\TagCollector
+  - PhpDA\Parser\Visitor\SuperglobalCollector
+```
 
 
 ## Known Workbench Issues

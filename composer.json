@@ -16,9 +16,12 @@
       "TheBattleForHill218\\": "src/TheBattleForHill218"
     },
     "files": [
-      "src/TheBattleForHill218/Functional/functions.php"
+      "src/TheBattleForHill218/Functional/filter_to_list.php",
+      "src/TheBattleForHill218/Functional/group_to_lists.php",
+      "src/TheBattleForHill218/Functional/partition_to_lists.php",
+      "src/TheBattleForHill218/Functional/unique_list.php"
     ],
-    "_files_for_workbench": [
+    "_files_for_workbench_currently_in_bootstrap": [
       "src/BGAWorkbench/Test/HamcrestMatchers/functions.php"
     ]
   },
@@ -54,5 +57,8 @@
 
     "phpunit/phpunit": "^6.2.3",
     "squizlabs/php_codesniffer": "^3.0.0"
+  },
+  "scripts": {
+    "fix-styles": "phpcbf --standard=PSR2 --tab-width=4 --ignore=src/BGAWorkbench/Stubs,tests/bootstrap.php -q -p tests src"
   }
 }

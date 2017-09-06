@@ -3,7 +3,7 @@
 namespace TheBattleForHill218\Tests\Battlefield;
 
 use PHPUnit\Framework\TestCase;
-use TheBattleForHill218\Battlefield\Battlefield;
+use TheBattleForHill218\Battlefield\BattlefieldImpl;
 use TheBattleForHill218\Battlefield\CardPlacement;
 use TheBattleForHill218\Battlefield\Position;
 use TheBattleForHill218\Cards\ArtilleryCard;
@@ -17,22 +17,22 @@ use TheBattleForHill218\Cards\TankCard;
 class BattlefieldTest extends TestCase
 {
     /**
-     * @var Battlefield
+     * @var BattlefieldImpl
      */
     private $emptyBattlefield;
 
     /**
-     * @var Battlefield
+     * @var BattlefieldImpl
      */
     private $sampleBattlefield;
 
     protected function setUp()
     {
-        $this->emptyBattlefield = $this->sampleBattlefield = new Battlefield(
+        $this->emptyBattlefield = $this->sampleBattlefield = new BattlefieldImpl(
             2,
             [new CardPlacement(new HillCard(), new Position(0, 0))]
         );
-        $this->sampleBattlefield = new Battlefield(
+        $this->sampleBattlefield = new BattlefieldImpl(
             2,
             [
                 new CardPlacement(new HillCard(), new Position(0, 0)),
@@ -47,7 +47,7 @@ class BattlefieldTest extends TestCase
     {
         $this->expectException('InvalidArgumentException');
 
-        new Battlefield(2, [
+        new BattlefieldImpl(2, [
             new CardPlacement(new InfantryCard(1), new Position(1, 0)),
             new CardPlacement(new HeavyWeaponsCard(1), new Position(1, 0))
         ]);
@@ -92,7 +92,7 @@ class BattlefieldTest extends TestCase
 
     public function testGetAllowedPositionsDoesntUseSupplyFromDisconnected()
     {
-        $battlefield = new Battlefield(2, [
+        $battlefield = new BattlefieldImpl(2, [
             new CardPlacement(new HillCard(), new Position(0, 0)),
             // Supplied
             new CardPlacement(new InfantryCard(1), new Position(0, 1)),
@@ -122,7 +122,7 @@ class BattlefieldTest extends TestCase
     {
         $opponentInfantry = new CardPlacement(new InfantryCard(2), new Position(0, -1));
         $tank = new CardPlacement(new TankCard(1), new Position(1, -1));
-        $battlefield = new Battlefield(2, [
+        $battlefield = new BattlefieldImpl(2, [
             new CardPlacement(new HillCard(), new Position(0, 0)),
             $opponentInfantry,
             $tank
@@ -135,7 +135,7 @@ class BattlefieldTest extends TestCase
     {
         $opponentInfantry = new CardPlacement(new InfantryCard(2), new Position(0, -1));
         $infantry = new CardPlacement(new InfantryCard(1), new Position(1, -1));
-        $battlefield = new Battlefield(2, [
+        $battlefield = new BattlefieldImpl(2, [
             new CardPlacement(new HillCard(), new Position(0, 0)),
             $opponentInfantry,
             $infantry
@@ -147,7 +147,7 @@ class BattlefieldTest extends TestCase
     public function testGetAttackablePlacementsCantAttack()
     {
         $tank = new CardPlacement(new TankCard(1), new Position(1, -1));
-        $battlefield = new Battlefield(2, [
+        $battlefield = new BattlefieldImpl(2, [
             new CardPlacement(new HillCard(), new Position(0, 0)),
             new CardPlacement(new InfantryCard(2), new Position(10, 10)),
             $tank
@@ -165,7 +165,7 @@ class BattlefieldTest extends TestCase
         $supporter = new CardPlacement(new HeavyWeaponsCard(1), new Position(-1, -1));
         $attacker = new CardPlacement(new InfantryCard(1), new Position(0, -2));
 
-        $battlefield = new Battlefield(2, [
+        $battlefield = new BattlefieldImpl(2, [
             new CardPlacement(new HillCard(), new Position(0, 0)),
             $opponent1,
             $opponent2,
@@ -184,7 +184,7 @@ class BattlefieldTest extends TestCase
     {
         $this->expectException('InvalidArgumentException');
 
-        $battlefield = new Battlefield(2, [
+        $battlefield = new BattlefieldImpl(2, [
             new CardPlacement(new HillCard(), new Position(0, 0)),
             new CardPlacement(new InfantryCard(2), new Position(0, -1))
         ]);
@@ -196,7 +196,7 @@ class BattlefieldTest extends TestCase
     {
         $opponent = new CardPlacement(new InfantryCard(1), new Position(0, -1));
         $attackArtillery = new CardPlacement(new ArtilleryCard(2), new Position(0, 1));
-        $battlefield = new Battlefield(1, [
+        $battlefield = new BattlefieldImpl(1, [
             new CardPlacement(new HillCard(), new Position(0, 0)),
             // Opponent
             $opponent,

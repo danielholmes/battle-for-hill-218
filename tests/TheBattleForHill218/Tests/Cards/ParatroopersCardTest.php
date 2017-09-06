@@ -3,7 +3,7 @@
 namespace TheBattleForHill218\Tests\Battlefield;
 
 use PHPUnit\Framework\TestCase;
-use TheBattleForHill218\Battlefield\Battlefield;
+use TheBattleForHill218\Battlefield\BattlefieldImpl;
 use TheBattleForHill218\Battlefield\CardPlacement;
 use TheBattleForHill218\Battlefield\Position;
 use TheBattleForHill218\Cards\HillCard;
@@ -14,7 +14,7 @@ class ParatroopersCardTest extends TestCase
 {
     public function testGetPositionsOfOpponent()
     {
-        $battlefield = new Battlefield(
+        $battlefield = new BattlefieldImpl(
             2,
             [
                 new CardPlacement(new HillCard(), new Position(0, 0)),

@@ -19,7 +19,7 @@ class ComposerProject extends Project
     /**
      * @inheritdoc
      */
-    public function getAllFiles() : ImmArray
+    public function getAllFiles(): ImmArray
     {
         return parent::getAllFiles()->concat($this->getVendorFiles());
     }
@@ -27,7 +27,7 @@ class ComposerProject extends Project
     /**
      * @return ImmArray
      */
-    private function getVendorFiles() : ImmArray
+    private function getVendorFiles(): ImmArray
     {
         if ($this->vendorFiles === null) {
             $this->vendorFiles = $this->createVendorFiles();
@@ -38,9 +38,50 @@ class ComposerProject extends Project
     /**
      * @return ImmArray
      */
-    private function createVendorFiles() : ImmArray
+    private function createVendorFiles(): ImmArray
+    {
+        $buildDir = $this->buildProdVendors();
+
+        $finder = Finder::create()
+            ->in($buildDir->getPathname())
+            ->files()
+            ->notName('composer.lock')
+            ->notName('composer.json')
+            ->notPath('/tests/')
+            ->notPath('/bin/');
+        return ImmArray::fromArray(array_values(iterator_to_array($finder)));
+    }
+
+    /**
+     * @param string $src
+     * @param string $dst
+     */
+    private function copyDir($src, $dst)
+    {
+        $dir = opendir($src);
+        @mkdir($dst);
+        while (false !== ($file = readdir($dir))) {
+            if (($file != '.') && ($file != '..')) {
+                if (is_dir($src . '/' . $file)) {
+                    $this->copyDir($src . '/' . $file, $dst . '/' . $file);
+                } else {
+                    copy($src . '/' . $file, $dst . '/' . $file);
+                }
+            }
+        }
+        closedir($dir);
+    }
+
+    /**
+     * @return \SplFileInfo
+     */
+    public function buildProdVendors()
     {
         $buildDir = new \SplFileInfo($this->getProjectFile('build') . DIRECTORY_SEPARATOR . 'prod-vendors');
+        if (!file_exists($buildDir->getPathname() . '/src')) {
+            mkdir($buildDir->getPathname() . '/src', 0777, true);
+        }
+        $this->copyDir('src/TheBattleForHill218', $buildDir->getPathname() . '/src/TheBattleForHill218');
         $buildVendorConfig = new \SplFileInfo($buildDir->getPathname() . DIRECTORY_SEPARATOR . 'composer.json');
         $projectConfig = $this->getProjectFile('composer.json');
         if (!$buildVendorConfig->isFile() || $buildVendorConfig->getMTime() < $projectConfig->getMTime()) {
@@ -67,13 +108,6 @@ class ComposerProject extends Project
             }
         }
 
-        $finder = Finder::create()
-            ->in($buildDir->getPathname())
-            ->files()
-            ->notName('composer.lock')
-            ->notName('composer.json')
-            ->notPath('/tests/')
-            ->notPath('/bin/');
-        return ImmArray::fromArray(array_values(iterator_to_array($finder)));
+        return $buildDir;
     }
 }

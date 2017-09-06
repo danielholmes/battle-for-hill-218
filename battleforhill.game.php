@@ -11,22 +11,16 @@
   * battleforhill.game.php
   *
   * This is the main file for your game logic.
-  *
+  *z
   * In this PHP file, you are going to defines the rules of the game.
   *
   */
 
 require_once(APP_GAMEMODULE_PATH . 'module/table/table.game.php');
 
-$prevAutoloads = spl_autoload_functions();
-require_once(__DIR__ . '/vendor/autoload.php');
-foreach ($prevAutoloads as $prevAutoload) {
-    spl_autoload_register($prevAutoload, true, false);
-}
-
 use Functional as F;
 use TheBattleForHill218\Functional as HF;
-use TheBattleForHill218\Battlefield\Battlefield;
+use TheBattleForHill218\Battlefield\BattlefieldImpl;
 use TheBattleForHill218\Battlefield\CardPlacement;
 use TheBattleForHill218\Battlefield\Position;
 use TheBattleForHill218\Cards\AirStrikeCard;
@@ -329,7 +323,7 @@ class BattleForHill extends Table
 //////////// Utility functions
 ////////////
     /**
-     * @return Battlefield
+     * @return BattlefieldImpl
      */
     private function loadBattlefield()
     {
@@ -340,7 +334,7 @@ class BattleForHill extends Table
         if ($downwardPlayerId === null) {
             throw new RuntimeException('Downwards player not found');
         }
-        return new Battlefield(
+        return new BattlefieldImpl(
             (int) $downwardPlayerId,
             F\map(
                 self::getObjectListFromDB('SELECT * FROM battlefield_card'),
