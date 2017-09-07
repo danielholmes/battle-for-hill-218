@@ -43,6 +43,7 @@ class BuildCommand extends Command
         $project = $config->loadProject();
         if ($input->getOption('watch')) {
             $this->runBuild($project);
+            $output->writeln("<info>Building to {$project->getDistDirectory()->getRelativePathname()}</info>");
             $this->executeWatch($project, $output);
             return 0;
         }
@@ -71,7 +72,7 @@ class BuildCommand extends Command
             $output->writeln(' <info>✓</info>');
         };
         F\each(
-            $project->getDevelopmentLocations(),
+            $project->getDevelopmentSourcePaths(),
             function (SplFileInfo $file) use ($watcher, $handler) {
                 $listener = $watcher->watch($file->getPathname());
                 $listener->onCreate($handler);
@@ -88,14 +89,36 @@ class BuildCommand extends Command
      */
     private function runBuild(Project $project)
     {
+        $fileSystem = new Filesystem();
+
         // TODO: Generalise to both project types
         $workingDir = $project->buildProdVendors();
+        $distDir = $project->getDistDirectory();
 
         $configFilepath = $project->getBuildDirectory()->getPathname() . '/compiler-config.php';
         $files = $this->createDependenciesFileList($workingDir);
-        file_put_contents($configFilepath, '<?php return ' . var_export($files, true) . ';');
-        $outputFilepath = $project->getDistDirectory()->getPathname() . '/' .
-            $project->getGameProjectFileRelativePathname();
+        $fileSystem->put($configFilepath, '<?php return ' . var_export($files, true) . ';');
+        $outputFilepath = new \SplFileInfo(
+            $distDir->getPathname() . '/' . $project->getGameProjectFileRelativePathname()
+        );
+
+        // Copy non pre-process files
+        $nonGameFiles = F\filter(
+            $project->getRequiredFiles(),
+            function (SplFileInfo $file) use ($outputFilepath) {
+                return $file->getPathname() !== $outputFilepath->getPathname();
+            }
+        );
+        F\each(
+            $nonGameFiles,
+            function (SplFileInfo $file) use ($distDir, $fileSystem) {
+                $dest = new \SplFileInfo($distDir->getPathname() . DIRECTORY_SEPARATOR . $file->getRelativePathname());
+                if (!$fileSystem->exists($dest->getPath())) {
+                    $fileSystem->makeDirectory($dest->getPath(), 0755, true);
+                }
+                $fileSystem->copy($file->getPathname(), $dest->getPathname());
+            }
+        );
 
         $process = ProcessBuilder::create([
             'classpreloader.php',

@@ -27,7 +27,7 @@ class ProjectTest extends TestCase
     public function testDeveloperLocations()
     {
         assertThat(
-            $this->project->getDevelopmentLocations(),
+            $this->project->getDevelopmentSourcePaths(),
             containsInAnyOrder(
                 F\map(
                     [

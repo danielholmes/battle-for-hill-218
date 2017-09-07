@@ -47,17 +47,17 @@ class Project
     }
 
     /**
-     * @return \SplFileInfo
+     * @return SplFileInfo
      */
-    public function getBuildDirectory() : \SplFileInfo
+    public function getBuildDirectory() : SplFileInfo
     {
         return $this->getProjectFile('build');
     }
 
     /**
-     * @return \SplFileInfo
+     * @return SplFileInfo
      */
-    public function getDistDirectory() : \SplFileInfo
+    public function getDistDirectory() : SplFileInfo
     {
         return $this->getProjectFile('dist');
     }
@@ -151,6 +151,37 @@ class Project
     }
 
     /**
+     * @return SplFileInfo[]
+     */
+    public function getDevelopmentPhpFiles() : array
+    {
+        return F\filter(
+            $this->getDevelopmentSourceFiles(),
+            function (SplFileInfo $file) {
+                return $file->getExtension() === 'php';
+            }
+        );
+    }
+
+    /**
+     * @return SplFileInfo[]
+     */
+    private function getDevelopmentSourceFiles() : array
+    {
+        return F\reduce_left(
+            $this->getDevelopmentSourcePaths(),
+            function (SplFileInfo $file, $i, $all, array $current) {
+                if ($file->isFile()) {
+                    return array_merge($current, [$file]);
+                }
+
+                return array_merge($current, $this->getPathFiles($file, $this->getRequiredFiles()));
+            },
+            []
+        );
+    }
+
+    /**
      * @param SplFileInfo $file
      * @param SplFileInfo[] $exclude
      * @return SplFileInfo[]
@@ -177,46 +208,7 @@ class Project
     /**
      * @return SplFileInfo[]
      */
-    public function getAllFiles() : array
-    {
-        return $this->getBaseProjectFiles();
-    }
-
-    /**
-     * @return SplFileInfo[]
-     */
-    private function getBaseProjectFiles() : array
-    {
-        return F\reduce_left(
-            $this->getDevelopmentLocations(),
-            function (SplFileInfo $file, $i, $all, array $current) {
-                if ($file->isFile()) {
-                    return array_merge($current, [$file]);
-                }
-
-                return array_merge($current, $this->getPathFiles($file, $this->getRequiredFiles()));
-            },
-            []
-        );
-    }
-
-    /**
-     * @return SplFileInfo[]
-     */
-    public function getDevelopmentPhpFiles() : array
-    {
-        return F\filter(
-            $this->getBaseProjectFiles(),
-            function (SplFileInfo $file) {
-                return $file->getExtension() === 'php';
-            }
-        );
-    }
-
-    /**
-     * @return SplFileInfo[]
-     */
-    public function getDevelopmentLocations() : array
+    public function getDevelopmentSourcePaths() : array
     {
         return array_merge(
             $this->getRequiredFiles(),
@@ -237,8 +229,7 @@ class Project
      */
     public function getStates() : array
     {
-        $variableName = 'machinestates';
-        return $this->getFileVariableValue($this->getStatesFileName(), $variableName)
+        return $this->getFileVariableValue($this->getStatesFileName(), 'machinestates')
             ->getOrThrow(new \RuntimeException("Couldn't find states"));
     }
 

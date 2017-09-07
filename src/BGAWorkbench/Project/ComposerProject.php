@@ -12,31 +12,23 @@ class ComposerProject extends Project
 {
     /**
      * @var SplFileInfo
-     */
-    private $vendorFiles;
+     *
+    private $vendorFiles;*/
 
     /**
      * @inheritdoc
      */
-    public function getAllFiles(): array
+    public function getDevelopmentSourcePaths() : array
     {
-        return array_merge(parent::getAllFiles(), $this->getVendorFiles());
+        return array_merge(
+            parent::getDevelopmentSourcePaths(),
+            [$this->getProjectFile('composer.lock')]
+        );
     }
 
     /**
      * @return SplFileInfo[]
-     */
-    private function getVendorFiles(): array
-    {
-        if ($this->vendorFiles === null) {
-            $this->vendorFiles = $this->createVendorFiles();
-        }
-        return $this->vendorFiles;
-    }
-
-    /**
-     * @return SplFileInfo[]
-     */
+     *
     private function createVendorFiles(): array
     {
         $buildDir = $this->buildProdVendors();
@@ -49,7 +41,7 @@ class ComposerProject extends Project
             ->notPath('/tests/')
             ->notPath('/bin/');
         return array_values(iterator_to_array($finder));
-    }
+    }*/
 
     /**
      * @todo Must be some third party file system helpers to do this

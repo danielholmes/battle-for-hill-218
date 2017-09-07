@@ -64,7 +64,7 @@ class WatchCommand extends Command
         $files = new Filesystem();
         $tracker = new Tracker();
         $watcher = new Watcher($tracker, $files);
-        $project->getDevelopmentLocations()->walk(
+        $project->getDevelopmentSourcePaths()->walk(
             function (SplFileInfo $file) use ($watcher, $project, $deployment, $handler, $output) {
                 $listener = $watcher->watch($file->getPathname());
                 $listener->onCreate($handler);
