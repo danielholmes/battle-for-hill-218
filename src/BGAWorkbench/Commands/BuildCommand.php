@@ -3,6 +3,9 @@
 namespace BGAWorkbench\Commands;
 
 use BGAWorkbench\Project\Project;
+use Illuminate\Filesystem\Filesystem;
+use JasonLewis\ResourceWatcher\Tracker;
+use JasonLewis\ResourceWatcher\Watcher;
 use BGAWorkbench\Project\WorkbenchProjectConfig;
 use BGAWorkbench\Utils\NameAccumulatorNodeVisitor;
 use Composer\Autoload\ClassLoader;
@@ -10,6 +13,7 @@ use PhpParser\Parser;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Finder\SplFileInfo;
 use Symfony\Component\Process\ProcessBuilder;
 use PhpParser\Node\Name;
 use PhpParser\NodeVisitor\NameResolver;
@@ -26,7 +30,8 @@ class BuildCommand extends Command
     {
         $this
             ->setName('build')
-            ->setDescription('Build the project');
+            ->setDescription('Build the project')
+            ->addOption('watch', 'w', null, 'Watch src files and continually build');
     }
 
     /**
@@ -36,6 +41,54 @@ class BuildCommand extends Command
     {
         $config = WorkbenchProjectConfig::loadFromCwd();
         $project = $config->loadProject();
+        if ($input->getOption('watch')) {
+            $this->runBuild($project);
+            $this->executeWatch($project, $output);
+            return 0;
+        }
+
+        try {
+            $outputFilepath = $this->runBuild($project);
+        } catch (\Exception $e) {
+            $output->write('<error>' . $e->getMessage() . '</error>');
+            return -1;
+        }
+        $output->writeln("<info>Built to {$outputFilepath}</info>");
+    }
+
+    /**
+     * @param Project $project
+     * @param OutputInterface $output
+     */
+    private function executeWatch(Project $project, OutputInterface $output)
+    {
+        $files = new Filesystem();
+        $tracker = new Tracker();
+        $watcher = new Watcher($tracker, $files);
+        $handler = function ($resource, $path) use ($project, $output) {
+            $output->write('Changed: ' . $path);
+            $this->runBuild($project);
+            $output->writeln(' <info>✓</info>');
+        };
+        F\each(
+            $project->getDevelopmentLocations(),
+            function (SplFileInfo $file) use ($watcher, $handler) {
+                $listener = $watcher->watch($file->getPathname());
+                $listener->onCreate($handler);
+                $listener->onModify($handler);
+                $listener->onDelete($handler);
+            }
+        );
+        $watcher->start(500000);
+    }
+
+    /**
+     * @param Project $project
+     * @return string
+     */
+    private function runBuild(Project $project)
+    {
+        // TODO: Generalise to both project types
         $workingDir = $project->buildProdVendors();
 
         $configFilepath = $project->getBuildDirectory()->getPathname() . '/compiler-config.php';
@@ -53,10 +106,10 @@ class BuildCommand extends Command
         ])->getProcess();
         $result = $process->run();
         if ($result !== 0) {
-            $output->write('<error>' . $process->getErrorOutput() . '</error>');
-            return -1;
+            throw new \RuntimeException($process->getErrorOutput());
         }
-        $output->writeln("<info>Built to {$outputFilepath}</info>");
+
+        return $outputFilepath;
     }
 
     /**
@@ -67,7 +120,9 @@ class BuildCommand extends Command
     {
         $loader = require($workingDir->getPathname() . '/vendor/autoload.php');
 
-        define('APP_GAMEMODULE_PATH', __DIR__ . '/../Stubs/');
+        if (!defined('APP_GAMEMODULE_PATH')) {
+            define('APP_GAMEMODULE_PATH', __DIR__ . '/../Stubs/');
+        }
         require_once(APP_GAMEMODULE_PATH . 'framework.php');
         require_once(APP_GAMEMODULE_PATH . 'APP_Object.inc.php');
         require_once(APP_GAMEMODULE_PATH . 'APP_DbObject.inc.php');
