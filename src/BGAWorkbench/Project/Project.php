@@ -283,7 +283,7 @@ class Project
         return F\map(
             array_values(iterator_to_array($finder)),
             function (SplFileInfo $file) use ($root) {
-                return $this->absoluteToRelativeFile($root, $file);
+                return FileUtils::createRelativeFileFromExisting($root, $file);
             }
         );
     }
