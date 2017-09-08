@@ -40,7 +40,6 @@ class BuildCommand extends Command
         $config = WorkbenchProjectConfig::loadFromCwd();
         $project = $config->loadProject();
         $strategy = $this->createBuildStrategy($input, $config, $project);
-
         try {
             $strategy->run($output, None::create());
             $output->writeln("<info>Built to {$project->getDistDirectory()->getRelativePathname()}</info>");
@@ -66,7 +65,8 @@ class BuildCommand extends Command
      */
     private function createBuildStrategy(InputInterface $input, WorkbenchProjectConfig $config, Project $project)
     {
-        $compile = new CompileBuildStrategy($project);
+        $compile = new CompileBuildStrategy($project->getBuildInstructions(), $project->getDistDirectory());
+
         if ($input->getOption('deploy')) {
             $deployConfig = $config->getDeployConfig()
                 ->getOrThrow(new \RuntimeException('No deployment config provided for project'));
@@ -83,16 +83,22 @@ class BuildCommand extends Command
      */
     private function executeWatch(Project $project, OutputInterface $output, BuildStrategy $strategy)
     {
-        $files = new Filesystem();
         $tracker = new Tracker();
-        $watcher = new Watcher($tracker, $files);
+        $fileSystem = new Filesystem();
+        $watcher = new Watcher($tracker, $fileSystem);
         $handler = function ($resource, $path) use ($project, $output, $strategy) {
             $output->write('Changed: ' . $path);
             $strategy->run($output, new Some([$project->absoluteToProjectRelativeFile(new \SplFileInfo($path))]));
             $output->writeln(' <info>✓</info>');
         };
+        $existingPaths = F\filter(
+            $project->getBuildInputPaths(),
+            function (\SplFileInfo $path) use ($fileSystem) {
+                return $fileSystem->exists($path->getPathname());
+            }
+        );
         F\each(
-            $project->getDevelopmentSourcePaths(),
+            $existingPaths,
             function (SplFileInfo $file) use ($watcher, $handler) {
                 $listener = $watcher->watch($file->getPathname());
                 $listener->onCreate($handler);

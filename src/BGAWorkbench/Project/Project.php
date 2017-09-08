@@ -2,7 +2,11 @@
 
 namespace BGAWorkbench\Project;
 
+use BGAWorkbench\Builder\BuildInstruction;
+use BGAWorkbench\Builder\CopyFiles;
 use BGAWorkbench\Utils;
+use BGAWorkbench\Utils\FileUtils;
+use Illuminate\Filesystem\Filesystem;
 use Nette\Reflection\AnnotationsParser;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Finder\SplFileInfo;
@@ -22,20 +26,52 @@ class Project
     private $name;
 
     /**
-     * @var string[]
-     */
-    private $extraSrcPaths;
-
-    /**
      * @param \SplFileInfo $directory
      * @param string $name
-     * @param string[] $extraSrcPaths
      */
-    public function __construct(\SplFileInfo $directory, string $name, array $extraSrcPaths)
+    public function __construct(\SplFileInfo $directory, string $name)
     {
         $this->directory = $directory;
         $this->name = $name;
-        $this->extraSrcPaths = $extraSrcPaths;
+    }
+
+    /**
+     * @return BuildInstruction[]
+     */
+    public function getBuildInstructions()
+    {
+        $fileSystem = new Filesystem();
+        $copyFiles = F\map(
+            $this->getRootRequiredFiles(),
+            function (SplFileInfo $file) use ($fileSystem) {
+                if ($file == $this->getGameProjectFile()) {
+                    return $this->createGameProjectFileBuildInstruction($fileSystem, $file);
+                }
+                return new CopyFiles($fileSystem, $file);
+            }
+        );
+        $copyDirs = F\map(
+            F\filter(
+                $this->getStandardDirectories(),
+                function (\SplFileInfo $dir) use ($fileSystem) {
+                    return $fileSystem->exists($dir->getPathname());
+                }
+            ),
+            function (SplFileInfo $dir) use ($fileSystem) {
+                return new CopyFiles($fileSystem, $dir);
+            }
+        );
+        return array_merge($copyFiles, $copyDirs);
+    }
+
+    /**
+     * @param Filesystem $fileSystem
+     * @param SplFileInfo $file
+     * @return BuildInstruction
+     */
+    protected function createGameProjectFileBuildInstruction(Filesystem $fileSystem, SplFileInfo $file)
+    {
+        return new CopyFiles($fileSystem, $file);
     }
 
     /**
@@ -137,7 +173,20 @@ class Project
     /**
      * @return SplFileInfo[]
      */
-    public function getRequiredFiles() : array
+    private function getStandardDirectories() : array
+    {
+        return F\map(
+            ['img', 'misc', 'modules'],
+            function ($name) {
+                return $this->getProjectFile($name);
+            }
+        );
+    }
+
+    /**
+     * @return array
+     */
+    private function getRootRequiredFiles() : array
     {
         return F\map(
             [
@@ -153,16 +202,33 @@ class Project
                 "material.inc.php",
                 $this->getStatesFileName(),
                 "stats.inc.php",
-                "version.php",
-                "img" . DIRECTORY_SEPARATOR . "game_box.png",
-                "img" . DIRECTORY_SEPARATOR . "game_box75.png",
-                "img" . DIRECTORY_SEPARATOR . "game_box180.png",
-                "img" . DIRECTORY_SEPARATOR . "game_icon.png",
-                "img" . DIRECTORY_SEPARATOR . "publisher.png"
+                "version.php"
             ],
             function ($name) {
                 return $this->getProjectFile($name);
             }
+        );
+    }
+
+    /**
+     * @return SplFileInfo[]
+     */
+    public function getRequiredFiles() : array
+    {
+        return array_merge(
+            $this->getRootRequiredFiles(),
+            F\map(
+                [
+                    "img" . DIRECTORY_SEPARATOR . "game_box.png",
+                    "img" . DIRECTORY_SEPARATOR . "game_box75.png",
+                    "img" . DIRECTORY_SEPARATOR . "game_box180.png",
+                    "img" . DIRECTORY_SEPARATOR . "game_icon.png",
+                    "img" . DIRECTORY_SEPARATOR . "publisher.png"
+                ],
+                function ($name) {
+                    return $this->getProjectFile($name);
+                }
+            )
         );
     }
 
@@ -185,7 +251,7 @@ class Project
     private function getDevelopmentSourceFiles() : array
     {
         return F\reduce_left(
-            $this->getDevelopmentSourcePaths(),
+            $this->getBuildInputPaths(),
             function (SplFileInfo $file, $i, $all, array $current) {
                 if ($file->isFile()) {
                     return array_merge($current, [$file]);
@@ -225,19 +291,13 @@ class Project
     /**
      * @return SplFileInfo[]
      */
-    public function getDevelopmentSourcePaths() : array
+    public function getBuildInputPaths() : array
     {
-        return array_merge(
-            $this->getRequiredFiles(),
-            F\map(
-                array_merge(
-                    $this->extraSrcPaths,
-                    ['img']
-                ),
-                function ($path) {
-                    return $this->getProjectFile($path);
-                }
-            )
+        return F\flat_map(
+            $this->getBuildInstructions(),
+            function (BuildInstruction $instruction) {
+                return $instruction->getInputPaths();
+            }
         );
     }
 
@@ -266,7 +326,7 @@ class Project
      */
     protected function getProjectFile($relativePath) : SplFileInfo
     {
-        return $this->createProjectFile($this->directory->getPathname() . DIRECTORY_SEPARATOR . $relativePath);
+        return FileUtils::createRelativeFileFromSubPath($this->directory, $relativePath);
     }
 
     /**
@@ -275,7 +335,7 @@ class Project
      */
     public function absoluteToProjectRelativeFile(\SplFileInfo $file) : SplFileInfo
     {
-        return $this->absoluteToRelativeFile($this->directory, $file);
+        return FileUtils::createRelativeFileFromExisting($this->directory, $file);
     }
 
     /**
@@ -284,40 +344,7 @@ class Project
      */
     public function absoluteToDistRelativeFile(\SplFileInfo $file) : SplFileInfo
     {
-        return $this->absoluteToRelativeFile($this->getDistDirectory(), $file);
-    }
-
-    /**
-     * @param \SplFileInfo $root
-     * @param \SplFileInfo $file
-     * @return SplFileInfo
-     */
-    private function absoluteToRelativeFile(\SplFileInfo $root, \SplFileInfo $file) : SplFileInfo
-    {
-        if (strpos($file->getPathname(), $root->getPathname()) !== 0) {
-            throw new \RuntimeException("File {$file->getPathname()} not within project");
-        }
-        return $this->createRelativeFile($root, $file->getPathname());
-    }
-
-    /**
-     * @param string $pathname
-     * @return SplFileInfo
-     */
-    private function createProjectFile($pathname) : SplFileInfo
-    {
-        return $this->createRelativeFile($this->directory, $pathname);
-    }
-
-    /**
-     * @param \SplFileInfo $directory
-     * @param string $pathname
-     * @return SplFileInfo
-     */
-    private function createRelativeFile(\SplFileInfo $directory, $pathname) : SplFileInfo
-    {
-        $relativePathname = str_replace_first($directory->getPathname() . DIRECTORY_SEPARATOR, '', $pathname);
-        return new SplFileInfo($pathname, dirname($relativePathname), $relativePathname);
+        return FileUtils::createRelativeFileFromExisting($this->getDistDirectory(), $file);
     }
 
     /**

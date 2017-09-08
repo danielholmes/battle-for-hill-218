@@ -63,6 +63,7 @@ class DeployBuildStrategy implements BuildStrategy
             $output->writeln("{$num}/{$total} -> {$file->getRelativePathname()}");
         };
         if (empty($beforeChangedFiles)) {
+            die('TODO: gather all files in dist, shouldnt be beforeChangedFiles');
             $this->deployment->deployChangedFiles($beforeChangedFiles, $outputCallback);
         } else {
             $this->deployment->deployFiles($beforeChangedFiles, $outputCallback);

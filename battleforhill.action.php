@@ -7,7 +7,6 @@ use Functional as F;
  */
 class action_battleforhill extends APP_GameAction
 {
-    // Constructor: please do not modify
     public function __default()
     {
         if (self::isArg('notifwindow')) {

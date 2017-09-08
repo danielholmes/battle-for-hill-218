@@ -2,104 +2,46 @@
 
 namespace BGAWorkbench\Project;
 
-use Symfony\Component\Filesystem\Filesystem;
-use Symfony\Component\Finder\Finder;
+use BGAWorkbench\Builder\CompileComposerGame;
+use Illuminate\Filesystem\Filesystem;
 use Symfony\Component\Finder\SplFileInfo;
-use Symfony\Component\Process\Exception\ProcessFailedException;
-use Symfony\Component\Process\ProcessBuilder;
+use Functional as F;
 
 class ComposerProject extends Project
 {
     /**
-     * @var SplFileInfo
-     *
-    private $vendorFiles;*/
+     * @var string[]
+     */
+    private $extraSrcPaths;
+
+    /**
+     * @param \SplFileInfo $directory
+     * @param string $name
+     * @param string[] $extraSrcPaths
+     */
+    public function __construct(\SplFileInfo $directory, string $name, array $extraSrcPaths)
+    {
+        parent::__construct($directory, $name);
+        $this->extraSrcPaths = $extraSrcPaths;
+    }
 
     /**
      * @inheritdoc
      */
-    public function getDevelopmentSourcePaths() : array
+    protected function createGameProjectFileBuildInstruction(Filesystem $fileSystem, SplFileInfo $file)
     {
-        return array_merge(
-            parent::getDevelopmentSourcePaths(),
-            [$this->getProjectFile('composer.lock')]
-        );
-    }
-
-    /**
-     * @return SplFileInfo[]
-     *
-    private function createVendorFiles(): array
-    {
-        $buildDir = $this->buildProdVendors();
-
-        $finder = Finder::create()
-            ->in($buildDir->getPathname())
-            ->files()
-            ->notName('composer.lock')
-            ->notName('composer.json')
-            ->notPath('/tests/')
-            ->notPath('/bin/');
-        return array_values(iterator_to_array($finder));
-    }*/
-
-    /**
-     * @todo Must be some third party file system helpers to do this
-     * @param string $src
-     * @param string $dst
-     */
-    private function copyDir($src, $dst)
-    {
-        $dir = opendir($src);
-        @mkdir($dst);
-        while (false !== ($file = readdir($dir))) {
-            if (($file != '.') && ($file != '..')) {
-                if (is_dir($src . '/' . $file)) {
-                    $this->copyDir($src . '/' . $file, $dst . '/' . $file);
-                } else {
-                    copy($src . '/' . $file, $dst . '/' . $file);
+        return new CompileComposerGame(
+            new Filesystem(),
+            $this->getBuildDirectory(),
+            $this->getProjectFile('composer.json'),
+            $this->getProjectFile('composer.lock'),
+            $file,
+            F\map(
+                $this->extraSrcPaths,
+                function ($path) {
+                    return $this->getProjectFile($path);
                 }
-            }
-        }
-        closedir($dir);
-    }
-
-    /**
-     * @return \SplFileInfo
-     */
-    public function buildProdVendors()
-    {
-        $buildDir = new \SplFileInfo($this->getBuildDirectory() . DIRECTORY_SEPARATOR . 'prod-vendors');
-        if (!file_exists($buildDir->getPathname() . '/src')) {
-            mkdir($buildDir->getPathname() . '/src', 0777, true);
-        }
-        $this->copyDir('src/TheBattleForHill218', $buildDir->getPathname() . '/src/TheBattleForHill218');
-        $buildVendorConfig = new \SplFileInfo($buildDir->getPathname() . DIRECTORY_SEPARATOR . 'composer.json');
-        $projectConfig = $this->getProjectFile('composer.json');
-        if (!$buildVendorConfig->isFile() || $buildVendorConfig->getMTime() < $projectConfig->getMTime()) {
-            $fileSystem = new Filesystem();
-            $fileSystem->mkdir($buildDir->getPathname());
-            foreach (['composer.json', 'composer.lock'] as $composerFileName) {
-                $fileSystem->copy(
-                    $this->getDirectory()->getPathname() . DIRECTORY_SEPARATOR . $composerFileName,
-                    $buildDir->getPathname() . DIRECTORY_SEPARATOR . $composerFileName
-                );
-            }
-
-            $process = ProcessBuilder::create([
-                'composer',
-                'install',
-                '--no-dev',
-                '-o',
-                '-d',
-                $buildDir->getPathname()
-            ])->getProcess();
-            $process->run();
-            if (!$process->isSuccessful()) {
-                throw new ProcessFailedException($process);
-            }
-        }
-
-        return $buildDir;
+            )
+        );
     }
 }
