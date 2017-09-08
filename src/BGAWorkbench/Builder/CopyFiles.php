@@ -56,9 +56,7 @@ class CopyFiles implements BuildInstruction
                     return [];
                 }
 
-                if (!$this->fileSystem->exists($dest->getPath())) {
-                    $this->fileSystem->makeDirectory($dest->getPath(), 0755, true);
-                }
+                $this->fileSystem->makeDirectory($dest->getPath(), 0755, true, true);
                 $this->fileSystem->copy($file->getPathname(), $dest->getPathname());
                 return [$dest];
             }

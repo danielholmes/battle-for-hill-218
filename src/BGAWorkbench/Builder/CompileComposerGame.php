@@ -297,8 +297,9 @@ class CompileComposerGame implements BuildInstruction
         }
         $this->copyDir('src/TheBattleForHill218', $buildDir->getPathname() . '/src/TheBattleForHill218');
         $buildVendorConfig = new \SplFileInfo($buildDir->getPathname() . DIRECTORY_SEPARATOR . 'composer.json');
-        if (!$buildVendorConfig->isFile() || $buildVendorConfig->getMTime() < $this->composerJsonFile->getMTime()) {
-            $this->fileSystem->makeDirectory($buildDir->getPathname(), 0755, true);
+        if (!$this->fileSystem->exists($buildVendorConfig->getPathname()) ||
+            $buildVendorConfig->getMTime() < $this->composerJsonFile->getMTime()) {
+            $this->fileSystem->makeDirectory($buildDir->getPathname(), 0755, true, true);
             foreach ([$this->composerJsonFile, $this->composerLockFile] as $composerFile) {
                 $this->fileSystem->copy(
                     $composerFile->getPathname(),
