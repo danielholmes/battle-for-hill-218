@@ -111,20 +111,16 @@ class CompileComposerGame implements BuildInstruction
         $sourceModifiedTime = F\reduce_left(
             $files,
             function (\SplFileInfo $file, $i, array $all, $current) {
-                echo $file . "\n";
+                //echo $file . ' :: ' . date('Y-m-d H:i:s', $file->getMTime()) . "\n";
                 return max($file->getMTime(), $current);
             },
             -1
         );
 
-        echo 'Source modified ' . date('Y-m-d H:i:s', $sourceModifiedTime) . ' vs ' .
-            date('Y-m-d h:i:s', $this->fileSystem->lastModified($outputFile->getPathname())) . "\n";
         if ($this->fileSystem->exists($outputFile) &&
             $sourceModifiedTime <= $this->fileSystem->lastModified($outputFile->getPathname())) {
-            die('no comp');
             return [];
         }
-        die('comp');
 
         $configFilepath = $this->buildDir->getPathname() . DIRECTORY_SEPARATOR . 'compiler-config.php';
         $filePaths = F\map(
