@@ -63,6 +63,14 @@ class Project
     }
 
     /**
+     * @return SplFileInfo[]
+     */
+    public function getDistFiles() : array
+    {
+        return $this->getPathFiles($this->getDistDirectory(), $this->getDistDirectory(), []);
+    }
+
+    /**
      * @return string
      */
     public function getName() : string
@@ -76,6 +84,14 @@ class Project
     public function getGameProjectFileRelativePathname() : string
     {
         return "{$this->name}.game.php";
+    }
+
+    /**
+     * @return SplFileInfo
+     */
+    public function getGameProjectFile() : SplFileInfo
+    {
+        return $this->getProjectFile($this->getGameProjectFileRelativePathname());
     }
 
     /**
@@ -175,18 +191,19 @@ class Project
                     return array_merge($current, [$file]);
                 }
 
-                return array_merge($current, $this->getPathFiles($file, $this->getRequiredFiles()));
+                return array_merge($current, $this->getPathFiles($this->directory, $file, $this->getRequiredFiles()));
             },
             []
         );
     }
 
     /**
+     * @param \SplFileInfo $root
      * @param SplFileInfo $file
      * @param SplFileInfo[] $exclude
      * @return SplFileInfo[]
      */
-    private function getPathFiles(SplFileInfo $file, array $exclude) : array
+    private function getPathFiles(\SplFileInfo $root, SplFileInfo $file, array $exclude) : array
     {
         $finder = Finder::create()
             ->in($file->getPathname())
@@ -199,8 +216,8 @@ class Project
 
         return F\map(
             array_values(iterator_to_array($finder)),
-            function (SplFileInfo $file) {
-                return $this->absoluteToProjectRelativeFile($file);
+            function (SplFileInfo $file) use ($root) {
+                return $this->absoluteToRelativeFile($root, $file);
             }
         );
     }
@@ -258,10 +275,29 @@ class Project
      */
     public function absoluteToProjectRelativeFile(\SplFileInfo $file) : SplFileInfo
     {
-        if (strpos($file->getPathname(), $this->directory->getPathname()) !== 0) {
+        return $this->absoluteToRelativeFile($this->directory, $file);
+    }
+
+    /**
+     * @param \SplFileInfo $file
+     * @return SplFileInfo
+     */
+    public function absoluteToDistRelativeFile(\SplFileInfo $file) : SplFileInfo
+    {
+        return $this->absoluteToRelativeFile($this->getDistDirectory(), $file);
+    }
+
+    /**
+     * @param \SplFileInfo $root
+     * @param \SplFileInfo $file
+     * @return SplFileInfo
+     */
+    private function absoluteToRelativeFile(\SplFileInfo $root, \SplFileInfo $file) : SplFileInfo
+    {
+        if (strpos($file->getPathname(), $root->getPathname()) !== 0) {
             throw new \RuntimeException("File {$file->getPathname()} not within project");
         }
-        return $this->createProjectFile($file->getPathname());
+        return $this->createRelativeFile($root, $file->getPathname());
     }
 
     /**
@@ -270,7 +306,17 @@ class Project
      */
     private function createProjectFile($pathname) : SplFileInfo
     {
-        $relativePathname = str_replace_first($this->directory->getPathname() . DIRECTORY_SEPARATOR, '', $pathname);
+        return $this->createRelativeFile($this->directory, $pathname);
+    }
+
+    /**
+     * @param \SplFileInfo $directory
+     * @param string $pathname
+     * @return SplFileInfo
+     */
+    private function createRelativeFile(\SplFileInfo $directory, $pathname) : SplFileInfo
+    {
+        $relativePathname = str_replace_first($directory->getPathname() . DIRECTORY_SEPARATOR, '', $pathname);
         return new SplFileInfo($pathname, dirname($relativePathname), $relativePathname);
     }
 

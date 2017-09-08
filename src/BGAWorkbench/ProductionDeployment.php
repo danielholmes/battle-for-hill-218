@@ -34,6 +34,11 @@ class ProductionDeployment
     private $remoteDirectories;
 
     /**
+     * @var bool
+     */
+    private $isConnected;
+
+    /**
      * @param string $host
      * @param string $username
      * @param string $password
@@ -46,6 +51,15 @@ class ProductionDeployment
         $this->username = $username;
         $this->password = $password;
         $this->directory = $directory;
+        $this->isConnected = false;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isConnected()
+    {
+        return $this->isConnected;
     }
 
     public function connect()
@@ -53,6 +67,7 @@ class ProductionDeployment
         if (!$this->sftp->login($this->username, $this->password)) {
             throw new \RuntimeException("Couldn't log in");
         }
+        $this->isConnected = true;
     }
 
     /**
@@ -70,16 +85,25 @@ class ProductionDeployment
                     $remoteMTimes[$file->getRelativePathname()] < $file->getMTime();
             }
         );
-        $total = count($newerFiles);
+        return $this->deployFiles($newerFiles, $callable);
+    }
+
+    /**
+     * @param SplFileInfo[] $files
+     * @param callable $callable
+     * @return int
+     */
+    public function deployFiles(array $files, $callable)
+    {
+        $total = count($files);
         F\each(
-            $newerFiles,
+            $files,
             function (SplFileInfo $file, $i) use ($callable, $total) {
                 $num = $i + 1;
                 call_user_func($callable, $num, $total, $file);
                 $this->deployFile($file);
             }
-        )
-        ;
+        );
         return $total;
     }
 
@@ -110,17 +134,17 @@ class ProductionDeployment
     /**
      * @param SplFileInfo $file
      */
-    public function deployFile(SplFileInfo $file)
+    private function deployFile(SplFileInfo $file)
     {
         $remoteName = $file->getRelativePathname();
         $remoteDirectories = $this->getRemoteDirectories();
         $remoteDirpath = dirname($remoteName);
-        if ($remoteDirpath !== '.' && !in_array($remoteDirpath, $remoteDirectories->toArray(), true)) {
+        if ($remoteDirpath !== '.' && !in_array($remoteDirpath, $remoteDirectories, true)) {
             $fullRemoteDirpath = "{$this->directory}/{$remoteDirpath}";
             if (!$this->sftp->mkdir($fullRemoteDirpath, -1, true)) {
                 throw new \RuntimeException("Error creating directory {$fullRemoteDirpath}");
             }
-            $this->remoteDirectories = $this->remoteDirectories->concat($this->pathToAllSubPaths($remoteDirpath));
+            $this->remoteDirectories = array_merge($this->remoteDirectories, $this->pathToAllSubPaths($remoteDirpath));
         }
 
         $fullRemotePathname = "{$this->directory}/{$remoteName}";

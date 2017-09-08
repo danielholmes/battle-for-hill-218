@@ -2,23 +2,20 @@
 
 namespace BGAWorkbench\Commands;
 
+use BGAWorkbench\Commands\BuildStrategy\BuildStrategy;
+use BGAWorkbench\Commands\BuildStrategy\CompileBuildStrategy;
+use BGAWorkbench\Commands\BuildStrategy\DeployBuildStrategy;
 use BGAWorkbench\Project\Project;
 use Illuminate\Filesystem\Filesystem;
 use JasonLewis\ResourceWatcher\Tracker;
 use JasonLewis\ResourceWatcher\Watcher;
 use BGAWorkbench\Project\WorkbenchProjectConfig;
-use BGAWorkbench\Utils\NameAccumulatorNodeVisitor;
-use Composer\Autoload\ClassLoader;
-use PhpParser\Parser;
+use PhpOption\None;
+use PhpOption\Some;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Finder\SplFileInfo;
-use Symfony\Component\Process\ProcessBuilder;
-use PhpParser\Node\Name;
-use PhpParser\NodeVisitor\NameResolver;
-use PhpParser\ParserFactory;
-use PhpParser\NodeTraverser;
 use Functional as F;
 
 class BuildCommand extends Command
@@ -31,7 +28,8 @@ class BuildCommand extends Command
         $this
             ->setName('build')
             ->setDescription('Build the project')
-            ->addOption('watch', 'w', null, 'Watch src files and continually build');
+            ->addOption('watch', 'w', null, 'Watch src files and continually build')
+            ->addOption('deploy', 'd', null, 'Deploy files');
     }
 
     /**
@@ -41,34 +39,56 @@ class BuildCommand extends Command
     {
         $config = WorkbenchProjectConfig::loadFromCwd();
         $project = $config->loadProject();
-        if ($input->getOption('watch')) {
-            $this->runBuild($project);
-            $output->writeln("<info>Building to {$project->getDistDirectory()->getRelativePathname()}</info>");
-            $this->executeWatch($project, $output);
-            return 0;
-        }
+        $strategy = $this->createBuildStrategy($input, $config, $project);
 
         try {
-            $outputFilepath = $this->runBuild($project);
+            $strategy->run($output, None::create());
+            $output->writeln("<info>Built to {$project->getDistDirectory()->getRelativePathname()}</info>");
         } catch (\Exception $e) {
             $output->write('<error>' . $e->getMessage() . '</error>');
             return -1;
         }
-        $output->writeln("<info>Built to {$outputFilepath}</info>");
+
+        if (!$input->getOption('watch')) {
+            return 0;
+        }
+
+        $output->writeln("<info>Watching for changes</info>");
+        $this->executeWatch($project, $output, $strategy);
+        return 0;
+    }
+
+    /**
+     * @param InputInterface $input
+     * @param WorkbenchProjectConfig $config
+     * @param Project $project
+     * @return BuildStrategy
+     */
+    private function createBuildStrategy(InputInterface $input, WorkbenchProjectConfig $config, Project $project)
+    {
+        $compile = new CompileBuildStrategy($project);
+        if ($input->getOption('deploy')) {
+            $deployConfig = $config->getDeployConfig()
+                ->getOrThrow(new \RuntimeException('No deployment config provided for project'));
+            return new DeployBuildStrategy($compile, $deployConfig, $project);
+        }
+
+        return $compile;
     }
 
     /**
      * @param Project $project
      * @param OutputInterface $output
+     * @param BuildStrategy $strategy
      */
-    private function executeWatch(Project $project, OutputInterface $output)
+    private function executeWatch(Project $project, OutputInterface $output, BuildStrategy $strategy)
     {
         $files = new Filesystem();
         $tracker = new Tracker();
         $watcher = new Watcher($tracker, $files);
-        $handler = function ($resource, $path) use ($project, $output) {
+        $handler = function ($resource, $path) use ($project, $output, $strategy) {
             $output->write('Changed: ' . $path);
-            $this->runBuild($project);
+            $strategy->run($output, new Some([$project->absoluteToProjectRelativeFile(new \SplFileInfo($path))]));
             $output->writeln(' <info>✓</info>');
         };
         F\each(
@@ -81,153 +101,5 @@ class BuildCommand extends Command
             }
         );
         $watcher->start(500000);
-    }
-
-    /**
-     * @param Project $project
-     * @return string
-     */
-    private function runBuild(Project $project)
-    {
-        $fileSystem = new Filesystem();
-
-        // TODO: Generalise to both project types
-        $workingDir = $project->buildProdVendors();
-        $distDir = $project->getDistDirectory();
-
-        $configFilepath = $project->getBuildDirectory()->getPathname() . '/compiler-config.php';
-        $files = $this->createDependenciesFileList($workingDir);
-        $fileSystem->put($configFilepath, '<?php return ' . var_export($files, true) . ';');
-        $outputFilepath = new \SplFileInfo(
-            $distDir->getPathname() . '/' . $project->getGameProjectFileRelativePathname()
-        );
-
-        // Copy non pre-process files
-        $nonGameFiles = F\filter(
-            $project->getRequiredFiles(),
-            function (SplFileInfo $file) use ($outputFilepath) {
-                return $file->getPathname() !== $outputFilepath->getPathname();
-            }
-        );
-        F\each(
-            $nonGameFiles,
-            function (SplFileInfo $file) use ($distDir, $fileSystem) {
-                $dest = new \SplFileInfo($distDir->getPathname() . DIRECTORY_SEPARATOR . $file->getRelativePathname());
-                if (!$fileSystem->exists($dest->getPath())) {
-                    $fileSystem->makeDirectory($dest->getPath(), 0755, true);
-                }
-                $fileSystem->copy($file->getPathname(), $dest->getPathname());
-            }
-        );
-
-        $process = ProcessBuilder::create([
-            'classpreloader.php',
-            'compile',
-            '--config=' . $configFilepath,
-            '--output=' . $outputFilepath,
-            '--strip_comments=1'
-        ])->getProcess();
-        $result = $process->run();
-        if ($result !== 0) {
-            throw new \RuntimeException($process->getErrorOutput());
-        }
-
-        return $outputFilepath;
-    }
-
-    /**
-     * @param \SplFileInfo $workingDir
-     * @return array
-     */
-    private function createDependenciesFileList(\SplFileInfo $workingDir)
-    {
-        $loader = require($workingDir->getPathname() . '/vendor/autoload.php');
-
-        if (!defined('APP_GAMEMODULE_PATH')) {
-            define('APP_GAMEMODULE_PATH', __DIR__ . '/../Stubs/');
-        }
-        require_once(APP_GAMEMODULE_PATH . 'framework.php');
-        require_once(APP_GAMEMODULE_PATH . 'APP_Object.inc.php');
-        require_once(APP_GAMEMODULE_PATH . 'APP_DbObject.inc.php');
-        require_once(APP_GAMEMODULE_PATH . 'APP_Action.inc.php');
-        require_once(APP_GAMEMODULE_PATH . 'APP_GameAction.inc.php');
-
-        $config = WorkbenchProjectConfig::loadFromCwd();
-        $project = $config->loadProject();
-
-        $path = $project->getDirectory()->getPathname() . '/' . $project->getGameProjectFileRelativePathname();
-        $parser = (new ParserFactory())->create(ParserFactory::PREFER_PHP7);
-
-        $autoloadFiles = array_values(require($workingDir->getPathname() . '/vendor/composer/autoload_files.php'));
-        list($before, $after) = $this->getDependencyFiles($parser, $loader, $path, [$path], [$path]);
-        return array_values(
-            F\unique(
-                array_merge($autoloadFiles, $before, [$path], $after),
-                function ($path) {
-                    return strtolower(realpath($path));
-                }
-            )
-        );
-    }
-
-    /**
-     * @param Parser $parser
-     * @param ClassLoader $loader
-     * @param string $path
-     * @param array $lineage
-     * @param array $alreadySeen
-     * @return array
-     */
-    private function getDependencyFiles(Parser $parser, ClassLoader $loader, $path, array $lineage, array $alreadySeen)
-    {
-        $parsed = $parser->parse(file_get_contents($path));
-
-        $visitor = new NameAccumulatorNodeVisitor();
-        $traverser = new NodeTraverser();
-        $traverser->addVisitor(new NameResolver());
-        $traverser->addVisitor($visitor);
-        $traverser->traverse($parsed);
-
-        $uniqueNames = F\unique($visitor->names, function (Name $name) {
-            return $name->toString();
-        });
-        $allSubPaths = F\unique(
-            F\filter(
-                F\map(
-                    $uniqueNames,
-                    function (Name $name) use ($loader) {
-                        return $loader->findFile($name->toString());
-                    }
-                ),
-                function ($path) {
-                    return $path;
-                }
-            )
-        );
-        $newSubPaths = F\filter(
-            $allSubPaths,
-            function ($path) use ($alreadySeen) {
-                return !in_array($path, $alreadySeen, true);
-            }
-        );
-
-        $current = [];
-        foreach ($newSubPaths as $subPath) {
-            list($newBefore, $newAfter) = $this->getDependencyFiles(
-                $parser,
-                $loader,
-                $subPath,
-                array_merge($lineage, [$subPath]),
-                array_merge($alreadySeen, $current, [$subPath])
-            );
-            $current = array_merge($current, $newBefore, [$subPath], $newAfter);
-        }
-
-        $sharedLineageAndDeps = array_intersect($allSubPaths, $lineage);
-        if (empty($sharedLineageAndDeps)) {
-            return [$current, []];
-        }
-
-        return [[], $current];
     }
 }
