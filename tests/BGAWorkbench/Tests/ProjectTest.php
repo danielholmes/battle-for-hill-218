@@ -24,7 +24,7 @@ class ProjectTest extends TestCase
         );
     }
 
-    public function testDeveloperLocations()
+    public function testBuildInputPaths()
     {
         assertThat(
             $this->project->getBuildInputPaths(),
@@ -32,50 +32,6 @@ class ProjectTest extends TestCase
                 F\map(
                     [
                         'img',
-                        'img/game_box.png',
-                        'img/game_box180.png',
-                        'img/game_box75.png',
-                        'img/game_icon.png',
-                        'img/publisher.png',
-                        'battleforhill.css',
-                        'battleforhill.js',
-                        'battleforhill.game.php',
-                        'battleforhill.action.php',
-                        'battleforhill.view.php',
-                        'battleforhill_battleforhill.tpl',
-                        'states.inc.php',
-                        'stats.inc.php',
-                        'material.inc.php',
-                        'gameoptions.inc.php',
-                        'gameinfos.inc.php',
-                        'dbmodel.sql',
-                        'version.php'
-                    ],
-                    function ($path) {
-                        return $this->project->absoluteToProjectRelativeFile(
-                            new \SplFileInfo(
-                                $this->project->getDirectory()->getPathname() . DIRECTORY_SEPARATOR . $path
-                            )
-                        );
-                    }
-                )
-            )
-        );
-    }
-
-    public function testAllFiles()
-    {
-        assertThat(
-            $this->project->getAllFiles(),
-            containsInAnyOrder(
-                F\map(
-                    [
-                        'img/game_box.png',
-                        'img/game_box180.png',
-                        'img/game_box75.png',
-                        'img/game_icon.png',
-                        'img/publisher.png',
-                        'img/cards.png',
                         'battleforhill.css',
                         'battleforhill.js',
                         'battleforhill.game.php',
@@ -160,7 +116,7 @@ class ProjectTest extends TestCase
 
     public function testAbsoluteToProjectRelativeFileInvalid()
     {
-        $this->expectException('RuntimeException');
+        $this->expectException('InvalidArgumentException');
 
         $tempDir = new \SplFileInfo(sys_get_temp_dir());
         $this->project->absoluteToProjectRelativeFile($tempDir);

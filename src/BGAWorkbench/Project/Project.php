@@ -293,11 +293,15 @@ class Project
      */
     public function getBuildInputPaths() : array
     {
-        return F\flat_map(
-            $this->getBuildInstructions(),
-            function (BuildInstruction $instruction) {
-                return $instruction->getInputPaths();
-            }
+        return F\unique(
+            F\flat_map(
+                $this->getBuildInstructions(),
+                function (BuildInstruction $instruction) {
+                    return $instruction->getInputPaths();
+                }
+            ),
+            null,
+            false
         );
     }
 
