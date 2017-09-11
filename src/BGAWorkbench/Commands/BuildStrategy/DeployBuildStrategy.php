@@ -5,6 +5,7 @@ namespace BGAWorkbench\Commands\BuildStrategy;
 use BGAWorkbench\ProductionDeployment;
 use BGAWorkbench\Project\DeployConfig;
 use BGAWorkbench\Project\Project;
+use Illuminate\Filesystem\Filesystem;
 use PhpOption\Option;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Finder\SplFileInfo;
@@ -27,12 +28,18 @@ class DeployBuildStrategy implements BuildStrategy
     private $deployment;
 
     /**
+     * @var Filesystem
+     */
+    private $fileSystem;
+
+    /**
      * @param BuildStrategy $beforeStrategy
      * @param DeployConfig $deployConfig
      * @param Project $project
      */
     public function __construct(BuildStrategy $beforeStrategy, DeployConfig $deployConfig, Project $project)
     {
+        $this->fileSystem = new Filesystem();
         $this->beforeStrategy = $beforeStrategy;
         $this->deployment = new ProductionDeployment(
             $deployConfig->getHost(),
@@ -63,8 +70,8 @@ class DeployBuildStrategy implements BuildStrategy
             $output->writeln("{$num}/{$total} -> {$file->getRelativePathname()}");
         };
         if (empty($beforeChangedFiles)) {
-            die('TODO: gather all files in dist, shouldnt be beforeChangedFiles');
-            $this->deployment->deployChangedFiles($beforeChangedFiles, $outputCallback);
+            $allFiles = $this->fileSystem->allFiles($this->project->getDistDirectory()->getPathname());
+            $this->deployment->deployChangedFiles($allFiles, $outputCallback);
         } else {
             $this->deployment->deployFiles($beforeChangedFiles, $outputCallback);
         }

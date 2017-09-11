@@ -78,12 +78,14 @@ class ProductionDeployment
     public function deployChangedFiles(array $files, $callable) : int
     {
         $remoteMTimes = $this->getMTimesByFilepath();
-        $newerFiles = F\filter(
-            $files,
-            function (SplFileInfo $file) use ($remoteMTimes) {
-                return !isset($remoteMTimes[$file->getRelativePathname()]) ||
-                    $remoteMTimes[$file->getRelativePathname()] < $file->getMTime();
-            }
+        $newerFiles = array_values(
+            F\filter(
+                $files,
+                function (SplFileInfo $file) use ($remoteMTimes) {
+                    return !isset($remoteMTimes[$file->getRelativePathname()]) ||
+                        $remoteMTimes[$file->getRelativePathname()] < $file->getMTime();
+                }
+            )
         );
         return $this->deployFiles($newerFiles, $callable);
     }

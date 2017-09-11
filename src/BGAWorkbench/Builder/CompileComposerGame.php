@@ -100,10 +100,8 @@ class CompileComposerGame implements BuildInstruction
      */
     public function run(\SplFileInfo $distDir) : array
     {
-        // TODO: Only build Prod vendors if .lock changed
-        $workingDir = $this->buildProdVendors();
+        $workingDir = $this->createBuildCopy();
 
-        // TODO: Only run if any file newer than output
         $outputFile = new \SplFileInfo(
             $distDir->getPathname() . DIRECTORY_SEPARATOR . $this->gameFile->getRelativePathname()
         );
@@ -111,7 +109,6 @@ class CompileComposerGame implements BuildInstruction
         $sourceModifiedTime = F\reduce_left(
             $files,
             function (\SplFileInfo $file, $i, array $all, $current) {
-                //echo $file . ' :: ' . date('Y-m-d H:i:s', $file->getMTime()) . "\n";
                 return max($file->getMTime(), $current);
             },
             -1
@@ -231,13 +228,20 @@ class CompileComposerGame implements BuildInstruction
                     return new \SplFileInfo($path);
                 }
             ),
-            null,
+            function (\SplFileInfo $file) {
+                return $file->getRealPath();
+            },
             false
         );
         $newSubFiles = F\filter(
             $allSubFiles,
             function (\SplFileInfo $file) use ($alreadySeen) {
-                return !in_array($file, $alreadySeen, false);
+                return !F\some(
+                    $alreadySeen,
+                    function (\SplFileInfo $seenFile) use ($file) {
+                        return $file->getRealPath() === $seenFile->getRealPath();
+                    }
+                );
             }
         );
 
@@ -262,42 +266,57 @@ class CompileComposerGame implements BuildInstruction
     }
 
     /**
-     * @todo Must be some third party file system helpers to do this
-     * @param string $src
-     * @param string $dst
+     * @param \SplFileInfo $directory
+     * @return int
      */
-    private function copyDir($src, $dst)
+    private function getDirectoryMTime(\SplFileInfo $directory)
     {
-        $dir = opendir($src);
-        @mkdir($dst);
-        while (false !== ($file = readdir($dir))) {
-            if (($file != '.') && ($file != '..')) {
-                if (is_dir($src . '/' . $file)) {
-                    $this->copyDir($src . '/' . $file, $dst . '/' . $file);
-                } else {
-                    copy($src . '/' . $file, $dst . '/' . $file);
+        return F\reduce_left(
+            $this->fileSystem->allFiles($directory->getPathname()),
+            function (\SplFileInfo $file, $i, array $all, $current) {
+                if ($file->getMTime() > $current) {
+                    return $file->getMTime();
                 }
-            }
+                return $current;
+            },
+            -1
+        );
+    }
+
+    /**
+     * @param string $source
+     * @param string $destination
+     */
+    private function copyIfNewer($source, $destination)
+    {
+        if (!$this->fileSystem->exists($destination) ||
+            $this->fileSystem->lastModified($destination) < $this->fileSystem->lastModified($source)) {
+            $this->fileSystem->copy($source, $destination);
         }
-        closedir($dir);
     }
 
     /**
      * @return \SplFileInfo
      */
-    public function buildProdVendors()
+    public function createBuildCopy()
     {
         $buildDir = new \SplFileInfo($this->buildDir->getPathname() . DIRECTORY_SEPARATOR . 'prod-vendors');
-        if (!file_exists($buildDir->getPathname() . '/src')) {
-            mkdir($buildDir->getPathname() . '/src', 0777, true);
+
+        foreach ($this->extraSrcPaths as $fromSource) {
+            // TODO: $extraSrcPath needs to be suffixed to project dir
+            $toSource = new \SplFileInfo($buildDir->getPathname() . '/' . $fromSource->getRelativePathname());
+            if ($this->getDirectoryMTime($fromSource) > $this->getDirectoryMTime($toSource)) {
+                $this->fileSystem->copyDirectory($fromSource->getPathname(), $toSource->getPathname());
+            }
         }
-        $this->copyDir('src/TheBattleForHill218', $buildDir->getPathname() . '/src/TheBattleForHill218');
-        $buildVendorConfig = new \SplFileInfo($buildDir->getPathname() . DIRECTORY_SEPARATOR . 'composer.json');
-        if (!$this->fileSystem->exists($buildVendorConfig->getPathname()) ||
-            $buildVendorConfig->getMTime() < $this->composerJsonFile->getMTime()) {
-            $this->fileSystem->makeDirectory($buildDir->getPathname(), 0755, true, true);
+
+        $buildVendorLock = new \SplFileInfo($buildDir->getPathname() . DIRECTORY_SEPARATOR . 'composer.lock');
+        $vendorsChanged = $this->fileSystem->exists($buildVendorLock->getPathname()) &&
+            $buildVendorLock->getMTime() >= $this->composerLockFile->getMTime();
+
+        if ($vendorsChanged) {
             foreach ([$this->composerJsonFile, $this->composerLockFile] as $composerFile) {
-                $this->fileSystem->copy(
+                $this->copyIfNewer(
                     $composerFile->getPathname(),
                     $buildDir->getPathname() . DIRECTORY_SEPARATOR . $composerFile->getRelativePathname()
                 );
