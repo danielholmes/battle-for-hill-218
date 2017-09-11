@@ -12,13 +12,13 @@ use TheBattleForHill218\Cards\ParatroopersCard;
 
 class ParatroopersCardTest extends TestCase
 {
-    public function testGetPositionsOfOpponent()
+    public function testGetPossiblePlacements()
     {
         $battlefield = new BattlefieldImpl(
             2,
             [
                 new CardPlacement(new HillCard(), new Position(0, 0)),
-                new CardPlacement(new InfantryCard(2), new Position(0, -1)),
+                new CardPlacement(new InfantryCard(2), new Position(0, -2)),
                 new CardPlacement(new InfantryCard(1), new Position(0, 1))
             ]
         );
@@ -51,12 +51,13 @@ class ParatroopersCardTest extends TestCase
                 //
                 new Position(-2, -1),
                 new Position(-1, -1),
+                //new Position(0, -1), // Opponent base
                 new Position(1, -1),
                 new Position(2, -1),
                 //
                 new Position(-2, -2),
                 new Position(-1, -2),
-                new Position(0, -2),
+                // new Position(0, -2), Card in this position
                 new Position(1, -2),
                 new Position(2, -2),
                 //
@@ -64,7 +65,13 @@ class ParatroopersCardTest extends TestCase
                 new Position(-1, -3),
                 new Position(0, -3),
                 new Position(1, -3),
-                new Position(2, -3)
+                new Position(2, -3),
+                //
+                new Position(-2, -4),
+                new Position(-1, -4),
+                new Position(0, -4),
+                new Position(1, -4),
+                new Position(2, -4)
             )
         );
     }

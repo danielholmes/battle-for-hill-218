@@ -3,6 +3,8 @@
 namespace TheBattleForHill218\Cards;
 
 use TheBattleForHill218\Battlefield\Battlefield;
+use TheBattleForHill218\Battlefield\Position;
+use TheBattleForHill218\Functional as BF;
 
 class ParatroopersCard extends BasePlayerBattlefieldCard
 {
@@ -59,6 +61,12 @@ class ParatroopersCard extends BasePlayerBattlefieldCard
      */
     public function getPossiblePlacements(Battlefield $battlefield) : array
     {
-        return $battlefield->getUnoccupiedWithExpansion(2);
+        $opponentBasePosition = $battlefield->getOpponentBasePosition($this->getPlayerId());
+        return BF\filter_to_list(
+            $battlefield->getUnoccupiedWithExpansion(2),
+            function (Position $position) use ($opponentBasePosition) {
+                return $position != $opponentBasePosition;
+            }
+        );
     }
 }

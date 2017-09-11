@@ -13,6 +13,12 @@ interface Battlefield
     public function getPositionsOfOpponent(int $myId) : array;
 
     /**
+     * @param int $myId
+     * @return Position
+     */
+    public function getOpponentBasePosition(int $myId) : Position;
+
+    /**
      * @param int $playerId
      * @param SupplyOffset[] $supplyPattern
      * @return Position[]
