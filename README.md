@@ -84,6 +84,7 @@ visitor:
 
  - When using the watch command - a changed file during the initial deploy won't redeploy
  - SFTP disconnects after a while - should be intelligent enough to reconnect
+ - Output is pretty rough for build command and its variants (--deploy and --watch)
 
 
 ## Git Pre-Commit Hook

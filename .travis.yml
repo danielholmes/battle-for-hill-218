@@ -16,7 +16,8 @@ before_script:
 script:
   - cp bgaproject.yml.dist bgaproject.yml
   - composer compile-images > /dev/null
-  - composer build > /dev/null
+  - composer clean
+  - composer build
   - composer bga-validate
   - composer check-styles
   - composer test

@@ -271,6 +271,10 @@ class CompileComposerGame implements BuildInstruction
      */
     private function getDirectoryMTime(\SplFileInfo $directory)
     {
+        if (!$this->fileSystem->exists($directory->getPathname())) {
+            return -1;
+        }
+
         return F\reduce_left(
             $this->fileSystem->allFiles($directory->getPathname()),
             function (\SplFileInfo $file, $i, array $all, $current) {
@@ -303,7 +307,6 @@ class CompileComposerGame implements BuildInstruction
         $buildDir = new \SplFileInfo($this->buildDir->getPathname() . DIRECTORY_SEPARATOR . 'prod-vendors');
 
         foreach ($this->extraSrcPaths as $fromSource) {
-            // TODO: $extraSrcPath needs to be suffixed to project dir
             $toSource = new \SplFileInfo($buildDir->getPathname() . '/' . $fromSource->getRelativePathname());
             if ($this->getDirectoryMTime($fromSource) > $this->getDirectoryMTime($toSource)) {
                 $this->fileSystem->copyDirectory($fromSource->getPathname(), $toSource->getPathname());
@@ -311,8 +314,8 @@ class CompileComposerGame implements BuildInstruction
         }
 
         $buildVendorLock = new \SplFileInfo($buildDir->getPathname() . DIRECTORY_SEPARATOR . 'composer.lock');
-        $vendorsChanged = $this->fileSystem->exists($buildVendorLock->getPathname()) &&
-            $buildVendorLock->getMTime() >= $this->composerLockFile->getMTime();
+        $vendorsChanged = !$this->fileSystem->exists($buildVendorLock->getPathname()) ||
+            $buildVendorLock->getMTime() < $this->composerLockFile->getMTime();
 
         if ($vendorsChanged) {
             foreach ([$this->composerJsonFile, $this->composerLockFile] as $composerFile) {
