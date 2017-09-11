@@ -309,6 +309,7 @@ class CompileComposerGame implements BuildInstruction
         foreach ($this->extraSrcPaths as $fromSource) {
             $toSource = new \SplFileInfo($buildDir->getPathname() . '/' . $fromSource->getRelativePathname());
             if ($this->getDirectoryMTime($fromSource) > $this->getDirectoryMTime($toSource)) {
+                // TODO: To only trigger build processes that need to be, should only copy files that have changed
                 $this->fileSystem->copyDirectory($fromSource->getPathname(), $toSource->getPathname());
             }
         }

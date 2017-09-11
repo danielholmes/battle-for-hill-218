@@ -60,9 +60,10 @@
   "scripts": {
     "check-styles": "phpcs --standard=PSR2 --tab-width=4 --ignore=src/BGAWorkbench/Stubs,tests/bootstrap.php -q -p tests src",
     "fix-styles": "phpcbf --standard=PSR2 --tab-width=4 --ignore=src/BGAWorkbench/Stubs,tests/bootstrap.php -q -p tests src",
-    "build": "composer exec bgawb -v -- build",
-    "watch": "composer exec bgawb -v -- build -w",
     "clean": "composer exec bgawb -v clean",
+    "build": "composer exec bgawb -v -- build",
+    "deploy": "composer exec bgawb -v -- build -d",
+    "watch": "composer exec bgawb -v -- build -w -d",
     "bga-validate": "composer exec bgawb -v validate",
     "compile-images": "composer exec bfh -v compile-images",
     "test": "phpunit"
