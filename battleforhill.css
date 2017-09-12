@@ -40,8 +40,8 @@
 /* Battlefield */
 .battlefield-position {
     position: absolute;
-    width: 96px;
-    height: 138px;
+    width: 160px;
+    height: 230px;
 }
 
 /* Battlefield map */
@@ -101,30 +101,39 @@
 
 /** Zoom **/
 .zoom10 {
+    font-size: 100%;
     transform: scale(1,1);
 }
 .zoom9 {
+    font-size: 99%;
     transform: scale(0.9,0.9);
 }
 .zoom8 {
+    font-size: 98%;
     transform: scale(0.8, 0.8);
 }
 .zoom7 {
+    font-size: 96.5%;
     transform: scale(0.7,0.7);
 }
 .zoom6 {
+    font-size: 95%;
     transform: scale(0.6,0.6);
 }
 .zoom5 {
+    font-size: 93.5%;
     transform: scale(0.5, 0.5);
 }
 .zoom4 {
+    font-size: 92%;
     transform: scale(0.4,0.4);
 }
 .zoom3 {
+    font-size: 91%;
     transform: scale(0.3, 0.3);
 }
 .zoom2 {
+    font-size: 90%;
     transform: scale(0.2,0.2);
 }
 
@@ -220,11 +229,11 @@
     word-break: break-word;
     text-align: center;
     font-weight: bold;
-    font-size: 14px;
+    font-size: 1.65em;
     background-image: url(img/cards.png);
-    background-size: 1056px 295px;
+    background-size: 1760px 491px;
     background-repeat: no-repeat;
-    background-position: -864px -138px;
+    background-position: -1440px -230px;
     display: table-cell;
     vertical-align: middle;
     padding-left: 6px;
