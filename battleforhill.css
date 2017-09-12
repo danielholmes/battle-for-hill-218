@@ -260,6 +260,23 @@
 .state-choose-attack .battlefield-button.clickable {
     background-position: -1280px 0px;
 }
+.battlefield-button .coordinates {
+    color: white;
+    font-weight: bold;
+    font-size: 2.8em;
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    line-height: 230px;
+    display: none;
+    text-shadow: -2px 0 #333333, 0 2px #333333, 2px 0 #333333, 0 -2px #333333;
+}
+.battlefield-button.clickable .coordinates {
+    display: block;
+}
+.state-choose-attack .battlefield-button.clickable .coordinates {
+    color: red;
+}
 
 /* Card Effects */
 .explosion {

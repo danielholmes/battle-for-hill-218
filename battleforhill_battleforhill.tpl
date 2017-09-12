@@ -42,8 +42,12 @@
     var jstpl_opponent_air_strike_card = '<div class="playable-card"><div class="card ${type} color-${color}"></div></div>';
     var jstpl_battlefield_position = '<div id="position-${x}-${y}" class="battlefield-position" style="left: ${left}px;top: ${top}px" data-x="${x}" data-y="${y}"></div>';
     var jstpl_battlefield_card = '<div class="battlefield-card"><div class="card ${type} color-${color}"></div></div>';
-    var jstpl_base_indicator = '<div class="battlefield-card"><div class="card base-indicator">${namePlural} base</div></div>';
-    var jstpl_battlefield_button = '<div id="battlefield-button-${x}-${y}" class="battlefield-button" style="left: ${left}px;top: ${top}px" data-x="${x}" data-y="${y}"></div>';
+    var jstpl_base_indicator = '<div class="battlefield-card">\
+        <div class="card base-indicator">${namePlural} base</div>\
+    </div>';
+    var jstpl_battlefield_button = '<div id="battlefield-button-${x}-${y}" class="battlefield-button" style="left: ${left}px;top: ${top}px" data-x="${x}" data-y="${y}">\
+        <div class="coordinates">${x},${y}</div>\
+    </div>';
     var jstpl_explosion = '<div class="explosion"></div>';
     var jstpl_card_tooltip = '<div><strong>${message}</strong><div class="tooltip-card ${type} color-${color}"></div></div>';
     var jstpl_counter_icons = '<div>\
