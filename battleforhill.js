@@ -39,6 +39,7 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domClass, domGeo
          *  - when a player refreshes the game page (F5)
          */
         setup: function(datas) {
+            this.setupLayout();
             this.setupPlayerCards(datas.players);
             this.setupBattlefield(datas.battlefield);
             this.setupNotifications();
@@ -105,6 +106,11 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domClass, domGeo
             this.addTooltip('zoom_in', _('Zoom In'), '');
             this.addTooltip('zoom_out', _('Zoom Out'), '');
             this.addTooltip('reset_map', _('Reset Map'), '');
+        },
+
+        setupLayout: function() {
+            this.updateUi();
+            dojo.connect(this, 'onGameUiWidthChange', this, lang.hitch(this, this.updateUi));
         },
 
         ///////////////////////////////////////////////////
@@ -261,7 +267,7 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domClass, domGeo
         },
 
         getCurrentPlayerCardsNode: function() {
-            return dom.byId('my-cards');
+            return dom.byId('players-panel');
         },
         
         getCurrentPlayerHandCardsNodeList: function() {
@@ -270,7 +276,7 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domClass, domGeo
         },
 
         getCurrentPlayerHandCardsNode: function() {
-            return query(this.getCurrentPlayerCardsNode()).query('.hand-cards').pop();
+            return query(this.getCurrentPlayerCardsNode()).query('.player-cards').pop();
         },
 
         getCurrentPlayerHandCardNodeByCardId: function(cardId) {
@@ -405,6 +411,19 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domClass, domGeo
             );
         },
 
+        updateUi: function() {
+            var screenHeight = window.innerHeight
+                || document.documentElement.clientHeight
+                || document.body.clientHeight;
+
+            var containerPos = dojo.coords('battlefield-panel', true);
+
+            screenHeight /= this.gameinterface_zoomFactor;
+
+            var mapHeight = Math.max(500, screenHeight - containerPos.y - 30);
+            dojo.style('battlefield-panel', 'height', mapHeight + 'px');
+        },
+
         ///////////////////////////////////////////////////
         //// Animation Utility methods
         prepareForAnimation: function(node) {
@@ -466,7 +485,7 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domClass, domGeo
         ///////////////////////////////////////////////////
         // Interaction utility methods
         enableHandCardsClick: function(handler, tooltip, selectedTooltip) {
-            var subSelector = '.hand-cards';
+            var subSelector = '.player-cards';
             var cardsContainer = this.getCurrentPlayerCardsNode();
             if (cardsContainer === null) {
                 return;

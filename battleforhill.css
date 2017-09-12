@@ -6,17 +6,24 @@
     overflow: hidden;
 }
 #players-panel {
-    width: auto;
+    float: left;
+    position: relative;
+    width: 167px;
 }
 #battlefield-panel {
     width: auto;
     overflow: hidden;
+    margin-left: 202px;
 }
 
 /* Hands */
 .player-cards .playable-card {
     display: inline-block;
-    margin-right: 4px;
+    margin-left: 5px;
+    margin-bottom: 5px;
+}
+.player-cards {
+    margin-left: -5px;
 }
 .clickable .playable-card {
     cursor: pointer;
@@ -41,7 +48,7 @@
 #map_container {
     position: relative;
     width: 100%;
-    height: 602px;
+    height: 100%;
     overflow: hidden;
 }
 #map_scrollable, #map_scrollable_oversurface {

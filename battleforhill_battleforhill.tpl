@@ -2,11 +2,9 @@
 
 <div id="game-container" class="{GAME_CONTAINER_CLASS}">
     <!-- BEGIN player_cards -->
-    <div id="players-panel">
-        <div id="my-cards" class="player-cards whiteblock">
-            <h3>Your hand</h3>
-            <div class="hand-cards"></div>
-        </div>
+    <div id="players-panel" class="whiteblock">
+        <h3>Your hand</h3>
+        <div class="player-cards"></div>
     </div>
     <!-- END player_cards -->
     <div id="battlefield-panel" class="whiteblock">
