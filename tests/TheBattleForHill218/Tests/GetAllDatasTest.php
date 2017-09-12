@@ -35,14 +35,12 @@ class GetAllDatasTest extends TestCase
                         'id' => 66,
                         'cards' => arrayWithSize(7),
                         'numCards' => 7,
-                        'numAirStrikes' => 2,
                         'deckSize' => 19
                     ]),
                     allOf(
                         M\hasEntries([
                             'id' => 77,
                             'numCards' => 7,
-                            'numAirStrikes' => 2,
                             'deckSize' => 19
                         ]),
                         not(hasKey('cards'))
@@ -81,14 +79,12 @@ class GetAllDatasTest extends TestCase
                         'id' => 66,
                         'cards' => emptyArray(),
                         'numCards' => 0,
-                        'numAirStrikes' => 0,
                         'deckSize' => 0
                     ]),
                     allOf(
                         M\hasEntries([
                             'id' => 77,
                             'numCards' => 0,
-                            'numAirStrikes' => 0,
                             'deckSize' => 0
                         ]),
                         not(hasKey('cards'))

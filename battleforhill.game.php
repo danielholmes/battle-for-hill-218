@@ -576,10 +576,7 @@ SQL
                 'playerColor' => $player['player_color'],
                 'destroyedType' => $cardInPosition->getCard()->getTypeName(),
                 'x' => $position->getX(),
-                'y' => $position->getY(),
-                'count' => self::getIntUniqueValueFromDB(
-                    "SELECT COUNT(id) FROM playable_card WHERE type = 'air-strike' AND player_id = '{$card->getPlayerId()}'"
-                )
+                'y' => $position->getY()
             ]
         );
         $this->notifyPlayer(

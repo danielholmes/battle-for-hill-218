@@ -275,8 +275,7 @@ class PlayCardTest extends TestCase
                         'destroyedType' => 'Infantry',
                         'playerName' => nonEmptyString(),
                         'x' => 0,
-                        'y' => -1,
-                        'count' => 1
+                        'y' => -1
                     ])
                 ]),
                 M\hasEntries([

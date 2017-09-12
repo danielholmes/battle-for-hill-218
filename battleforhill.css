@@ -180,25 +180,24 @@
     background-image: url(img/cards.png);
     background-repeat: no-repeat;
 }
-.counter-cell.air-strike-count {
+.air-strike-icon {
     border: 4px solid transparent;
-}
-.counter-cell.air-strike-count.clickable {
-    cursor: pointer;
-}
-.counter-cell.air-strike-count.clickable.selected {
-    border: 4px dashed red;
-}
-.counter-cell.air-strike-count .counter-icon {
     width: 26px;
     height: 23px;
+    display: inline-block;
 }
-#player_board_inner_3b550c .counter-cell.air-strike-count .counter-icon {
+.air-strike-icon.clickable {
+    cursor: pointer;
+}
+.air-strike-icon.clickable.selected {
+    border: 4px dashed red;
+}
+#player_board_inner_3b550c .air-strike-icon {
     background-position: -53px -464px;
     background-image: url(img/cards.png);
     background-repeat: no-repeat;
 }
-#player_board_inner_04237b .counter-cell.air-strike-count .counter-icon {
+#player_board_inner_04237b .air-strike-icon {
     background-position: -87px -464px;
     background-image: url(img/cards.png);
     background-repeat: no-repeat;
@@ -263,7 +262,7 @@
 .battlefield-button .coordinates {
     color: white;
     font-weight: bold;
-    font-size: 2.8em;
+    font-size: 2.7em;
     width: 100%;
     height: 100%;
     text-align: center;
