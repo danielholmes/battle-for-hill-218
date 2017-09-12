@@ -20,8 +20,8 @@ define([
 ],
 function (dojo, declare, lang, dom, query, array, domConstruct, domClass, domGeom, fx) {
     // Should be the same dimensions as battlefield-card in css
-    var CARD_WIDTH = 96;
-    var CARD_HEIGHT = 138;
+    var CARD_WIDTH = 160;
+    var CARD_HEIGHT = 230;
     var SLIDE_ANIMATION_DURATION = 700;
     var MAX_ZOOM = 10;
     var MIN_ZOOM = 2;
@@ -29,7 +29,7 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domClass, domGeo
     return declare("bgagame.battleforhill", ebg.core.gamegui, {
         constructor: function() {
             this.battlefieldMap = new ebg.scrollmap();
-            this.zoomLevel = MAX_ZOOM;
+            this.zoomLevel = 6;
         },
         
         /**

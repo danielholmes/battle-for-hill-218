@@ -105,7 +105,7 @@ class CompileImagesCommand extends Command
             "\n\n",
             [
                 $this->createSheetCss($tileRows, $image, 'Cards', 'card', 0.5),
-                $this->createSheetCss($tileRows, $image, 'Battlefield Cards', 'battlefield-card > .card', 0.6),
+                $this->createSheetCss($tileRows, $image, 'Battlefield Cards', 'battlefield-card > .card', 1),
                 $this->createSheetCss($tileRows, $image, 'Tooltip Cards', 'tooltip-card', 1)
             ]
         );
