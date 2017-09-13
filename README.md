@@ -90,3 +90,9 @@ visitor:
 ## Git Pre-Commit Hook
 
 Available in `etc/pre-commit`. Runs an auto style detection and prevents commit if any issues.
+
+
+## TODO
+
+ - when cards animating, should be the correct orientation
+ - base indicator shows on new page load if card placed on base then destroyed
