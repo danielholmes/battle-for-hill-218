@@ -657,6 +657,7 @@ SQL
         if ($opponentBasePosition == $position) {
             self::DbQuery("UPDATE player SET player_score = 10 WHERE player_id = {$card->getPlayerId()}");
             self::DbQuery("UPDATE player SET player_score = 0 WHERE player_id != {$card->getPlayerId()}");
+            $this->notifyAllPlayers('endOfGame', '', []);
             $this->gamestate->nextState('occupyEnemyBase');
             return;
         }
@@ -904,6 +905,7 @@ SQL
         $haveDeckCards = (boolean) self::getUniqueValueFromDB('SELECT COUNT(id) FROM deck_card LIMIT 1');
         $havePlayableCards = (boolean) self::getUniqueValueFromDB('SELECT COUNT(id) FROM playable_card LIMIT 1');
         if (!$haveDeckCards && !$havePlayableCards) {
+            $this->notifyAllPlayers('endOfGame', '', []);
             $this->gamestate->nextState('noCardsLeft');
             return;
         }

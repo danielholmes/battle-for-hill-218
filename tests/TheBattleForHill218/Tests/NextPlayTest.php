@@ -92,10 +92,23 @@ class NextPlayTest extends TestCase
 
     public function testNextPlayNoCardsLeft()
     {
-        $this->createGameReadyForNext(function (Connection $db) {
+        $game = $this->createGameReadyForNext(function (Connection $db) {
             $db->exec('DELETE FROM deck_card WHERE 1');
             $db->exec('DELETE FROM playable_card WHERE 1');
-        })->stubActivePlayerId(66)
-            ->stNextPlay();
+        })->stubActivePlayerId(66);
+        $game->resetNotifications();
+
+        $game->stNextPlay();
+
+        assertThat(
+            $game->getNotifications(),
+            containsInAnyOrder(
+                M\hasEntries([
+                    'playerId' => 'all',
+                    'type' => 'endOfGame',
+                    'log' => ''
+                ])
+            )
+        );
     }
 }

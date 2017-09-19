@@ -433,7 +433,7 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domClass, domGeo
                 || document.documentElement.clientHeight
                 || document.body.clientHeight;
 
-            var containerPos = dojo.coords('battlefield-panel', true);
+            var containerPos = dojo.position('battlefield-panel');
 
             screenHeight /= this.gameinterface_zoomFactor;
 
@@ -829,13 +829,14 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domClass, domGeo
             dojo.subscribe('cardsDrawn', lang.hitch(this, this.notif_cardsDrawn));
             dojo.subscribe('myCardsDrawn', lang.hitch(this, this.notif_myCardsDrawn));
             dojo.subscribe('iPlacedCard', lang.hitch(this, this.notif_iPlacedCard));
-            //this.notifqueue.setSynchronous('iPlacedCard', 2000);
             dojo.subscribe('placedCard', lang.hitch(this, this.notif_placedCard));
-            //this.notifqueue.setSynchronous('placedCard', 2000);
             dojo.subscribe('iPlayedAirStrike', lang.hitch(this, this.notif_iPlayedAirStrike));
             dojo.subscribe('playedAirStrike', lang.hitch(this, this.notif_playedAirStrike));
             dojo.subscribe('cardAttacked', lang.hitch(this, this.notif_cardAttacked));
             dojo.subscribe('newScores', lang.hitch(this, this.notif_newScores));
+            dojo.subscribe('endOfGame', this, function() {});
+            // Delay end of game for interface stock stability before switching to game result
+            this.notifqueue.setSynchronous('endOfGame', 2000);
         },
 
         notif_cardAttacked: function(notification) {

@@ -178,6 +178,11 @@ class PlayCardTest extends TestCase
                         'x' => 0,
                         'y' => -1
                     ])
+                ]),
+                M\hasEntries([
+                    'playerId' => 'all',
+                    'type' => 'endOfGame',
+                    'log' => ''
                 ])
             )
         );
