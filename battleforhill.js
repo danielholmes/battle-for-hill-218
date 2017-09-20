@@ -123,12 +123,17 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domClass, domGeo
 
         setupBattlefield: function(data) {
             array.forEach(data, lang.hitch(this, this.placeBattlefieldCard));
+        },
+
+        setupLayout: function() {
+            this.updateUi();
+            dojo.connect(this, 'onGameUiWidthChange', this, lang.hitch(this, this.updateUi));
 
             this.battlefieldMap.create(
-                $('map_container'),
-                $('map_scrollable'),
-                $('map_surface'),
-                $('map_scrollable_oversurface')
+                query('#map_container').pop(),
+                query('#map_scrollable').pop(),
+                query('#map_surface').pop(),
+                query('#map_scrollable_oversurface').pop()
             );
             query('#movetop').on('click', lang.hitch(this, this.onMoveTop));
             query('#moveleft').on('click', lang.hitch(this, this.onMoveLeft));
@@ -141,11 +146,6 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domClass, domGeo
             this.addTooltip('zoom_in', _('Zoom In'), '');
             this.addTooltip('zoom_out', _('Zoom Out'), '');
             this.addTooltip('reset_map', _('Reset Map'), '');
-        },
-
-        setupLayout: function() {
-            this.updateUi();
-            dojo.connect(this, 'onGameUiWidthChange', this, lang.hitch(this, this.updateUi));
         },
 
         ///////////////////////////////////////////////////
@@ -610,6 +610,7 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domClass, domGeo
             var top = -CARD_HEIGHT / 2 - (y * CARD_HEIGHT);
             if (this.isViewingAsUpwardsPlayer()) {
                 top *= -1;
+                top -= CARD_HEIGHT;
             }
             placement = domConstruct.toDom(this.format_block(templateName, {x: x, y: y, top: top, left: left}));
             dojo.place(placement, container);
@@ -617,14 +618,7 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domClass, domGeo
         },
 
         isViewingAsUpwardsPlayer: function() {
-            // TODO: Use class on game container instead so logic only in one place
-            for (var i in this.playerData) {
-                var player = this.playerData[i];
-                if (!player.isDownwardPlayer && player.id === this.player_id) {
-                    return true;
-                }
-            }
-            return false;
+            return document.getElementById('game-container').className.indexOf('viewing-as-upwards-player') >= 0;
         },
 
         explodeCard: function(position) {

@@ -2,8 +2,6 @@
 
 require_once(APP_BASE_PATH . "view/common/game.view.php");
 
-use Functional as F;
-
 /**
  * @property BattleForHill $game
  */
