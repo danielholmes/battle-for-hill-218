@@ -344,9 +344,23 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domClass, domGeo
             return domConstruct.toDom(this.format_block('jstpl_explosion'));
         },
 
+        createZoomedSlidingCard: function(card, color) {
+            return domConstruct.toDom(this.format_block(
+                'jstpl_zoomed_sliding_card',
+                {
+                    zoom: this.zoomLevel,
+                    card: this.createBattlefieldCardHtml(card, color)
+                }
+            ));
+        },
+
         createBattlefieldCard: function(card, color) {
+            return domConstruct.toDom(this.createBattlefieldCardHtml(card, color));
+        },
+
+        createBattlefieldCardHtml: function(card, color) {
             var coloredCard = lang.mixin({}, card, {color: color});
-            return domConstruct.toDom(this.format_block('jstpl_battlefield_card', coloredCard));
+            return this.format_block('jstpl_battlefield_card', coloredCard);
         },
 
         createBaseIndicator: function(name) {
@@ -851,13 +865,14 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domClass, domGeo
             var y = notification.args.y;
             var cardType = notification.args.typeKey;
             var color = notification.args.playerColor;
-            var cardNode = this.createBattlefieldCard({type: cardType}, color);
+            var cardNode = this.createZoomedSlidingCard({type: cardType}, color);
             var handCardsNode = this.getPlayerHandCardsIconNode(playerId);
             var position = this.getOrCreatePlacementPosition(x, y);
 
             this.slideNewElementTo(handCardsNode, cardNode, position)
                 .on("End", lang.hitch(this, function() {
-                    dojo.place(this.recoverFromAnimation(cardNode), position);
+                    dojo.destroy(cardNode);
+                    dojo.place(this.createBattlefieldCard({type: cardType}, color), position);
                 }));
         },
 

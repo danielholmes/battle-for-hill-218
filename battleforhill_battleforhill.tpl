@@ -49,6 +49,7 @@
         <div class="coordinates">${x},${y}</div>\
     </div>';
     var jstpl_explosion = '<div class="explosion"></div>';
+    var jstpl_zoomed_sliding_card = '<div class="zoom${zoom}">${card}</div>';
     var jstpl_card_tooltip = '<div><strong>${message}</strong><div class="tooltip-card ${type} color-${color}"></div></div>';
     var jstpl_air_strike_icon = '<div id="air-strike-icon-${playerId}-${id}" data-id="${id}" class="air-strike-icon"></div>';
     var jstpl_counter_icons = '<div class="player-icons">\
