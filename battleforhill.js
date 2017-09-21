@@ -392,7 +392,10 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domClass, domGeo
         },
 
         updateCounter: function(counterSelector, playerId, count) {
-            query(this.getPlayerBoardNode(playerId)).query(counterSelector).query('.counter-text').pop().innerHTML = count;
+            query(this.getPlayerBoardNode(playerId))
+                .query(counterSelector)
+                .query('.counter-text')
+                .pop().innerHTML = count;
         },
 
         setAirStrikeTooltipToDefault: function(playerId) {
@@ -670,8 +673,8 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domClass, domGeo
                 this,
                 function() {
                     var handCards = this.getCurrentPlayerHandCardsNodeList();
-                    // Sorting makes sure positioning is correct (and don't remove earlier card first thus repositioning the
-                    // latter card before animating
+                    // Sorting makes sure positioning is correct (and don't remove earlier card first thus repositioning
+                    // the latter card before animating
                     array.forEach(
                         array.map(selectedIds, lang.hitch(this, this.getCurrentPlayerHandCardNodeByCardId))
                             .sort(lang.hitch(this,
@@ -872,7 +875,7 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domClass, domGeo
             this.slideNewElementTo(handCardsNode, cardNode, position)
                 .on("End", lang.hitch(this, function() {
                     dojo.destroy(cardNode);
-                    dojo.place(this.createBattlefieldCard({type: cardType}, color), position);
+                    this.placeBattlefieldCard({type: cardType, playerColor: color, x: x, y: y});
                 }));
         },
 
@@ -912,7 +915,8 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domClass, domGeo
         },
 
         notif_iPlayedAirStrike: function(notification) {
-            var airStrikesNode = this.getCurrentPlayerAirStrikesNodeList().filter('[data-id=' + notification.args.cardId + ']').pop();
+            var airStrikesNode = this.getCurrentPlayerAirStrikesNodeList()
+                .filter('[data-id=' + notification.args.cardId + ']').pop();
 
             var x = notification.args.x;
             var y = notification.args.y;

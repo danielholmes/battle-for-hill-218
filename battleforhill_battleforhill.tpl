@@ -38,7 +38,9 @@
     var jstpl_hand_card = '<div id="playable-card-${id}" class="playable-card hand-card" data-id="${id}" data-type="${type}" data-color="${color}">\
         <div class="selected-border card"></div><div class="card ${type} color-${color}"></div>\
     </div>';
-    var jstpl_opponent_hand_card = '<div class="playable-card hand-card"><div class="card ${type} color-${color}"></div></div>';
+    var jstpl_opponent_hand_card = '<div class="playable-card hand-card">\
+        <div class="card ${type} color-${color}"></div>\
+    </div>';
     var jstpl_opponent_air_strike_card = '<div class="playable-card"><div class="card ${type} color-${color}"></div></div>';
     var jstpl_battlefield_position = '<div id="position-${x}-${y}" class="battlefield-position" style="left: ${left}px;top: ${top}px" data-x="${x}" data-y="${y}"></div>';
     var jstpl_battlefield_card = '<div class="battlefield-card"><div class="card ${type} color-${color}"></div></div>';
