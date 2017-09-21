@@ -33,7 +33,9 @@
     "ext-imagick": "*",
     "dholmes/bga-workbench": "^0.0.1",
     "phpunit/phpunit": "^6.3.0",
-    "squizlabs/php_codesniffer": "^3.0.0"
+    "squizlabs/php_codesniffer": "^3.0.0",
+    "intervention/image": "^2.4.0",
+    "ps/image-optimizer": "^1.1"
   },
   "scripts": {
     "check-styles": "phpcs --standard=PSR2 --tab-width=4 --ignore=src/BGAWorkbench/Stubs,tests/bootstrap.php -q -p tests src",
