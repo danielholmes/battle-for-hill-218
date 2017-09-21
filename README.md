@@ -60,39 +60,6 @@ composer watch
 ```
 
 
-## Compilation Notes
-
-See [https://github.com/mamuz/PhpDependencyAnalysis](https://github.com/mamuz/PhpDependencyAnalysis) if need a better
-class dependency tree extraction.
-
-`phpda analyze -- analysis.yml`
-
-*analysis.yml*
-```yaml
-mode: 'usage'
-source: './src/TheBattleForHill218'
-filePattern: '*.php'
-formatter: 'PhpDA\Writer\Strategy\Json'
-target: 'build/usage.json'
-visitor:
-  - PhpDA\Parser\Visitor\TagCollector
-  - PhpDA\Parser\Visitor\SuperglobalCollector
-```
-
-
-## Known Workbench Issues
-
- - When using the watch command - a changed file during the initial deploy won't redeploy
- - SFTP disconnects after a while - should be intelligent enough to reconnect
- - Output is pretty rough for build command and its variants (--deploy and --watch)
- - In future use https://github.com/krakjoe/pthreads to speed up deploys
- - work on separating BGAWorkbench
- - add bgawb to code sharing wiki doc
- - js linting/hint
- - options for re-implementations (sector 219 and other)
- - find proper ext deps to put in composer (by trying on a fresh install and checking /etc/install.sh)
-
-
 ## Git Pre-Commit Hook
 
 Available in `etc/pre-commit`. Runs an auto style detection and prevents commit if any issues.
@@ -105,3 +72,5 @@ Available in `etc/pre-commit`. Runs an auto style detection and prevents commit 
  - delay draw cards animation - currently same time as cards returning
  - during choose attack, highlight card attacking from
  - add this project to code sharing wiki doc
+ - js linting/hint
+ - options for re-implementations (sector 219 and other)

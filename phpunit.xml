@@ -4,8 +4,5 @@
         <testsuite name="The Battle for Hill 218">
             <directory>tests/TheBattleForHill218</directory>
         </testsuite>
-        <testsuite name="BGA Workbench">
-            <directory>tests/BGAWorkbench</directory>
-        </testsuite>
     </testsuites>
 </phpunit>
