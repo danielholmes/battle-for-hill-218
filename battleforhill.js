@@ -466,6 +466,9 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domClass, domGeo
         ///////////////////////////////////////////////////
         //// Animation Utility methods
         prepareForAnimation: function(node) {
+            if (!node) {
+                throw new Error("Must provide a node");
+            }
             return query(node)
                 .style('zIndex', 100)
                 .style('position', 'absolute')
@@ -473,6 +476,9 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domClass, domGeo
         },
 
         recoverFromAnimation: function(node) {
+            if (!node) {
+                throw new Error("Must provide a node");
+            }
             return query(node)
                 .style('zIndex', null)
                 .style('position', null)
