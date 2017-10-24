@@ -96,8 +96,8 @@ class ChooseAttackTest extends TestCase
                         ]
                     ]
                 ));
-                $db->update('player', ['player_score' => 2], ['player_id' => 66]);
-                $db->update('player', ['player_score' => 1], ['player_id' => 77]);
+                $db->update('player', ['player_score_aux' => 2], ['player_id' => 66]);
+                $db->update('player', ['player_score_aux' => 1], ['player_id' => 77]);
             })
             ->createActionInstanceForCurrentPlayer(66)
             ->stubActivePlayerId(66);
@@ -117,8 +117,8 @@ class ChooseAttackTest extends TestCase
         assertThat(
             $this->table->fetchDbRows('player'),
             containsInAnyOrder(
-                M\hasEntries(['player_id' => 66, 'player_score' => 2]),
-                M\hasEntries(['player_id' => 77, 'player_score' => 0])
+                M\hasEntries(['player_id' => 66, 'player_score_aux' => 3]),
+                M\hasEntries(['player_id' => 77, 'player_score_aux' => 1])
             )
         );
         $expectedLog = '${playerName} attacked the ${destroyedType} at ${x},${y} with the ${type} at ${fromX},${fromY}';
@@ -143,7 +143,10 @@ class ChooseAttackTest extends TestCase
                     'playerId' => 'all',
                     'type' => 'newScores',
                     'log' => '',
-                    'args' => [66 => 2, 77 => 0]
+                    'args' => [
+                        66 => ['score' => 0, 'scoreAux' => 3],
+                        77 => ['score' => 0, 'scoreAux' => 1]
+                    ]
                 ])
             )
         );

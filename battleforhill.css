@@ -180,6 +180,13 @@
     background-image: url(img/cards.png);
     background-repeat: no-repeat;
 }
+.counter-cell.score-aux .counter-icon {
+    width: 31px;
+    height: 28px;
+    background-position: -117px -460px;
+    background-image: url(img/cards.png);
+    background-repeat: no-repeat;
+}
 .air-strike-icon {
     border: 4px solid transparent;
     width: 26px;

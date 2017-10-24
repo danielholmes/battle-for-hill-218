@@ -35,13 +35,15 @@ class GetAllDatasTest extends TestCase
                         'id' => 66,
                         'cards' => arrayWithSize(7),
                         'numCards' => 7,
-                        'deckSize' => 19
+                        'deckSize' => 19,
+                        'scoreAux' => 0
                     ]),
                     allOf(
                         M\hasEntries([
                             'id' => 77,
                             'numCards' => 7,
-                            'deckSize' => 19
+                            'deckSize' => 19,
+                            'scoreAux' => 0
                         ]),
                         not(hasKey('cards'))
                     )

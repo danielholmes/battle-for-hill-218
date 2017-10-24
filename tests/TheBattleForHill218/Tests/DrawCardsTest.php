@@ -133,4 +133,53 @@ class DrawCardsTest extends TestCase
         assertThat($this->table->fetchDbRows('playable_card', ['player_id' => 77]), arrayWithSize(7));
         assertThat($game->getNotifications(), emptyArray());
     }
+
+    // Case similar to start where only draw one card - make sure player gets 2 turns
+    public function testDrawSingleLastCardFromDeck()
+    {
+        /** @var \BattleForHill $game */
+        $game = $this->table
+            ->setupNewGame()
+            ->createGameInstanceWithNoBoundedPlayer();
+        $game->stubCurrentPlayerId(66)->returnToDeck([3, 4]);
+        $game->stubCurrentPlayerId(77)->returnToDeck([10, 11]);
+        $game->resetNotifications();
+        $this->table->withDbConnection(function (Connection $db) {
+            $oneOf77sCardIds = $db->executeQuery('SELECT id FROM deck_card WHERE player_id = 77 LIMIT 1')
+                ->fetchColumn();
+            $db->exec("DELETE FROM deck_card WHERE id != {$oneOf77sCardIds}");
+            $db->exec('UPDATE player SET turn_plays_remaining = 0');
+        });
+
+        $game->stubActivePlayerId(77)->stDrawCards();
+
+        assertThat(
+            $this->table->fetchValue('SELECT turn_plays_remaining FROM player WHERE player_id = 77'),
+            equalTo(2)
+        );
+        assertThat($this->table->fetchDbRows('deck_card'), emptyArray());
+        assertThat($this->table->fetchDbRows('playable_card', ['player_id' => 66]), arrayWithSize(5));
+        assertThat($this->table->fetchDbRows('playable_card', ['player_id' => 77]), arrayWithSize(6));
+        assertThat(
+            $game->getNotifications(),
+            containsInAnyOrder(
+                M\hasEntries([
+                    'playerId' => 77,
+                    'type' => 'myCardsDrawn',
+                    'log' => '',
+                    'args' => hasEntry('cards', arrayWithSize(1))
+                ]),
+                M\hasEntries([
+                    'playerId' => 'all',
+                    'type' => 'cardsDrawn',
+                    'log' => '${playerName} has drawn ${numCards} card',
+                    'args' => M\hasEntries([
+                        'numCards' => 1,
+                        'handCount' => 4,
+                        'deckCount' => 0
+                    ])
+                ])
+            )
+        );
+    }
 }

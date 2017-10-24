@@ -68,8 +68,8 @@ class PlayCardTest extends TestCase
         assertThat(
             $this->table->fetchDbRows('player'),
             containsInAnyOrder(
-                M\hasEntries(['player_id' => 66, 'player_score' => 1]),
-                M\hasEntries(['player_id' => 77, 'player_score' => 0])
+                M\hasEntries(['player_id' => 66, 'player_score_aux' => 0]),
+                M\hasEntries(['player_id' => 77, 'player_score_aux' => 0])
             )
         );
         assertThat(
@@ -98,12 +98,6 @@ class PlayCardTest extends TestCase
                         'x' => 0,
                         'y' => 1
                     ])
-                ]),
-                M\hasEntries([
-                    'playerId' => 'all',
-                    'type' => 'newScores',
-                    'log' => '',
-                    'args' => [66 => 1, 77 => 0]
                 ])
             )
         );
@@ -191,7 +185,7 @@ class PlayCardTest extends TestCase
             containsInAnyOrder(
                 M\hasEntries([
                     'player_id' => 66,
-                    'player_score' => 10
+                    'player_score' => 1
                 ]),
                 M\hasEntries([
                     'player_id' => 77,
@@ -240,7 +234,7 @@ class PlayCardTest extends TestCase
             ->setupNewGame()
             ->withDbConnection(function (Connection $db) {
                 $db->insert('battlefield_card', ['type' => 'infantry', 'player_id' => 77, 'x' => 0, 'y' => -1]);
-                $db->update('player', ['player_score' => 1], ['player_id' => 77]);
+                $db->update('player', ['player_score_aux' => 1], ['player_id' => 77]);
             })
             ->createActionInstanceForCurrentPlayer(66);
         $airStrikeId = $this->table
@@ -263,8 +257,8 @@ class PlayCardTest extends TestCase
         assertThat(
             $this->table->fetchDbRows('player'),
             containsInAnyOrder(
-                M\hasEntries(['player_id' => 66, 'player_score' => 0]),
-                M\hasEntries(['player_id' => 77, 'player_score' => 0])
+                M\hasEntries(['player_id' => 66, 'player_score_aux' => 1]),
+                M\hasEntries(['player_id' => 77, 'player_score_aux' => 1])
             )
         );
         $expectedLog = '${playerName} played an air strike card destroying the ${destroyedType} card at ${x},${y}';
@@ -297,7 +291,10 @@ class PlayCardTest extends TestCase
                     'playerId' => 'all',
                     'type' => 'newScores',
                     'log' => '',
-                    'args' => [66 => 0, 77 => 0]
+                    'args' => [
+                        66 => ['score' => 0, 'scoreAux' => 1],
+                        77 => ['score' => 0, 'scoreAux' => 1]
+                    ]
                 ])
             )
         );

@@ -195,7 +195,8 @@ CSS
             'Deck Icon.png',
             'Hand Icon.png',
             'Air Strike Green Icon.png',
-            'Air Strike Blue Icon.png'
+            'Air Strike Blue Icon.png',
+            'Explosion Icon.png'
         ];
         $iconImages = F\map(
             $iconNames,

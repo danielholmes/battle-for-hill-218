@@ -56,7 +56,7 @@ Watches development files and deploys them as they change.
 
 ```
 vagrant ssh
-composer watch
+bgawb build -w -d
 ```
 
 

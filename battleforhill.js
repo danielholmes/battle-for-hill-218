@@ -72,6 +72,7 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domClass, domGeo
                     this.setAirStrikeTooltipToDefault(id);
                     this.updateDeckCount(id, player.deckSize);
                     this.updateHandCount(id, player.handSize);
+                    this.updateScoreAuxCount(id, player.scoreAux);
 
                     if (id.toString() === this.player_id.toString()) {
                         var airStrikeCards = array.filter(
@@ -389,6 +390,10 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domClass, domGeo
 
         updateHandCount: function(playerId, count) {
             this.updateCounter('.hand-count', playerId, count);
+        },
+
+        updateScoreAuxCount: function(playerId, count) {
+            this.updateCounter('.score-aux', playerId, count);
         },
 
         updateCounter: function(counterSelector, playerId, count) {
@@ -971,8 +976,10 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domClass, domGeo
         notif_newScores: function(notification) {
             for (var playerId in notification.args) {
                 if (notification.args.hasOwnProperty(playerId)) {
-                    var score = notification.args[playerId];
+                    var score = notification.args[playerId].score;
+                    var scoreAux = notification.args[playerId].scoreAux;
                     this.scoreCtrl[playerId].toValue(score);
+                    this.updateScoreAuxCount(playerId, scoreAux);
                 }
             }
         }

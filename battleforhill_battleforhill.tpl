@@ -63,6 +63,10 @@
             <span class="counter-icon"></span>\
             <span class="counter-text"></span>\
         </div>\
+        <div id="score-aux-count-${playerId}" class="counter-cell score-aux">\
+            <span class="counter-icon"></span>\
+            <span class="counter-text"></span>\
+        </div>\
     </div>';
 </script>
 

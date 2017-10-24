@@ -185,11 +185,15 @@ class BattleForHill extends Table
 
         // Default values
         $players = F\map(
-            $this->getCollectionFromDb('SELECT player_id id, player_score score, player_color color FROM player'),
+            $this->getCollectionFromDb('SELECT player_id id, player_score score, player_score_aux scoreAux, player_color color FROM player'),
             function (array $rawPlayer) {
                 return array_merge(
                     $rawPlayer,
-                    ['id' => (int) $rawPlayer['id'], 'score' => (int) $rawPlayer['score']]
+                    [
+                        'id' => (int) $rawPlayer['id'],
+                        'score' => (int) $rawPlayer['score'],
+                        'scoreAux' => (int) $rawPlayer['scoreAux']
+                    ]
                 );
             }
         );
@@ -394,21 +398,23 @@ class BattleForHill extends Table
         return (int) self::getUniqueValueFromDB($sql);
     }
 
-    private function updatePlayerScores()
+    /**
+     * @param int $playerId
+     */
+    private function playerDestroyCard($playerId)
     {
-        self::DbQuery(
-<<<SQL
-            UPDATE player p 
-            SET player_score = (SELECT COUNT(b.id) FROM battlefield_card b WHERE b.player_id = p.player_id)
-SQL
-        );
+        $this->incStat(1, 'num_defeated_cards', $playerId);
+        self::DBQuery("UPDATE player SET `player_score_aux` = `player_score_aux` + 1 WHERE player_id = {$playerId}");
         self::notifyAllPlayers(
             'newScores',
             '',
             F\map(
-                $this->getCollectionFromDb('SELECT player_id, player_score FROM player', true),
-                function ($value) {
-                    return (int) $value;
+                $this->getCollectionFromDB('SELECT player_id, player_score, player_score_aux FROM player', false),
+                function (array $player) {
+                    return [
+                        'score' => (int) $player['player_score'],
+                        'scoreAux' => (int) $player['player_score_aux']
+                    ];
                 }
             )
         );
@@ -560,9 +566,7 @@ SQL
         // Remove from battlefield and playable
         self::DbQuery("DELETE FROM playable_card WHERE id = {$cardId}");
         self::DbQuery("DELETE FROM battlefield_card WHERE id = {$cardInPositionId}");
-        $this->incStat(1, 'num_defeated_cards', $card->getPlayerId());
-
-        $this->updatePlayerScores();
+        $this->playerDestroyCard($card->getPlayerId());
 
         // Notifications
         $players = self::loadPlayersBasicInfos();
@@ -655,15 +659,13 @@ SQL
         // Check if occupying base
         $opponentBasePosition = $battlefield->getOpponentBasePosition($card->getPlayerId());
         if ($opponentBasePosition == $position) {
-            self::DbQuery("UPDATE player SET player_score = 10 WHERE player_id = {$card->getPlayerId()}");
-            self::DbQuery("UPDATE player SET player_score = 0 WHERE player_id != {$card->getPlayerId()}");
+            self::DbQuery("UPDATE player SET player_score = 1 WHERE player_id = {$card->getPlayerId()}");
             $this->notifyAllPlayers('endOfGame', '', []);
             $this->gamestate->nextState('occupyEnemyBase');
             return;
         }
 
         $updatedBattlefield = $this->loadBattlefield();
-        $this->updatePlayerScores();
         $this->giveExtraTime($card->getPlayerId());
         if ($updatedBattlefield->hasAttackablePlacement($position)) {
             $this->gamestate->nextState('attackAvailable');
@@ -713,8 +715,7 @@ SQL
         self::DbQuery(
             "DELETE FROM battlefield_card WHERE x = {$attack->getX()} AND y = {$attack->getY()} LIMIT 1"
         );
-        $this->incStat(1, 'num_defeated_cards', $playerId);
-        $this->updatePlayerScores();
+        $this->playerDestroyCard($playerId);
 
         $this->notifyAllPlayers(
             'cardAttacked',
@@ -825,17 +826,17 @@ SQL
     public function stDrawCards()
     {
         $playerId = (int) $this->getActivePlayerId();
-        $numCards = 2;
+        $numShouldDraw = 2;
         $playerNumber = self::getIntUniqueValueFromDB("SELECT player_no from player WHERE player_id = {$playerId}");
         if ($playerNumber === 1) {
             $deckSize = self::getIntUniqueValueFromDB("SELECT COUNT(id) FROM deck_card WHERE player_id = {$playerId}");
             if ($deckSize === Hill218Setup::getPlayerDeckSizeAfterInitialReturn()) {
-                $numCards = 1;
+                $numShouldDraw = 1;
             }
         }
 
         $drawnDeck = self::getObjectListFromDB(
-            "SELECT id, type FROM deck_card WHERE player_id = {$playerId} ORDER BY `order` DESC LIMIT {$numCards}"
+            "SELECT id, type FROM deck_card WHERE player_id = {$playerId} ORDER BY `order` DESC LIMIT {$numShouldDraw}"
         );
         $numDrawn = count($drawnDeck);
         if ($numDrawn === 0) {
@@ -893,7 +894,7 @@ SQL
             ]
         );
 
-        self::DbQuery("UPDATE player SET turn_plays_remaining = {$numDrawn} WHERE player_id = {$playerId}");
+        self::DbQuery("UPDATE player SET turn_plays_remaining = {$numShouldDraw} WHERE player_id = {$playerId}");
 
         $this->gamestate->nextState('cardsDrawn');
     }
