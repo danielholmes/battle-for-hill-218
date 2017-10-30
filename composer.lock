@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "e0d94a5fba420aab73862e855e2bb011",
+    "content-hash": "110fa4ca10d0c39e6313c05f90e27b79",
     "packages": [
         {
             "name": "lstrojny/functional-php",
@@ -308,16 +308,16 @@
         },
         {
             "name": "dholmes/bga-workbench",
-            "version": "0.0.3",
+            "version": "0.0.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/danielholmes/bga-workbench.git",
-                "reference": "5d56820314dc2bcc1df9dbb30fc118752a77824b"
+                "reference": "a465b4a6aeb9140240ec9020ee2dd6b5a955197f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/danielholmes/bga-workbench/zipball/5d56820314dc2bcc1df9dbb30fc118752a77824b",
-                "reference": "5d56820314dc2bcc1df9dbb30fc118752a77824b",
+                "url": "https://api.github.com/repos/danielholmes/bga-workbench/zipball/a465b4a6aeb9140240ec9020ee2dd6b5a955197f",
+                "reference": "a465b4a6aeb9140240ec9020ee2dd6b5a955197f",
                 "shasum": ""
             },
             "require": {
@@ -331,8 +331,8 @@
                 "lstrojny/functional-php": "1.6.0",
                 "nette/reflection": "^2.4.2",
                 "php": ">=7.0.8",
-                "phpoption/phpoption": "1.5.0",
-                "phpseclib/phpseclib": "2.0.6",
+                "phpoption/phpoption": "^1.5.0",
+                "phpseclib/phpseclib": "^2.0.6",
                 "squizlabs/php_codesniffer": "^3.0.0",
                 "symfony/config": "^3.3.8",
                 "symfony/console": "^3.3.8",
@@ -367,7 +367,7 @@
                 }
             ],
             "description": "BoardGameArena Workbench",
-            "time": "2017-09-21T09:58:05+00:00"
+            "time": "2017-10-30T20:28:57+00:00"
         },
         {
             "name": "doctrine/annotations",
@@ -1987,16 +1987,16 @@
         },
         {
             "name": "phpseclib/phpseclib",
-            "version": "2.0.6",
+            "version": "2.0.7",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpseclib/phpseclib.git",
-                "reference": "34a7699e6f31b1ef4035ee36444407cecf9f56aa"
+                "reference": "f4b6a522dfa1fd1e477c9cfe5909d5b31f098c0b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpseclib/phpseclib/zipball/34a7699e6f31b1ef4035ee36444407cecf9f56aa",
-                "reference": "34a7699e6f31b1ef4035ee36444407cecf9f56aa",
+                "url": "https://api.github.com/repos/phpseclib/phpseclib/zipball/f4b6a522dfa1fd1e477c9cfe5909d5b31f098c0b",
+                "reference": "f4b6a522dfa1fd1e477c9cfe5909d5b31f098c0b",
                 "shasum": ""
             },
             "require": {
@@ -2075,7 +2075,7 @@
                 "x.509",
                 "x509"
             ],
-            "time": "2017-06-05T06:31:10+00:00"
+            "time": "2017-10-23T05:04:54+00:00"
         },
         {
             "name": "phpspec/prophecy",
