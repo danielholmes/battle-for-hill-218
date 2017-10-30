@@ -405,6 +405,10 @@ class BattleForHill extends Table
     {
         $this->incStat(1, 'num_defeated_cards', $playerId);
         self::DBQuery("UPDATE player SET `player_score_aux` = `player_score_aux` + 1 WHERE player_id = {$playerId}");
+        $this->sendNewScores();
+    }
+
+    private function sendNewScores() {
         self::notifyAllPlayers(
             'newScores',
             '',
@@ -660,6 +664,7 @@ class BattleForHill extends Table
         $opponentBasePosition = $battlefield->getOpponentBasePosition($card->getPlayerId());
         if ($opponentBasePosition == $position) {
             self::DbQuery("UPDATE player SET player_score = 1 WHERE player_id = {$card->getPlayerId()}");
+            $this->sendNewScores();
             $this->notifyAllPlayers('endOfGame', '', []);
             $this->gamestate->nextState('occupyEnemyBase');
             return;

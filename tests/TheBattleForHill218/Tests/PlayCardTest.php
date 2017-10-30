@@ -175,6 +175,15 @@ class PlayCardTest extends TestCase
                 ]),
                 M\hasEntries([
                     'playerId' => 'all',
+                    'type' => 'newScores',
+                    'log' => '',
+                    'args' => [
+                        66 => ['score' => 1, 'scoreAux' => 0],
+                        77 => ['score' => 0, 'scoreAux' => 0]
+                    ]
+                ]),
+                M\hasEntries([
+                    'playerId' => 'all',
                     'type' => 'endOfGame',
                     'log' => ''
                 ])
