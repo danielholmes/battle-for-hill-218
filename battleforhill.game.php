@@ -497,8 +497,7 @@ class BattleForHill extends Table
             })
         ));
 
-        $this->notifyPlayer(
-            'all',
+        $this->notifyAllPlayers(
             'returnedToDeck',
             clienttranslate('${playerName} returned ${numCards} cards to their deck'),
             [
@@ -509,6 +508,13 @@ class BattleForHill extends Table
                 'playerColor' => $this->getCurrentPlayerColor(),
                 'playerId' => $playerId
             ]
+        );
+
+        $this->notifyPlayer(
+            $playerId,
+            'iReturnedToDeck',
+            '',
+            ['cardIds' => $cardIds]
         );
 
         $this->giveExtraTime($playerId);

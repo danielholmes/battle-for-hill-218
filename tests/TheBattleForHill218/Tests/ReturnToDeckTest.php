@@ -51,6 +51,13 @@ class ReturnToDeckTest extends TestCase
                         'handCount' => 3,
                         'numCards' => 2
                     ])
+                ]),
+                M\hasEntries([
+                    'playerId' => 66,
+                    'type' => 'iReturnedToDeck',
+                    'args' => M\hasEntries([
+                        'cardIds' => [3, 4]
+                    ])
                 ])
             )
         );

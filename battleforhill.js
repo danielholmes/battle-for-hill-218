@@ -681,22 +681,7 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domClass, domGeo
                     lock: true,
                     ids: selectedIds.join(',')
                 },
-                this,
-                function() {
-                    var handCards = this.getCurrentPlayerHandCardsNodeList();
-                    // Sorting makes sure positioning is correct (and don't remove earlier card first thus repositioning
-                    // the latter card before animating
-                    array.forEach(
-                        array.map(selectedIds, lang.hitch(this, this.getCurrentPlayerHandCardNodeByCardId))
-                            .sort(lang.hitch(this,
-                                function(card1, card2) { return handCards.indexOf(card2) - handCards.indexOf(card1); }
-                            )),
-                        lang.hitch(this, function(card) {
-                            this.slideToDeckAndDestroy(card, this.getCurrentPlayerDeckNode());
-                            // TODO: on complete, increment deck size counter
-                        })
-                    );
-                },
+                function() {},
                 function() {}
             );
         },
@@ -847,6 +832,7 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domClass, domGeo
         ///////////////////////////////////////////////////
         //// Reaction to cometD notifications
         setupNotifications: function() {
+            dojo.subscribe('iReturnedToDeck', lang.hitch(this, this.notif_iReturnedToDeck));
             dojo.subscribe('returnedToDeck', lang.hitch(this, this.notif_returnedToDeck));
             dojo.subscribe('cardsDrawn', lang.hitch(this, this.notif_cardsDrawn));
             dojo.subscribe('myCardsDrawn', lang.hitch(this, this.notif_myCardsDrawn));
@@ -965,10 +951,26 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domClass, domGeo
                         cardDisplay,
                         this.getCurrentPlayerHandCardsNode(),
                         {x: offset, y: offset}
-                    ).on("End", lang.hitch(this, function(cardNode) {
+                    ).on('End', lang.hitch(this, function(cardNode) {
                         this.placeInCurrentPlayerHand(cardNode);
                         this.enablePlayHandCards();
                     }));
+                })
+            );
+        },
+
+        notif_iReturnedToDeck: function(notification) {
+            var selectedIds = notification.args.cardIds;
+            var handCards = this.getCurrentPlayerHandCardsNodeList();
+            // Sorting makes sure positioning is correct (and don't remove earlier card first thus repositioning
+            // the latter card before animating
+            array.forEach(
+                array.map(selectedIds, lang.hitch(this, this.getCurrentPlayerHandCardNodeByCardId))
+                    .sort(lang.hitch(this,
+                        function(card1, card2) { return handCards.indexOf(card2) - handCards.indexOf(card1); }
+                    )),
+                lang.hitch(this, function(card) {
+                    this.slideToDeckAndDestroy(card, this.getCurrentPlayerDeckNode());
                 })
             );
         },
