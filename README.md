@@ -3,7 +3,8 @@
 [![Build Status](https://travis-ci.org/danielholmes/battle-for-hill-218.svg?branch=master)](https://travis-ci.org/danielholmes/battle-for-hill-218)
 
 [BoardGameArena](https://boardgamearena.com/) implementation of the card game 
-[The Battle for Hill 218](https://boardgamegeek.com/boardgame/32484/battle-hill-218)
+[The Battle for Hill 218](https://boardgamegeek.com/boardgame/32484/battle-hill-218). Uses the
+[BoardGameArena Workbench](https://github.com/danielholmes/bga-workbench).
 
 
 ## Development Requirements
