@@ -68,10 +68,10 @@ Available in `etc/pre-commit`. Runs an auto style detection and prevents commit 
 
 ## TODO
 
- - when cards animating, should be the correct orientation
+ - add some statistics specific to the game such as number of cards played by type and number of cards destroyed by type
+ - during choose attack, highlight card attacking from
+ - js linting/hint
+ - when cards animating, should be the correct size
  - base indicator shows on new page load if card placed on base then destroyed
  - delay draw cards animation - currently same time as cards returning
- - during choose attack, highlight card attacking from
- - add this project to code sharing wiki doc
- - js linting/hint
  - options for re-implementations (sector 219 and other)

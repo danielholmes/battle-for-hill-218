@@ -255,7 +255,7 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domClass, domGeo
             if (this.isCurrentPlayerActive()) {
                 switch (stateName) {
                     case 'returnToDeck':
-                        this.addActionButton('button_1_id', _('Return the selected cards.'), 'onSubmitReturnCards');
+                        this.addActionButton('button_1_id', _('Return the selected cards'), 'onSubmitReturnCards');
                         break;
                 }
             }
