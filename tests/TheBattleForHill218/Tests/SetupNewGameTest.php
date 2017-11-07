@@ -2,6 +2,7 @@
 
 namespace TheBattleForHill218\Tests;
 
+use Hamcrest\Matchers as HM;
 use BGAWorkbench\Test\HamcrestMatchers as M;
 use BGAWorkbench\Test\TableInstanceBuilder;
 use PHPUnit\Framework\TestCase;
@@ -34,8 +35,14 @@ class SetupNewGameTest extends TestCase
         assertThat(
             $this->table->fetchDbRows('player'),
             containsInAnyOrder([
-                M\hasEntries(['player_color' => '3b550c']),
-                M\hasEntries(['player_color' => '04237b'])
+                M\hasEntries([
+                    'player_color' => '3b550c',
+                    'player_no' => anyOf('1', '2')
+                ]),
+                M\hasEntries([
+                    'player_color' => '04237b',
+                    'player_no' => anyOf('1', '2')
+                ])
             ])
         );
     }

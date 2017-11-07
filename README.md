@@ -39,9 +39,6 @@ vagrant ssh
 composer compile-images
 ```
 
-Use [https://www.youidraw.com/apps/drawing/](https://www.youidraw.com/apps/drawing/) for creating interaction borders.
-Radius: 5, Dashes: 18, 10, Cap Mode: Left - not overstepping
-
 
 ## Deploying to Studio
 

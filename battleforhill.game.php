@@ -93,6 +93,7 @@ class BattleForHill extends Table
         foreach ($players as $player_id => $player) {
             $color = $colors[$i];
             self::DbQuery(SQLHelper::insert('player', [
+                'player_no' => array_pop($playerNumbers),
                 'player_id' => $player_id,
                 'player_color' => $color,
                 'player_canal' => $player['player_canal'],
@@ -209,18 +210,17 @@ class BattleForHill extends Table
 
         // Players
         $currentPlayerId = (int) self::getCurrentPlayerId();
-        $_this = $this;
         $players = F\map(
             $players,
-            function (array $player) use ($_this, $allHandCards, $allDeckSizes, $currentPlayerId) {
+            function (array $player) use ($allHandCards, $allDeckSizes, $currentPlayerId) {
                 $handCards = $allHandCards[$player['id']];
                 $deckSize = $allDeckSizes[$player['id']];
 
                 if ($player['id'] === $currentPlayerId) {
-                    return array_merge($player, $_this->getMyPlayerData($player['color'], $deckSize, $handCards));
+                    return array_merge($player, $this->getMyPlayerData($player['color'], $deckSize, $handCards));
                 }
 
-                return array_merge($player, $_this->getPublicPlayerData($player['color'], $deckSize, $handCards));
+                return array_merge($player, $this->getPublicPlayerData($player['color'], $deckSize, $handCards));
             }
         );
 
@@ -987,7 +987,6 @@ class BattleForHill extends Table
             default:
                 throw new BgaSystemException("Unknown state for zombie {$state['name']}");
         }
-        //$this->gamestate->updateMultiactiveOrNextState( '' );
     }
     
 ///////////////////////////////////////////////////////////////////////////////////:
