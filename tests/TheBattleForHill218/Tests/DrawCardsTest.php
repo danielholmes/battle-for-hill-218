@@ -19,8 +19,8 @@ class DrawCardsTest extends TestCase
     {
         return $this->gameTableInstanceBuilder()
             ->setPlayers([
-                ['player_id' => 66, 'player_no' => 1],
-                ['player_id' => 77, 'player_no' => 2]
+                ['player_id' => 66, 'player_table_order' => 1],
+                ['player_id' => 77, 'player_table_order' => 2]
             ]);
     }
 

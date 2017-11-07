@@ -58,7 +58,7 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domClass, domGeo
                     } else {
                         position = this.getOrCreatePlacementPosition(0, 1);
                     }
-                    dojo.place(this.createBaseIndicator(basePlayer.name), position);
+                    domConstruct.place(this.createBaseIndicator(basePlayer.name), position);
                 }
             }
 
@@ -66,9 +66,10 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domClass, domGeo
             for (var id in players) {
                 if (players.hasOwnProperty(id)) {
                     var player = players[id];
-                    dojo.place(this.format_block('jstpl_counter_icons', {playerId: id}), this.getPlayerBoardNode(id));
+                    domConstruct.place(this.format_block('jstpl_counter_icons', {playerId: id}), this.getPlayerBoardNode(id));
                     this.addTooltip('deck-count-' + id, _('Number of cards left in deck'), '');
                     this.addTooltip('hand-count-' + id, _('Number of battlefield cards in hand'), '');
+                    this.updatePlayerNumber(id, player.number);
                     this.setAirStrikeTooltipToDefault(id);
                     this.updateDeckCount(id, player.deckSize);
                     this.updateHandCount(id, player.handSize);
@@ -102,7 +103,7 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domClass, domGeo
             var playerIcons = query(this.getPlayerBoardNode(playerId)).query('.player-icons').pop();
             array.forEach(
                 airStrikeNodes,
-                lang.hitch(this, function(node) { dojo.place(node, playerIcons, 'first'); })
+                lang.hitch(this, function(node) { domConstruct.place(node, playerIcons, 2); })
             );
         },
 
@@ -313,7 +314,7 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domClass, domGeo
         },
 
         placeInCurrentPlayerHand: function(card) {
-            dojo.place(this.recoverFromAnimation(card), this.getCurrentPlayerHandCardsNode());
+            domConstruct.place(this.recoverFromAnimation(card), this.getCurrentPlayerHandCardsNode());
         },
 
         getCurrentPlayerPlayableCardNodeList: function() {
@@ -381,7 +382,17 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domClass, domGeo
             if (existing.length > 0) {
                 dojo.destroy(existing.pop());
             }
-            dojo.place(this.createBattlefieldCard(card, card.playerColor || ''), position);
+            domConstruct.place(this.createBattlefieldCard(card, card.playerColor || ''), position);
+        },
+
+        updatePlayerNumber: function(playerId, number) {
+            var text = number;
+            if (number === 1) {
+                text += 'st';
+            } else {
+                text += 'nd';
+            }
+            this.updateCounter('.player-number', playerId, text);
         },
 
         updateDeckCount: function(playerId, count) {
@@ -515,7 +526,7 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domClass, domGeo
                 offset = {x: 0, y:0};
             }
             this.prepareForAnimation(newElement);
-            dojo.place(newElement, query('body').pop());
+            domConstruct.place(newElement, query('body').pop());
             this.placeOnObject(newElement, from);
             var targetPosition = this.getCentredPosition(newElement, target);
             return fx.slideTo({
@@ -641,7 +652,7 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domClass, domGeo
                 top -= CARD_HEIGHT;
             }
             placement = domConstruct.toDom(this.format_block(templateName, {x: x, y: y, top: top, left: left}));
-            dojo.place(placement, container);
+            domConstruct.place(placement, container);
             return placement;
         },
 
@@ -651,7 +662,7 @@ function (dojo, declare, lang, dom, query, array, domConstruct, domClass, domGeo
 
         explodeCard: function(position) {
             var explosion = this.createExplosion();
-            dojo.place(explosion, position);
+            domConstruct.place(explosion, position);
             this.fadeOutAndDestroy(explosion);
             this.fadeOutAndDestroy(query(position).query('.battlefield-card').pop());
         },

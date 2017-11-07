@@ -36,14 +36,16 @@ class GetAllDatasTest extends TestCase
                         'cards' => arrayWithSize(7),
                         'numCards' => 7,
                         'deckSize' => 19,
-                        'scoreAux' => 0
+                        'scoreAux' => 0,
+                        'number' => anyOf(1, 2)
                     ]),
                     allOf(
                         M\hasEntries([
                             'id' => 77,
                             'numCards' => 7,
                             'deckSize' => 19,
-                            'scoreAux' => 0
+                            'scoreAux' => 0,
+                            'number' => anyOf(1, 2)
                         ]),
                         not(hasKey('cards'))
                     )
@@ -81,13 +83,15 @@ class GetAllDatasTest extends TestCase
                         'id' => 66,
                         'cards' => emptyArray(),
                         'numCards' => 0,
-                        'deckSize' => 0
+                        'deckSize' => 0,
+                        'number' => anyOf(1, 2)
                     ]),
                     allOf(
                         M\hasEntries([
                             'id' => 77,
                             'numCards' => 0,
-                            'deckSize' => 0
+                            'deckSize' => 0,
+                            'number' => anyOf(1, 2)
                         ]),
                         not(hasKey('cards'))
                     )

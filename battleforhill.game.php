@@ -85,15 +85,13 @@ class BattleForHill extends Table
 
         $infos = self::getGameInfosForGame($this->getGameName());
         $colors = $infos['player_colors'];
-        $playerNumbers = range(1, count($players));
-        shuffle($playerNumbers);
         shuffle($colors);
 
         $i = 0;
         foreach ($players as $player_id => $player) {
             $color = $colors[$i];
             self::DbQuery(SQLHelper::insert('player', [
-                'player_no' => array_pop($playerNumbers),
+                'player_no' => $player['player_table_order'],
                 'player_id' => $player_id,
                 'player_color' => $color,
                 'player_canal' => $player['player_canal'],
@@ -186,14 +184,15 @@ class BattleForHill extends Table
 
         // Default values
         $players = F\map(
-            $this->getCollectionFromDb('SELECT player_id id, player_score score, player_score_aux scoreAux, player_color color FROM player'),
+            $this->getCollectionFromDb('SELECT player_id id, player_no number, player_score score, player_score_aux scoreAux, player_color color FROM player'),
             function (array $rawPlayer) {
                 return array_merge(
                     $rawPlayer,
                     [
                         'id' => (int) $rawPlayer['id'],
                         'score' => (int) $rawPlayer['score'],
-                        'scoreAux' => (int) $rawPlayer['scoreAux']
+                        'scoreAux' => (int) $rawPlayer['scoreAux'],
+                        'number' => (int) $rawPlayer['number']
                     ]
                 );
             }

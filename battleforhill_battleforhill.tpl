@@ -55,6 +55,7 @@
     var jstpl_card_tooltip = '<div><strong>${message}</strong><div class="tooltip-card ${type} color-${color}"></div></div>';
     var jstpl_air_strike_icon = '<div id="air-strike-icon-${playerId}-${id}" data-id="${id}" class="air-strike-icon"></div>';
     var jstpl_counter_icons = '<div class="player-icons">\
+        <div id="player-number-${playerId}" class="counter-cell player-number"><span class="counter-text"></span></div>\
         <div id="hand-count-${playerId}" class="counter-cell hand-count">\
             <span class="counter-icon"></span>\
             <span class="counter-text"></span>\

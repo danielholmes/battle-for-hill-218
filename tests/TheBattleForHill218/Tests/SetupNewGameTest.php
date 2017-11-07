@@ -2,7 +2,6 @@
 
 namespace TheBattleForHill218\Tests;
 
-use Hamcrest\Matchers as HM;
 use BGAWorkbench\Test\HamcrestMatchers as M;
 use BGAWorkbench\Test\TableInstanceBuilder;
 use PHPUnit\Framework\TestCase;

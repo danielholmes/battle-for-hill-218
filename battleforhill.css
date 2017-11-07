@@ -166,6 +166,19 @@
 .counter-cell .counter-icon {
     display: inline-block;
 }
+.counter-cell.player-number {
+    font-size: 70%;
+    border-radius: 10px;
+    background: #515151;
+    width: 20px;
+    height: 20px;
+    color: white;
+    text-align: center;
+}
+.counter-cell.player-number .counter-text {
+    height: 20px;
+    line-height: 20px;
+}
 .counter-cell.deck-count .counter-icon {
     width: 22px;
     height: 24px;
@@ -181,7 +194,7 @@
     background-repeat: no-repeat;
 }
 .counter-cell.score-aux .counter-icon {
-    width: 31px;
+    width: 30px;
     height: 28px;
     background-position: -117px -460px;
     background-image: url(img/cards.png);
