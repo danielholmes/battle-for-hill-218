@@ -85,13 +85,15 @@ class BattleForHill extends Table
 
         $infos = self::getGameInfosForGame($this->getGameName());
         $colors = $infos['player_colors'];
+        $playerNumbers = range(1, count($players));
+        shuffle($playerNumbers);
         shuffle($colors);
 
         $i = 0;
         foreach ($players as $player_id => $player) {
             $color = $colors[$i];
             self::DbQuery(SQLHelper::insert('player', [
-                'player_no' => $player['player_table_order'],
+                'player_no' => array_pop($playerNumbers),
                 'player_id' => $player_id,
                 'player_color' => $color,
                 'player_canal' => $player['player_canal'],
