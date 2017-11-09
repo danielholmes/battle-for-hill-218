@@ -1,0 +1,25 @@
+{
+  "name": "the-battle-for-hill-218",
+  "description": "The Battle for Hill 218",
+  "author": "Daniel Holmes",
+  "license": "UNLICENSED",
+  "private": true,
+  "version": "1.0.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/danielholmes/battle-for-hill-218"
+  },
+  "homepage": "https://github.com/danielholmes/battle-for-hill-218",
+  "scripts": {
+    "lint": "eslint -c .eslintrc battleforhill.js",
+    "lint-fix": "eslint -c .eslintrc --fix battleforhill.js"
+  },
+  "devDependencies": {
+    "eslint": "^4.10.0",
+    "eslint-config-strict": "^14.0.1",
+    "eslint-plugin-filenames": "^1.2.0"
+  },
+  "engines": {
+    "node": "~8.4.0"
+  }
+}

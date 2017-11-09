@@ -19,13 +19,14 @@ vagrant up
 ```
 
 
-## Running Tests
+## Running Analysis and Tests
 
 ```
 vagrant ssh
 composer test
 bgawb validate
 composer fix-styles
+yarn lint
 ```
 
 

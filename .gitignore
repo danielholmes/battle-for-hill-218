@@ -1,5 +1,6 @@
 /build
 /dist
 /vendor
+/node_modules
 /bgaproject.yml
 !/bgaproject.yml.dist
