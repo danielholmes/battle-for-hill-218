@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "d7f84ffccd72058fc30c3df2ef248eb8",
+    "content-hash": "573b17f40ce49d214ea9fde6471e220c",
     "packages": [
         {
             "name": "lstrojny/functional-php",
@@ -308,16 +308,16 @@
         },
         {
             "name": "dholmes/bga-workbench",
-            "version": "0.0.5",
+            "version": "0.0.8",
             "source": {
                 "type": "git",
                 "url": "https://github.com/danielholmes/bga-workbench.git",
-                "reference": "3834a3249f4743a21dfafa2c38b4eb508f121108"
+                "reference": "8d729a84cbab2c83a39df65a2d9250b168720d73"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/danielholmes/bga-workbench/zipball/3834a3249f4743a21dfafa2c38b4eb508f121108",
-                "reference": "3834a3249f4743a21dfafa2c38b4eb508f121108",
+                "url": "https://api.github.com/repos/danielholmes/bga-workbench/zipball/8d729a84cbab2c83a39df65a2d9250b168720d73",
+                "reference": "8d729a84cbab2c83a39df65a2d9250b168720d73",
                 "shasum": ""
             },
             "require": {
@@ -367,7 +367,7 @@
                 }
             ],
             "description": "BoardGameArena Workbench",
-            "time": "2017-11-07T22:36:34+00:00"
+            "time": "2017-11-10T01:01:56+00:00"
         },
         {
             "name": "doctrine/annotations",
@@ -2392,16 +2392,16 @@
         },
         {
             "name": "phpunit/phpunit",
-            "version": "6.4.3",
+            "version": "6.4.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "06b28548fd2b4a20c3cd6e247dc86331a7d4db13"
+                "reference": "562f7dc75d46510a4ed5d16189ae57fbe45a9932"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/06b28548fd2b4a20c3cd6e247dc86331a7d4db13",
-                "reference": "06b28548fd2b4a20c3cd6e247dc86331a7d4db13",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/562f7dc75d46510a4ed5d16189ae57fbe45a9932",
+                "reference": "562f7dc75d46510a4ed5d16189ae57fbe45a9932",
                 "shasum": ""
             },
             "require": {
@@ -2472,7 +2472,7 @@
                 "testing",
                 "xunit"
             ],
-            "time": "2017-10-16T13:18:59+00:00"
+            "time": "2017-11-08T11:26:09+00:00"
         },
         {
             "name": "phpunit/phpunit-mock-objects",

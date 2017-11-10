@@ -24,7 +24,7 @@ vagrant up
 ```
 vagrant ssh
 composer test
-bgawb validate
+composer bga-validate
 composer fix-styles
 yarn lint
 ```
@@ -55,7 +55,7 @@ Watches development files and deploys them as they change.
 
 ```
 vagrant ssh
-bgawb build -w -d
+composer watch
 ```
 
 
