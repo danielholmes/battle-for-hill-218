@@ -214,7 +214,7 @@ class BattlefieldImpl implements Battlefield
     /**
      * @inheritdoc
      */
-    public function getAllowedPositions(int $playerId, array $supplyPattern) : array
+    public function getSuppliedPlaceablePositions(int $playerId, array $supplyPattern) : array
     {
         $placedPositions = $this->getPositions();
         return HF\filter_to_list(
@@ -240,7 +240,7 @@ class BattlefieldImpl implements Battlefield
             F\flat_map(
                 $this->getSuppliedPlacementsByPlayerId($playerId),
                 function (CardPlacement $placement) use ($supplyPattern) {
-                    return $placement->getSuppliedPositions($supplyPattern);
+                    return $placement->getSuppliedPlaceablePositions($supplyPattern);
                 }
             ),
             null,

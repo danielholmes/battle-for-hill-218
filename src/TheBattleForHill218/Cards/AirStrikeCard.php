@@ -30,7 +30,7 @@ class AirStrikeCard implements PlayerCard
     /**
      * @inheritdoc
      */
-    public function getPossiblePlacements(Battlefield $battlefield) : array
+    public function getPossiblePlacementPositions(Battlefield $battlefield) : array
     {
         return $battlefield->getPositionsOfOpponent($this->getPlayerId());
     }

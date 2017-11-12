@@ -620,7 +620,7 @@ class BattleForHill extends Table
     {
         // Check if valid position
         $battlefield = $this->loadBattlefield();
-        $possiblePositions = $card->getPossiblePlacements($battlefield);
+        $possiblePositions = $card->getPossiblePlacementPositions($battlefield);
         if (!F\contains($possiblePositions, $position, false)) {
             throw new BgaUserException('That position isn\'t allowed');
         }
@@ -765,7 +765,7 @@ class BattleForHill extends Table
                         F\map($playableCards, ['BattleForHill', 'parsePlayableCard']),
                         function (PlayerCard $card) use ($battlefield) {
                             return F\map(
-                                $card->getPossiblePlacements($battlefield),
+                                $card->getPossiblePlacementPositions($battlefield),
                                 function (Position $position) {
                                     return ['x' => $position->getX(), 'y' => $position->getY()];
                                 }

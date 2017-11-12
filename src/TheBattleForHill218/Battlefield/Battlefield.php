@@ -23,7 +23,7 @@ interface Battlefield
      * @param SupplyOffset[] $supplyPattern
      * @return Position[]
      */
-    public function getAllowedPositions(int $playerId, array $supplyPattern) : array;
+    public function getSuppliedPlaceablePositions(int $playerId, array $supplyPattern) : array;
 
     /**
      * @param int $expansion

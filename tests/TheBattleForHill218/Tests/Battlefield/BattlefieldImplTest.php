@@ -14,7 +14,7 @@ use TheBattleForHill218\Cards\ParatroopersCard;
 use TheBattleForHill218\Cards\SupplyOffset;
 use TheBattleForHill218\Cards\TankCard;
 
-class BattlefieldTest extends TestCase
+class BattlefieldImplTest extends TestCase
 {
     /**
      * @var BattlefieldImpl
@@ -66,7 +66,7 @@ class BattlefieldTest extends TestCase
 
     public function testGetAllowedPositionsSimple()
     {
-        $positions = $this->sampleBattlefield->getAllowedPositions(
+        $positions = $this->sampleBattlefield->getSuppliedPlaceablePositions(
             1,
             [new SupplyOffset(0, 1), new SupplyOffset(1, 0)]
         );
@@ -77,7 +77,7 @@ class BattlefieldTest extends TestCase
     public function testGetAllowedPositionsWithNoBaseDownwards()
     {
         assertThat(
-            $this->emptyBattlefield->getAllowedPositions(2, SupplyOffset::plusPattern()),
+            $this->emptyBattlefield->getSuppliedPlaceablePositions(2, SupplyOffset::plusPattern()),
             contains(new Position(0, -1))
         );
     }
@@ -85,7 +85,7 @@ class BattlefieldTest extends TestCase
     public function testGetAllowedPositionsWithNoBaseUpwards()
     {
         assertThat(
-            $this->emptyBattlefield->getAllowedPositions(3, SupplyOffset::plusPattern()),
+            $this->emptyBattlefield->getSuppliedPlaceablePositions(3, SupplyOffset::plusPattern()),
             contains(new Position(0, 1))
         );
     }
@@ -110,7 +110,7 @@ class BattlefieldTest extends TestCase
             new CardPlacement(new ArtilleryCard(2), new Position(-1, 1))
         ]);
 
-        $positions = $battlefield->getAllowedPositions(1, [new SupplyOffset(0, -1)]);
+        $positions = $battlefield->getSuppliedPlaceablePositions(1, [new SupplyOffset(0, -1)]);
 
         assertThat(
             $positions,
@@ -204,5 +204,23 @@ class BattlefieldTest extends TestCase
         ]);
 
         assertThat($battlefield->getAttackablePlacements($attackArtillery->getPosition()), contains($opponent));
+    }
+
+    public function testGetAttackablePlacementsWithUnsuppliedSupport()
+    {
+        $opponentInfantry = new CardPlacement(new InfantryCard(2), new Position(-1, 0));
+        $infantry = new CardPlacement(new InfantryCard(1), new Position(-1, -1));
+        $paratroopers = new CardPlacement(new InfantryCard(1), new Position(-2, 0));
+        $battlefield = new BattlefieldImpl(1, [
+            new CardPlacement(new HillCard(), new Position(0, 0)),
+            $opponentInfantry,
+            $infantry,
+            $paratroopers
+        ]);
+
+        assertThat(
+            $battlefield->getAttackablePlacements($paratroopers->getPosition()),
+            contains($opponentInfantry)
+        );
     }
 }

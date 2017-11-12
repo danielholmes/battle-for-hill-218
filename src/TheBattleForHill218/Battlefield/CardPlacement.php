@@ -100,7 +100,7 @@ class CardPlacement
      * @param SupplyOffset[] $supplyPattern
      * @return Position[]
      */
-    public function getSuppliedPositions(array $supplyPattern) : array
+    public function getSuppliedPlaceablePositions(array $supplyPattern) : array
     {
         $position = $this->getPosition();
         return F\map(

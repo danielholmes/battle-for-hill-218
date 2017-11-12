@@ -57,8 +57,8 @@ class HeavyWeaponsCard extends BasePlayerBattlefieldCard
     /**
      * @inheritdoc
      */
-    public function getPossiblePlacements(Battlefield $battlefield) : array
+    public function getPossiblePlacementPositions(Battlefield $battlefield) : array
     {
-        return $battlefield->getAllowedPositions($this->getPlayerId(), $this->getSupplyPattern());
+        return $battlefield->getSuppliedPlaceablePositions($this->getPlayerId(), $this->getSupplyPattern());
     }
 }

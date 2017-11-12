@@ -11,7 +11,7 @@ interface PlayerCard extends Card
      * @param Battlefield $battlefield
      * @return Position[]
      */
-    public function getPossiblePlacements(Battlefield $battlefield) : array;
+    public function getPossiblePlacementPositions(Battlefield $battlefield) : array;
 
     /**
      * @return bool

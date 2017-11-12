@@ -25,7 +25,7 @@ class ParatroopersCardTest extends TestCase
         $card = new ParatroopersCard(1);
 
         assertThat(
-            $card->getPossiblePlacements($battlefield),
+            $card->getPossiblePlacementPositions($battlefield),
             containsInAnyOrder(
                 new Position(-2, 3),
                 new Position(-1, 3),
@@ -72,6 +72,28 @@ class ParatroopersCardTest extends TestCase
                 new Position(0, -4),
                 new Position(1, -4),
                 new Position(2, -4)
+            )
+        );
+    }
+
+    public function testGetPossiblePlacementsWithSuppliedOpponentBase()
+    {
+        $battlefield = new BattlefieldImpl(
+            2,
+            [
+                new CardPlacement(new HillCard(), new Position(0, 0)),
+                new CardPlacement(new InfantryCard(2), new Position(0, -1)),
+                new CardPlacement(new InfantryCard(2), new Position(-1, -1)),
+                new CardPlacement(new InfantryCard(2), new Position(-1, 0)),
+                new CardPlacement(new InfantryCard(2), new Position(-1, 1))
+            ]
+        );
+        $card = new ParatroopersCard(2);
+
+        assertThat(
+            $card->getPossiblePlacementPositions($battlefield),
+            hasValue(
+                new Position(0, 1)
             )
         );
     }

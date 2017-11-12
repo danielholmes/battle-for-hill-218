@@ -5,6 +5,7 @@ namespace TheBattleForHill218\Cards;
 use TheBattleForHill218\Battlefield\Battlefield;
 use TheBattleForHill218\Battlefield\Position;
 use TheBattleForHill218\Functional as BF;
+use Functional as F;
 
 class ParatroopersCard extends BasePlayerBattlefieldCard
 {
@@ -59,11 +60,17 @@ class ParatroopersCard extends BasePlayerBattlefieldCard
     /**
      * @inheritdoc
      */
-    public function getPossiblePlacements(Battlefield $battlefield) : array
+    public function getPossiblePlacementPositions(Battlefield $battlefield) : array
     {
+        $allPositions = $battlefield->getUnoccupiedWithExpansion(2);
+        $placeable = $battlefield->getSuppliedPlaceablePositions($this->getPlayerId(), $this->getSupplyPattern());
+        if (F\contains($placeable, $battlefield->getOpponentBasePosition($this->getPlayerId()), false)) {
+            return $allPositions;
+        }
+
         $opponentBasePosition = $battlefield->getOpponentBasePosition($this->getPlayerId());
         return BF\filter_to_list(
-            $battlefield->getUnoccupiedWithExpansion(2),
+            $allPositions,
             function (Position $position) use ($opponentBasePosition) {
                 return $position != $opponentBasePosition;
             }
