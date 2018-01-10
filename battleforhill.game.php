@@ -584,7 +584,7 @@ class BattleForHill extends Table
         $player = $players[$card->getPlayerId()];
         $this->notifyAllPlayers(
             'playedAirStrike',
-            clienttranslate('${playerName} played an air strike card destroying the ${destroyedType} card at ${x},${y}'),
+            clienttranslate('${playerName} played an Air Strike card destroying the ${destroyedType} card at ${x},${y}'),
             [
                 'playerId' => $card->getPlayerId(),
                 'playerName' => $player['player_name'],
