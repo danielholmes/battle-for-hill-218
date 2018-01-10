@@ -11,7 +11,7 @@ class ArtilleryCard extends BasePlayerBattlefieldCard
      */
     public function getTypeName() : string
     {
-        return 'Artillery';
+        return clienttranslate('Artillery');
     }
 
     /**

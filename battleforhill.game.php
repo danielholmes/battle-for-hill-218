@@ -589,8 +589,8 @@ class BattleForHill extends Table
                 'playerId' => $card->getPlayerId(),
                 'playerName' => $player['player_name'],
                 'playerColor' => $player['player_color'],
-                'typeName' => clienttranslate(AirStrikeCard::TYPE_NAME),
-                'destroyedType' => clienttranslate($cardInPosition->getCard()->getTypeName()),
+                'typeName' => AirStrikeCard::typeName(),
+                'destroyedType' => $cardInPosition->getCard()->getTypeName(),
                 'numAirStrikes' => self::getIntUniqueValueFromDB(
                     "SELECT COUNT(id) FROM playable_card WHERE player_id = {$card->getPlayerId()} AND type = 'air-strike'"
                 ),
@@ -654,7 +654,7 @@ class BattleForHill extends Table
                 'playerName' => $player['player_name'],
                 'playerColor' => $player['player_color'],
                 'handCount' => $this->getHandCountByPlayerId($card->getPlayerId()),
-                'typeName' => clienttranslate($card->getTypeName()),
+                'typeName' => $card->getTypeName(),
                 'typeKey' => $card->getTypeKey(),
                 'x' => $position->getX(),
                 'y' => $position->getY()
@@ -738,8 +738,8 @@ class BattleForHill extends Table
             clienttranslate('${playerName} attacked the ${destroyedType} at ${x},${y} with the ${type} at ${fromX},${fromY}'),
             [
                 'playerName' => self::getUniqueValueFromDB("SELECT player_name FROM player WHERE player_id = {$playerId}"),
-                'type' => clienttranslate($from->getCard()->getTypeName()),
-                'destroyedType' => clienttranslate($attack->getCard()->getTypeName()),
+                'type' => $from->getCard()->getTypeName(),
+                'destroyedType' => $attack->getCard()->getTypeName(),
                 'x' => $attack->getX(),
                 'y' => $attack->getY(),
                 'fromX' => $from->getX(),
@@ -893,13 +893,13 @@ class BattleForHill extends Table
             ['cards' => $drawnPlayable, 'playerColor' => $playerColor]
         );
 
-        $drawMessage = '${playerName} has drawn ${numCards} card';
+        $drawMessage = clienttranslate('${playerName} has drawn ${numCards} card');
         if ($numDrawn > 1) {
-            $drawMessage .= 's';
+            $drawMessage = clienttranslate('${playerName} has drawn ${numCards} cards');
         }
         $this->notifyAllPlayers(
             'cardsDrawn',
-            clienttranslate($drawMessage),
+            $drawMessage,
             [
                 'numCards' => $numDrawn,
                 'deckCount' => $this->getDeckCountByPlayerId($playerId),

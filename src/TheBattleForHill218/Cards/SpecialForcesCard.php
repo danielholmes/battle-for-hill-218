@@ -19,7 +19,7 @@ class SpecialForcesCard extends BasePlayerBattlefieldCard
      */
     public function getTypeName() : string
     {
-        return 'Special Forces';
+        return clienttranslate('Special Forces');
     }
 
     /**

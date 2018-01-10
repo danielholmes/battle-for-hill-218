@@ -19,7 +19,7 @@ class HeavyWeaponsCard extends BasePlayerBattlefieldCard
      */
     public function getTypeName() : string
     {
-        return 'Heavy Weapons';
+        return clienttranslate('Heavy Weapons');
     }
 
     /**

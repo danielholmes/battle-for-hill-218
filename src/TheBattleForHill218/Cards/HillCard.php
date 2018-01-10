@@ -17,6 +17,6 @@ class HillCard implements BattlefieldCard
      */
     public function getTypeName() : string
     {
-        return 'Hill';
+        return clienttranslate('Hill');
     }
 }

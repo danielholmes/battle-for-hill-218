@@ -6,7 +6,13 @@ use TheBattleForHill218\Battlefield\Battlefield;
 
 class AirStrikeCard implements PlayerCard
 {
-    const TYPE_NAME = 'Air Strike';
+    /**
+     * @return string
+     */
+    public static function typeName()
+    {
+        return clienttranslate('Air Strike');
+    }
 
     /**
      * @var int
@@ -50,7 +56,7 @@ class AirStrikeCard implements PlayerCard
      */
     public function getTypeName() : string
     {
-        return self::TYPE_NAME;
+        return self::typeName();
     }
 
     /**

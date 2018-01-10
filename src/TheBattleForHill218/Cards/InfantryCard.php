@@ -19,7 +19,7 @@ class InfantryCard extends BasePlayerBattlefieldCard
      */
     public function getTypeName() : string
     {
-        return 'Infantry';
+        return clienttranslate('Infantry');
     }
 
     /**

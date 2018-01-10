@@ -19,7 +19,7 @@ class TankCard extends BasePlayerBattlefieldCard
      */
     public function getTypeName() : string
     {
-        return 'Tank';
+        return clienttranslate('Tank');
     }
 
     /**

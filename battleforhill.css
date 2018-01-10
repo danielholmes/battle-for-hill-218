@@ -15,6 +15,9 @@
     overflow: hidden;
     margin-left: 202px;
 }
+.spectatorMode #battlefield-panel {
+    margin-left: 0;
+}
 
 /* Hands */
 .player-cards .playable-card {

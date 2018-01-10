@@ -22,7 +22,7 @@ class ParatroopersCard extends BasePlayerBattlefieldCard
      */
     public function getTypeName() : string
     {
-        return 'Paratroopers';
+        return clienttranslate('Paratroopers');
     }
 
     /**
