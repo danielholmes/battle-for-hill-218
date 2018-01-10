@@ -270,7 +270,7 @@ class PlayCardTest extends TestCase
                 M\hasEntries(['player_id' => 77, 'player_score_aux' => 1])
             )
         );
-        $expectedLog = '${playerName} played an air strike card destroying the ${destroyedType} card at ${x},${y}';
+        $expectedLog = '${playerName} played an ${typeName} card destroying the ${destroyedType} card at ${x},${y}';
         assertThat(
             $action->getGame()->getNotifications(),
             containsInAnyOrder(
@@ -281,6 +281,7 @@ class PlayCardTest extends TestCase
                     'args' => M\hasEntries([
                         'playerId' => 66,
                         'destroyedType' => 'Infantry',
+                        'typeName' => 'Air Strike',
                         'playerName' => nonEmptyString(),
                         'numAirStrikes' => 1,
                         'x' => 0,

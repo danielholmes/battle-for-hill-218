@@ -584,11 +584,12 @@ class BattleForHill extends Table
         $player = $players[$card->getPlayerId()];
         $this->notifyAllPlayers(
             'playedAirStrike',
-            clienttranslate('${playerName} played an Air Strike card destroying the ${destroyedType} card at ${x},${y}'),
+            clienttranslate('${playerName} played an ${typeName} card destroying the ${destroyedType} card at ${x},${y}'),
             [
                 'playerId' => $card->getPlayerId(),
                 'playerName' => $player['player_name'],
                 'playerColor' => $player['player_color'],
+                'typeName' => AirStrikeCard::TYPE_NAME,
                 'destroyedType' => $cardInPosition->getCard()->getTypeName(),
                 'numAirStrikes' => self::getIntUniqueValueFromDB(
                     "SELECT COUNT(id) FROM playable_card WHERE player_id = {$card->getPlayerId()} AND type = 'air-strike'"

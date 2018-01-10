@@ -6,6 +6,8 @@ use TheBattleForHill218\Battlefield\Battlefield;
 
 class AirStrikeCard implements PlayerCard
 {
+    const TYPE_NAME = 'Air Strike';
+
     /**
      * @var int
      */
@@ -48,7 +50,7 @@ class AirStrikeCard implements PlayerCard
      */
     public function getTypeName() : string
     {
-        return 'Air Strike';
+        return self::TYPE_NAME;
     }
 
     /**
