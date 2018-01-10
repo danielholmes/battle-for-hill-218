@@ -18,8 +18,5 @@
     "eslint": "^4.10.0",
     "eslint-config-strict": "^14.0.1",
     "eslint-plugin-filenames": "^1.2.0"
-  },
-  "engines": {
-    "node": "~8.4.0"
   }
 }
