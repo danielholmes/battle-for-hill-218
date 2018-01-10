@@ -73,70 +73,40 @@ define(
             );
             this.addTooltip('deck-count-' + id, _('Number of cards left in deck'), '');
             this.addTooltip('hand-count-' + id, _('Number of battlefield cards in hand'), '');
+            this.addTooltip('air-strike-count-' + id, _('Number of air strike cards in hand'), '');
             this.updatePlayerNumber(id, player.number);
-            this.setAirStrikeTooltipToDefault(id);
             this.updateDeckCount(id, player.deckSize);
             this.updateHandCount(id, player.handSize);
             this.updateScoreAuxCount(id, player.scoreAux);
-
+            this.updateAirStrikeCount(id, player.numAirStrikes);
             if (id.toString() === this.player_id.toString()) {
-              var airStrikeCards = array.filter(
-                player.cards,
-                function(card) {
-                  return card.type === 'air-strike';
-                }
-              );
-              this.setupAirStrikeIcons(id, airStrikeCards);
               this.setupCurrentPlayerCards(player);
-            } else {
-              var dummyAirStrikeCards = array.map(
-                new Array(player.numAirStrikes),
-                function(x, j) {
-                  return {id: j};
-                }
-              );
-              this.setupAirStrikeIcons(id, dummyAirStrikeCards);
             }
           }
         }
       },
 
-      setupAirStrikeIcons: function(playerId, cards) {
-        var airStrikeNodes = array.map(
-          cards,
-          lang.hitch(this, function(card) {
-            return this.format_block('jstpl_air_strike_icon', Object.assign({playerId: playerId}, card));
-          })
-        );
-        var playerIcons = query(this.getPlayerBoardNode(playerId)).query('.player-icons').pop();
-        array.forEach(
-          airStrikeNodes,
-          lang.hitch(this, function(node) {
-            domConstruct.place(node, playerIcons, 2);
-          })
-        );
-      },
-
       setupCurrentPlayerCards: function(data) {
-        var handCards = array.filter(data.cards, function(card) {
-          return card.type !== 'air-strike';
-        });
-        var handCardNodes = array.map(
-          handCards,
+        var cardNodes = array.map(
+          data.cards,
           lang.hitch(this, function(card) {
             return this.createCurrentPlayerHandCard(card, data.color);
           })
         );
         array.forEach(
-          handCardNodes,
-          lang.hitch(this, function(card) {
-            this.placeInCurrentPlayerHand(card);
+          cardNodes,
+          lang.hitch(this, function(cardNode) {
+            if (query(cardNode).attr('data-type').pop() === 'air-strike') {
+              this.placeInCurrentPlayerAirStrikes(cardNode);
+            } else {
+              this.placeInCurrentPlayerHand(cardNode);
+            }
           })
         );
         array.forEach(
-          handCardNodes,
-          lang.hitch(this, function(card) {
-            this.updatePlayableCardTooltip(card);
+          cardNodes,
+          lang.hitch(this, function(cardNode) {
+            this.updatePlayableCardTooltip(cardNode);
           })
         );
       },
@@ -196,7 +166,7 @@ define(
       onEnterPlayCard: function(possiblePlacementsByCardId) {
         this.possiblePlacementsByCardId = possiblePlacementsByCardId;
 
-        this.enablePlayHandCards();
+        this.enablePlayCards();
 
         var that = this;
         this.placeButtonClickSignal = query(this.getBattlefieldInteractionNode()).on(
@@ -205,12 +175,6 @@ define(
             lang.hitch(that, that.onPlacePositionClick)({target: this});
           }
         );
-
-        this.setAirStrikeTooltip(this.player_id, null, _('Play Air Strike card'));
-        var airStrikeNodes = this.getCurrentPlayerAirStrikesNodeList().addClass('clickable');
-        this.placeAirStrikeClickSignal = airStrikeNodes.on('click', lang.hitch(this, function(e) {
-          this.playCard(query(e.currentTarget).attr('data-id')[0]);
-        }));
       },
 
       onEnterChooseAttack: function(possiblePlacements) {
@@ -260,8 +224,6 @@ define(
         }
         this.deactivateAllPlacementPositions();
         this.disablePlayableCardsClick();
-        this.disableAirStrikesClick();
-        this.setAirStrikeTooltipToDefault(this.player_id);
       },
 
       onLeaveChooseAttack: function() {
@@ -301,12 +263,8 @@ define(
         return query('#player_board_' + playerId).pop();
       },
 
-      getAirStrikesNodeList: function(playerId) {
-        return query(this.getPlayerBoardNode(playerId)).query('.air-strike-icon');
-      },
-
       getCurrentPlayerAirStrikesNodeList: function() {
-        return this.getAirStrikesNodeList(this.player_id);
+        return query(this.getCurrentPlayerAirStrikesContainerNode()).query('.playable-card');
       },
 
       getCurrentPlayerCardsNode: function() {
@@ -318,8 +276,12 @@ define(
         return query(this.getCurrentPlayerCardsNode()).query('.hand-card');
       },
 
+      getCurrentPlayerAirStrikesContainerNode: function() {
+        return query(this.getCurrentPlayerCardsNode()).query('.player-cards').query('.air-strike-cards').pop();
+      },
+
       getCurrentPlayerHandCardsNode: function() {
-        return query(this.getCurrentPlayerCardsNode()).query('.player-cards').pop();
+        return query(this.getCurrentPlayerCardsNode()).query('.player-cards').query('.hand-cards').pop();
       },
 
       getCurrentPlayerHandCardNodeByCardId: function(cardId) {
@@ -338,6 +300,10 @@ define(
         return this.getPlayerDeckNode(this.player_id);
       },
 
+      placeInCurrentPlayerAirStrikes: function(card) {
+        domConstruct.place(card, this.getCurrentPlayerAirStrikesContainerNode());
+      },
+
       placeInCurrentPlayerHand: function(card) {
         domConstruct.place(this.recoverFromAnimation(card), this.getCurrentPlayerHandCardsNode());
       },
@@ -347,19 +313,12 @@ define(
       },
 
       getCurrentPlayerSelectedCardIds: function() {
-        var cardIds = this.getCurrentPlayerPlayableCardNodeList().filter('.selected').attr('data-id');
-        var airStrikeSelectedIds = this.getCurrentPlayerAirStrikesNodeList().filter('.selected').attr('data-id');
-        return cardIds.concat(airStrikeSelectedIds);
+        return this.getCurrentPlayerPlayableCardNodeList().filter('.selected').attr('data-id');
       },
 
       createHiddenPlayerAirStrikeCard: function(color) {
         var card = {type: 'air-strike', color: color};
         return domConstruct.toDom(this.format_block('jstpl_opponent_air_strike_card', card));
-      },
-
-      createCurrentPlayerAirStrikeCard: function(color) {
-        var card = {type: 'air-strike', color: color};
-        return domConstruct.toDom(this.format_block('jstpl_air_strike_card', card));
       },
 
       createCurrentPlayerHandCard: function(card, color) {
@@ -432,33 +391,22 @@ define(
         this.updateCounter('.score-aux', playerId, count);
       },
 
+      updateAirStrikeCount: function(playerId, count) {
+        this.updateCounter('.air-strike-count', playerId, count);
+      },
+
       updateCounter: function(counterSelector, playerId, count) {
-        query(this.getPlayerBoardNode(playerId))
-          .query(counterSelector)
+        this.getCounter(counterSelector, playerId)
           .query('.counter-text')
           .pop().innerHTML = count;
       },
 
-      setAirStrikeTooltipToDefault: function(playerId) {
-        this.setAirStrikeTooltip(playerId, _('Number of air strike cards left in hand'));
+      getAirStrikeCounter: function(playerId) {
+        return this.getCounter('.air-strike-count', playerId);
       },
 
-      setAirStrikeTooltip: function(playerId, tooltip, action) {
-        if (!action) {
-          action = '';
-        }
-        if (!tooltip) {
-          tooltip = '';
-        }
-        array.forEach(
-          this.getAirStrikesNodeList(playerId),
-          lang.hitch(
-            this,
-            function(airStrikeIcon) {
-              this.addTooltip(airStrikeIcon.id, tooltip, action);
-            }
-          )
-        );
+      getCounter: function(counterSelector, playerId) {
+        return query(this.getPlayerBoardNode(playerId)).query(counterSelector);
       },
 
       updatePlayableCardTooltip: function(cardNode, message) {
@@ -478,9 +426,9 @@ define(
         );
       },
 
-      enablePlayHandCards: function() {
-        this.enableHandCardsClick(
-          this.onHandCardPlayClick,
+      enablePlayCards: function() {
+        this.enableCardsClick(
+          this.onCardPlayClick,
           'Play this card on the battlefield',
           'Deselect this card'
         );
@@ -581,10 +529,26 @@ define(
       /************************************
         Interaction utility methods
        */
+      enableCardsClick: function(handler, tooltip, selectedTooltip) {
+        this.enableCardsClickByContainer(
+          query(this.getCurrentPlayerCardsNode()),
+          handler,
+          tooltip,
+          selectedTooltip
+        );
+      },
+
       enableHandCardsClick: function(handler, tooltip, selectedTooltip) {
-        var subSelector = '.player-cards';
-        var cardsContainer = this.getCurrentPlayerCardsNode();
-        if (cardsContainer === null) {
+        this.enableCardsClickByContainer(
+          query(this.getCurrentPlayerHandCardsNode()),
+          handler,
+          tooltip,
+          selectedTooltip
+        );
+      },
+
+      enableCardsClickByContainer: function(container, handler, tooltip, selectedTooltip) {
+        if (container === null) {
           return;
         }
 
@@ -595,13 +559,8 @@ define(
 
         this.disablePlayableCardsClick();
 
-        var clickableContainer = query(cardsContainer);
-        if (subSelector) {
-          clickableContainer = clickableContainer.query(subSelector);
-        }
-        clickableContainer.addClass('clickable');
-
-        clickableContainer.query('.playable-card')
+        container.addClass('clickable');
+        container.query('.playable-card')
           .forEach(lang.hitch(this, function(cardNode) {
             if (!cardNode.id) {
               throw new Error('Trying to add tooltip to node without id', cardNode);
@@ -610,7 +569,7 @@ define(
           }));
 
         var that = this;
-        this.currentPlayerCardsClickSignal = query(cardsContainer).on(
+        this.currentPlayerCardsClickSignal = container.on(
           '.playable-card:click',
           function() {
             var cardNode = this;
@@ -633,10 +592,6 @@ define(
           nodeList.children(),
           lang.hitch(this, this.removeClickableOnNodeAndChildren)
         );
-      },
-
-      disableAirStrikesClick: function() {
-        this.getCurrentPlayerAirStrikesNodeList().removeClass('selected').removeClass('clickable');
       },
 
       disablePlayableCardsClick: function() {
@@ -731,20 +686,12 @@ define(
         this.callBackend('returnToDeck', {ids: selectedIds.join(',')});
       },
 
-      onHandCardPlayClick: function(e) {
+      onCardPlayClick: function(e) {
         this.playCard(query(e.target).attr('data-id')[0]);
       },
 
       playCard: function(cardId) {
         this.getCurrentPlayerPlayableCardNodeList().forEach(function(card) {
-          if (query(card).attr('data-id')[0] === cardId) {
-            query(card).toggleClass('selected');
-          } else {
-            query(card).removeClass('selected');
-          }
-        });
-
-        this.getCurrentPlayerAirStrikesNodeList().forEach(function(card) {
           if (query(card).attr('data-id')[0] === cardId) {
             query(card).toggleClass('selected');
           } else {
@@ -922,39 +869,35 @@ define(
 
       onNotifPlayedAirStrike: function(notification) {
         var playerId = notification.args.playerId;
+        this.updateAirStrikeCount(playerId, notification.args.numAirStrikes);
         if (playerId === this.player_id) {
           return;
         }
 
         var x = notification.args.x;
         var y = notification.args.y;
-        var airStrikeNode = this.getAirStrikesNodeList(playerId).pop();
         var airStrikeCard = this.createHiddenPlayerAirStrikeCard(notification.args.playerColor);
         var position = this.getOrCreatePlacementPosition(x, y);
 
-        this.slideNewElementTo(airStrikeNode, airStrikeCard, position)
+        this.slideNewElementTo(this.getAirStrikeCounter(playerId).pop(), airStrikeCard, position)
           .on('End', lang.hitch(this, function() {
             dojo.destroy(airStrikeCard);
             this.explodeCard(position);
           }));
-        dojo.destroy(airStrikeNode);
       },
 
       onNotifIPlayedAirStrike: function(notification) {
-        var airStrikesNode = this.getCurrentPlayerAirStrikesNodeList()
+        var airStrikeNode = this.getCurrentPlayerAirStrikesNodeList()
           .filter('[data-id=' + notification.args.cardId + ']').pop();
 
         var x = notification.args.x;
         var y = notification.args.y;
-
         var position = this.getOrCreatePlacementPosition(x, y);
-        var cardNode = this.createCurrentPlayerAirStrikeCard(notification.args.playerColor);
-        this.slideNewElementTo(airStrikesNode, cardNode, position)
-          .on('End', lang.hitch(this, function() {
-            dojo.destroy(cardNode);
-            this.explodeCard(position);
-          }));
-        dojo.destroy(airStrikesNode);
+        this.slideToObjectAndDestroy(this.prepareForAnimation(airStrikeNode), position, SLIDE_ANIMATION_DURATION);
+        setTimeout(lang.hitch(this, function() {
+          dojo.destroy(airStrikeNode);
+          this.explodeCard(position);
+        }), SLIDE_ANIMATION_DURATION);
       },
 
       onNotifCardsDrawn: function(notification) {
@@ -982,7 +925,7 @@ define(
               {x: offset, y: offset}
             ).on('End', lang.hitch(this, function(cardNode) {
               this.placeInCurrentPlayerHand(cardNode);
-              this.enablePlayHandCards();
+              this.enablePlayCards();
             }));
           })
         );

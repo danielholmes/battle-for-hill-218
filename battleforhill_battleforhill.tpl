@@ -4,7 +4,10 @@
     <!-- BEGIN player_cards -->
     <div id="players-panel" class="whiteblock">
         <h3>Your hand</h3>
-        <div class="player-cards"></div>
+        <div class="player-cards">
+            <div class="air-strike-cards"></div>
+            <div class="hand-cards"></div>
+        </div>
     </div>
     <!-- END player_cards -->
     <div id="battlefield-panel" class="whiteblock">
@@ -56,6 +59,10 @@
     var jstpl_air_strike_icon = '<div id="air-strike-icon-${playerId}-${id}" data-id="${id}" class="air-strike-icon"></div>';
     var jstpl_counter_icons = '<div class="player-icons">\
         <div id="player-number-${playerId}" class="counter-cell player-number"><span class="counter-text"></span></div>\
+        <div id="air-strike-count-${playerId}" class="counter-cell air-strike-count">\
+            <span class="counter-icon"></span>\
+            <span class="counter-text"></span>\
+        </div>\
         <div id="hand-count-${playerId}" class="counter-cell hand-count">\
             <span class="counter-icon"></span>\
             <span class="counter-text"></span>\

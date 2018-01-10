@@ -193,6 +193,20 @@
     background-image: url(img/cards.png);
     background-repeat: no-repeat;
 }
+.counter-cell.air-strike-count .counter-icon {
+    width: 26px;
+    height: 23px;
+}
+#player_board_inner_3b550c .counter-cell.air-strike-count .counter-icon {
+    background-position: -53px -464px;
+    background-image: url(img/cards.png);
+    background-repeat: no-repeat;
+}
+#player_board_inner_04237b .counter-cell.air-strike-count .counter-icon {
+    background-position: -87px -464px;
+    background-image: url(img/cards.png);
+    background-repeat: no-repeat;
+}
 .counter-cell.score-aux .counter-icon {
     width: 30px;
     height: 28px;
@@ -200,6 +214,7 @@
     background-image: url(img/cards.png);
     background-repeat: no-repeat;
 }
+/* TODO: Remove */
 .air-strike-icon {
     border: 4px solid transparent;
     width: 26px;
@@ -222,6 +237,7 @@
     background-image: url(img/cards.png);
     background-repeat: no-repeat;
 }
+/* End remove */
 
 /* Card view/perspective */
 .battlefield-card > .card.color-3b550c {

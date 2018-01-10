@@ -282,6 +282,7 @@ class PlayCardTest extends TestCase
                         'playerId' => 66,
                         'destroyedType' => 'Infantry',
                         'playerName' => nonEmptyString(),
+                        'numAirStrikes' => 1,
                         'x' => 0,
                         'y' => -1
                     ])

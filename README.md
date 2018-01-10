@@ -55,7 +55,7 @@ Watches development files and deploys them as they change.
 
 ```
 vagrant ssh
-composer watch
+bgawb build --deploy --watch
 ```
 
 
@@ -72,8 +72,7 @@ Available in `etc/pre-commit`. Runs an auto style detection and prevents commit 
    - Ruling from designer here: https://boardgamegeek.com/thread/1489552/when-you-cant-play-card#body_article21298205
  - add some statistics specific to the game such as number of cards played by type and number of cards destroyed by type
  - during choose attack, highlight card attacking from
- - Battle for Sector 219 option
  - when cards animating, should be the correct size and orientation
+ - Battle for Sector 219 option
  - base indicator shows on new page load if card placed on base then destroyed
  - delay draw cards animation - currently same time as cards returning
- - options for re-implementations (sector 219 and other)
