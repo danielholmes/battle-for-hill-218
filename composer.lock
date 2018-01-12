@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "ca599804aba34c10b9cdb0e68e83dc68",
+    "content-hash": "fd2c7ea8943e7c5de0d927af01370251",
     "packages": [
         {
             "name": "lstrojny/functional-php",
@@ -250,16 +250,16 @@
         },
         {
             "name": "dholmes/bga-workbench",
-            "version": "0.0.9",
+            "version": "0.0.11",
             "source": {
                 "type": "git",
                 "url": "https://github.com/danielholmes/bga-workbench.git",
-                "reference": "d2fea72697f767257af6ac12561d329510d9fe26"
+                "reference": "5896a874449610de1364392c90fe034e4fa5a701"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/danielholmes/bga-workbench/zipball/d2fea72697f767257af6ac12561d329510d9fe26",
-                "reference": "d2fea72697f767257af6ac12561d329510d9fe26",
+                "url": "https://api.github.com/repos/danielholmes/bga-workbench/zipball/5896a874449610de1364392c90fe034e4fa5a701",
+                "reference": "5896a874449610de1364392c90fe034e4fa5a701",
                 "shasum": ""
             },
             "require": {
@@ -308,7 +308,7 @@
                 }
             ],
             "description": "BoardGameArena Workbench",
-            "time": "2017-11-10T20:54:30+00:00"
+            "time": "2018-01-12T01:57:43+00:00"
         },
         {
             "name": "doctrine/annotations",
