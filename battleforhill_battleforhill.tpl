@@ -71,7 +71,11 @@
             <span class="counter-icon"></span>\
             <span class="counter-text"></span>\
         </div>\
-        <div id="score-aux-count-${playerId}" class="counter-cell score-aux">\
+        <div id="units-destroyed-count-${playerId}" class="counter-cell units-destroyed">\
+            <span class="counter-icon"></span>\
+            <span class="counter-text"></span>\
+        </div>\
+        <div id="units-in-play-count-${playerId}" class="counter-cell units-in-play">\
             <span class="counter-icon"></span>\
             <span class="counter-text"></span>\
         </div>\

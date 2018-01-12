@@ -47,7 +47,7 @@ class BattleForHill extends Table
      */
     protected function getGameName()
     {
-        return "battleforhill";
+        return 'battleforhill';
     }
 
     /*
@@ -218,10 +218,16 @@ class BattleForHill extends Table
                 $deckSize = $allDeckSizes[$player['id']];
 
                 if ($player['id'] === $currentPlayerId) {
-                    return array_merge($player, $this->getMyPlayerData($player['color'], $deckSize, $handCards));
+                    return array_merge(
+                        $player,
+                        $this->getMyPlayerData($player['id'], $player['color'], $deckSize, $handCards)
+                    );
                 }
 
-                return array_merge($player, $this->getPublicPlayerData($player['color'], $deckSize, $handCards));
+                return array_merge(
+                    $player,
+                    $this->getPublicPlayerData($player['id'], $player['color'], $deckSize, $handCards)
+                );
             }
         );
 
@@ -232,15 +238,16 @@ class BattleForHill extends Table
     }
 
     /**
+     * @param int $playerId
      * @param string $colour
      * @param int $deckSize
      * @param array $cards
      * @return array
      */
-    public function getMyPlayerData($colour, $deckSize, array $cards)
+    public function getMyPlayerData($playerId, $colour, $deckSize, array $cards)
     {
         return array_merge(
-            $this->getPublicPlayerData($colour, $deckSize, $cards),
+            $this->getPublicPlayerData($playerId, $colour, $deckSize, $cards),
             [
                 'cards' => F\map(
                     $cards,
@@ -253,12 +260,13 @@ class BattleForHill extends Table
     }
 
     /**
+     * @param int $playerId
      * @param string $colour
      * @param int $deckSize
      * @param array $cards
      * @return array
      */
-    public function getPublicPlayerData($colour, $deckSize, array $cards)
+    public function getPublicPlayerData($playerId, $colour, $deckSize, array $cards)
     {
         $numAirStrikes = count(
             F\filter(
@@ -271,6 +279,7 @@ class BattleForHill extends Table
         $numCards = count($cards);
         return [
             'isDownwardPlayer' => self::DOWNWARD_PLAYER_COLOR === $colour,
+            'numDefeatedCards' => $this->getStat('num_defeated_cards', $playerId),
             'numAirStrikes' => $numAirStrikes,
             'numCards' => $numCards,
             'deckSize' => $deckSize,
@@ -405,24 +414,6 @@ class BattleForHill extends Table
     private function playerDestroyCard($playerId)
     {
         $this->incStat(1, 'num_defeated_cards', $playerId);
-        self::DBQuery("UPDATE player SET `player_score_aux` = `player_score_aux` + 1 WHERE player_id = {$playerId}");
-        $this->sendNewScores();
-    }
-
-    private function sendNewScores() {
-        self::notifyAllPlayers(
-            'newScores',
-            '',
-            F\map(
-                $this->getCollectionFromDB('SELECT player_id, player_score, player_score_aux FROM player', false),
-                function (array $player) {
-                    return [
-                        'score' => (int) $player['player_score'],
-                        'scoreAux' => (int) $player['player_score_aux']
-                    ];
-                }
-            )
-        );
     }
 
     /**
@@ -579,6 +570,11 @@ class BattleForHill extends Table
         self::DbQuery("DELETE FROM battlefield_card WHERE id = {$cardInPositionId}");
         $this->playerDestroyCard($card->getPlayerId());
 
+        // Score
+        self::DbQuery(
+            "UPDATE player SET player_score_aux = player_score_aux - 1 WHERE player_id = {$cardInPosition->getCard()->getPlayerId()}"
+        );
+
         // Notifications
         $players = self::loadPlayersBasicInfos();
         $player = $players[$card->getPlayerId()];
@@ -591,6 +587,7 @@ class BattleForHill extends Table
                 'playerColor' => $player['player_color'],
                 'typeName' => AirStrikeCard::typeName(),
                 'destroyedType' => $cardInPosition->getCard()->getTypeName(),
+                'numDefeatedCards' => $this->getStat('num_defeated_cards', $card->getPlayerId()),
                 'numAirStrikes' => self::getIntUniqueValueFromDB(
                     "SELECT COUNT(id) FROM playable_card WHERE player_id = {$card->getPlayerId()} AND type = 'air-strike'"
                 ),
@@ -643,6 +640,11 @@ class BattleForHill extends Table
             )
         );
 
+        // Scoring
+        self::DbQuery(
+            "UPDATE player SET player_score_aux = player_score_aux + 1 WHERE player_id = {$card->getPlayerId()}"
+        );
+
         // Notifications
         $players = self::loadPlayersBasicInfos();
         $player = $players[$card->getPlayerId()];
@@ -675,7 +677,6 @@ class BattleForHill extends Table
         $opponentBasePosition = $battlefield->getOpponentBasePosition($card->getPlayerId());
         if ($opponentBasePosition == $position) {
             self::DbQuery("UPDATE player SET player_score = 1 WHERE player_id = {$card->getPlayerId()}");
-            $this->sendNewScores();
             $this->notifyAllPlayers('endOfGame', '', []);
             $this->gamestate->nextState('occupyEnemyBase');
             return;
@@ -731,12 +732,17 @@ class BattleForHill extends Table
         self::DbQuery(
             "DELETE FROM battlefield_card WHERE x = {$attack->getX()} AND y = {$attack->getY()} LIMIT 1"
         );
+        self::DbQuery(
+            "UPDATE player SET player_score_aux = player_score_aux - 1 WHERE player_id = {$attack->getCard()->getPlayerId()}"
+        );
         $this->playerDestroyCard($playerId);
 
         $this->notifyAllPlayers(
             'cardAttacked',
             clienttranslate('${playerName} attacked the ${destroyedType} at ${x},${y} with the ${type} at ${fromX},${fromY}'),
             [
+                'playerId' => $playerId,
+                'numDefeatedCards' => $this->getStat('num_defeated_cards', $playerId),
                 'playerName' => self::getUniqueValueFromDB("SELECT player_name FROM player WHERE player_id = {$playerId}"),
                 'type' => $from->getCard()->getTypeName(),
                 'destroyedType' => $attack->getCard()->getTypeName(),

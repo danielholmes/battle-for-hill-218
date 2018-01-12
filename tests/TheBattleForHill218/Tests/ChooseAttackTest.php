@@ -117,8 +117,8 @@ class ChooseAttackTest extends TestCase
         assertThat(
             $this->table->fetchDbRows('player'),
             containsInAnyOrder(
-                M\hasEntries(['player_id' => 66, 'player_score_aux' => 3]),
-                M\hasEntries(['player_id' => 77, 'player_score_aux' => 1])
+                M\hasEntries(['player_id' => 66, 'player_score_aux' => 2]),
+                M\hasEntries(['player_id' => 77, 'player_score_aux' => 0])
             )
         );
         $expectedLog = '${playerName} attacked the ${destroyedType} at ${x},${y} with the ${type} at ${fromX},${fromY}';
@@ -130,6 +130,8 @@ class ChooseAttackTest extends TestCase
                     'type' => 'cardAttacked',
                     'log' => $expectedLog,
                     'args' => M\hasEntries([
+                        'playerId' => 66,
+                        'numDefeatedCards' => 1,
                         'playerName' => nonEmptyString(),
                         'type' => 'Artillery',
                         'destroyedType' => 'Infantry',
@@ -138,15 +140,6 @@ class ChooseAttackTest extends TestCase
                         'fromX' => 1,
                         'fromY' => 1
                     ])
-                ]),
-                M\hasEntries([
-                    'playerId' => 'all',
-                    'type' => 'newScores',
-                    'log' => '',
-                    'args' => [
-                        66 => ['score' => 0, 'scoreAux' => 3],
-                        77 => ['score' => 0, 'scoreAux' => 1]
-                    ]
                 ])
             )
         );

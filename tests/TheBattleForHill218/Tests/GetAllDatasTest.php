@@ -34,6 +34,7 @@ class GetAllDatasTest extends TestCase
                     M\hasEntries([
                         'id' => 66,
                         'cards' => arrayWithSize(7),
+                        'numDefeatedCards' => 0,
                         'numCards' => 7,
                         'deckSize' => 19,
                         'scoreAux' => 0,
@@ -42,6 +43,7 @@ class GetAllDatasTest extends TestCase
                     allOf(
                         M\hasEntries([
                             'id' => 77,
+                            'numDefeatedCards' => 0,
                             'numCards' => 7,
                             'deckSize' => 19,
                             'scoreAux' => 0,
@@ -82,6 +84,7 @@ class GetAllDatasTest extends TestCase
                     M\hasEntries([
                         'id' => 66,
                         'cards' => emptyArray(),
+                        'numDefeatedCards' => 0,
                         'numCards' => 0,
                         'deckSize' => 0,
                         'number' => anyOf(1, 2)
@@ -89,6 +92,7 @@ class GetAllDatasTest extends TestCase
                     allOf(
                         M\hasEntries([
                             'id' => 77,
+                            'numDefeatedCards' => 0,
                             'numCards' => 0,
                             'deckSize' => 0,
                             'number' => anyOf(1, 2)

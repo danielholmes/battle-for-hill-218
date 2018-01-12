@@ -68,7 +68,7 @@ class PlayCardTest extends TestCase
         assertThat(
             $this->table->fetchDbRows('player'),
             containsInAnyOrder(
-                M\hasEntries(['player_id' => 66, 'player_score_aux' => 0]),
+                M\hasEntries(['player_id' => 66, 'player_score_aux' => 1]),
                 M\hasEntries(['player_id' => 77, 'player_score_aux' => 0])
             )
         );
@@ -175,15 +175,6 @@ class PlayCardTest extends TestCase
                 ]),
                 M\hasEntries([
                     'playerId' => 'all',
-                    'type' => 'newScores',
-                    'log' => '',
-                    'args' => [
-                        66 => ['score' => 1, 'scoreAux' => 0],
-                        77 => ['score' => 0, 'scoreAux' => 0]
-                    ]
-                ]),
-                M\hasEntries([
-                    'playerId' => 'all',
                     'type' => 'endOfGame',
                     'log' => ''
                 ])
@@ -266,8 +257,8 @@ class PlayCardTest extends TestCase
         assertThat(
             $this->table->fetchDbRows('player'),
             containsInAnyOrder(
-                M\hasEntries(['player_id' => 66, 'player_score_aux' => 1]),
-                M\hasEntries(['player_id' => 77, 'player_score_aux' => 1])
+                M\hasEntries(['player_id' => 66, 'player_score_aux' => 0]),
+                M\hasEntries(['player_id' => 77, 'player_score_aux' => 0])
             )
         );
         $expectedLog = '${playerName} played an ${typeName} card destroying the ${destroyedType} card at ${x},${y}';
@@ -280,6 +271,7 @@ class PlayCardTest extends TestCase
                     'log' => $expectedLog,
                     'args' => M\hasEntries([
                         'playerId' => 66,
+                        'numDefeatedCards' => 1,
                         'destroyedType' => 'Infantry',
                         'typeName' => 'Air Strike',
                         'playerName' => nonEmptyString(),
@@ -297,15 +289,6 @@ class PlayCardTest extends TestCase
                         'x' => 0,
                         'y' => -1
                     ])
-                ]),
-                M\hasEntries([
-                    'playerId' => 'all',
-                    'type' => 'newScores',
-                    'log' => '',
-                    'args' => [
-                        66 => ['score' => 0, 'scoreAux' => 1],
-                        77 => ['score' => 0, 'scoreAux' => 1]
-                    ]
                 ])
             )
         );

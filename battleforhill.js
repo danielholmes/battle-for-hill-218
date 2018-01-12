@@ -77,7 +77,7 @@ define(
             this.updatePlayerNumber(id, player.number);
             this.updateDeckCount(id, player.deckSize);
             this.updateHandCount(id, player.handSize);
-            this.updateScoreAuxCount(id, player.scoreAux);
+            this.updateUnitsDestroyedCount(id, player.scoreAux);
             this.updateAirStrikeCount(id, player.numAirStrikes);
             if (id.toString() === this.player_id.toString()) {
               this.setupCurrentPlayerCards(player);
@@ -387,8 +387,12 @@ define(
         this.updateCounter('.hand-count', playerId, count);
       },
 
-      updateScoreAuxCount: function(playerId, count) {
-        this.updateCounter('.score-aux', playerId, count);
+      updateUnitsDestroyedCount: function(playerId, count) {
+        this.updateCounter('.units-destroyed', playerId, count);
+      },
+
+      updateUnitsInPlayCount: function(playerId, count) {
+        this.updateCounter('.units-in-play', playerId, count);
       },
 
       updateAirStrikeCount: function(playerId, count) {
@@ -815,7 +819,6 @@ define(
         dojo.subscribe('iPlayedAirStrike', lang.hitch(this, this.onNotifIPlayedAirStrike));
         dojo.subscribe('playedAirStrike', lang.hitch(this, this.onNotifPlayedAirStrike));
         dojo.subscribe('cardAttacked', lang.hitch(this, this.onNotifCardAttacked));
-        dojo.subscribe('newScores', lang.hitch(this, this.onNotifNewScores));
         dojo.subscribe('endOfGame', this, function() {
           // placeholder to allow delay below
         });
@@ -953,16 +956,17 @@ define(
         this.updateDeckCount(playerId, notification.args.deckCount);
       },
 
-      onNotifNewScores: function(notification) {
+      // TODO: Show new scores
+      /*onNotifNewScores: function(notification) {
         for (var playerId in notification.args) {
           if (notification.args.hasOwnProperty(playerId)) {
             var score = notification.args[playerId].score;
             var scoreAux = notification.args[playerId].scoreAux;
             this.scoreCtrl[playerId].toValue(score);
-            this.updateScoreAuxCount(playerId, scoreAux);
+            this.updateUnitsDestroyedCount(playerId, scoreAux);
           }
         }
-      }
+      }*/
     });
   }
 );
