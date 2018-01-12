@@ -954,10 +954,9 @@ define(
         var playerId = notification.args.playerId;
         this.updateHandCount(playerId, notification.args.handCount);
         this.updateDeckCount(playerId, notification.args.deckCount);
-      },
+      }
 
-      // TODO: Show new scores
-      /*onNotifNewScores: function(notification) {
+      /* onNotifNewScores: function(notification) {
         for (var playerId in notification.args) {
           if (notification.args.hasOwnProperty(playerId)) {
             var score = notification.args[playerId].score;
@@ -966,7 +965,7 @@ define(
             this.updateUnitsDestroyedCount(playerId, scoreAux);
           }
         }
-      }*/
+      } */
     });
   }
 );
