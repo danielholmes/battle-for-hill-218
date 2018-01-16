@@ -32,10 +32,11 @@ class NextPlayTest extends TestCase
             ->setupNewGame()
             ->createGameInstanceWithNoBoundedPlayer();
 
-        $game->stubCurrentPlayerId(66)->returnToDeck([3, 4]);
-        $game->stubCurrentPlayerId(77)->returnToDeck([10, 11]);
+        $db = $this->table->getDbConnection();
+        TestUtils::return2RandomCards($game, $db, 66);
+        TestUtils::return2RandomCards($game, $db,77);
         $game->stubActivePlayerId(77)->stDrawCards();
-        call_user_func($callable, $this->table->getDbConnection());
+        call_user_func($callable, $db);
         return $game;
     }
 
@@ -110,6 +111,28 @@ class NextPlayTest extends TestCase
                     'log' => ''
                 ])
             )
+        );
+    }
+
+    public function testNextPlayNoValidMovesSoSwitch()
+    {
+        $this->markTestSkipped('TODO');
+
+        $this->createGameReadyForNext(function (Connection $db) {
+            $db->exec('UPDATE player SET turn_plays_remaining = 2 WHERE player_id = 66');
+            $db->exec('UPDATE player SET turn_plays_remaining = 0 WHERE player_id = 77');
+            $db->exec('DELETE FROM playable_card WHERE player_id = 66');
+            $db->exec('INSERT INTO playable_card (player_id, type, `order`) VALUES (66, "air-strike", 0)');
+            $db->exec('INSERT INTO playable_card (player_id, type, `order`) VALUES (66, "air-strike", 1)');
+        })->stubActivePlayerId(66)
+            ->stNextPlay();
+
+        assertThat(
+            $this->table->fetchDbRows('player'),
+            containsInAnyOrder([
+                M\hasEntries(['player_id' => 66, 'turn_plays_remaining' => 0]),
+                M\hasEntries(['player_id' => 77, 'turn_plays_remaining' => 2])
+            ])
         );
     }
 }

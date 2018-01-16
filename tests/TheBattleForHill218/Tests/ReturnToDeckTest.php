@@ -21,10 +21,10 @@ class ReturnToDeckTest extends TestCase
     {
         $action = $this->table
             ->setupNewGame()
-            ->createActionInstanceForCurrentPlayer(66)
-            ->stubArg('ids', '3,4');
+            ->createActionInstanceForCurrentPlayer(66);
+        $returnIds = TestUtils::get2RandomReturnableIds($this->table->getDbConnection(), 66);
 
-        $action->returnToDeck();
+        $action->stubArg('ids', implode(',', $returnIds))->returnToDeck();
 
         assertThat(
             $this->table->fetchDbRows('deck_card', ['player_id' => 66]),
@@ -34,8 +34,8 @@ class ReturnToDeckTest extends TestCase
             $this->table->fetchDbRows('playable_card', ['player_id' => 66]),
             allOf(
                 arrayWithSize(5),
-                not(hasItem(hasEntry('id', 3))),
-                not(hasItem(hasEntry('id', 4)))
+                not(hasItem(hasEntry('id', $returnIds[0]))),
+                not(hasItem(hasEntry('id', $returnIds[1])))
             )
         );
 
@@ -56,7 +56,7 @@ class ReturnToDeckTest extends TestCase
                     'playerId' => 66,
                     'type' => 'iReturnedToDeck',
                     'args' => M\hasEntries([
-                        'cardIds' => [3, 4]
+                        'cardIds' => $returnIds
                     ])
                 ])
             )

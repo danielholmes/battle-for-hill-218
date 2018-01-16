@@ -30,15 +30,15 @@ class BattlefieldImplTest extends TestCase
     {
         $this->emptyBattlefield = $this->sampleBattlefield = new BattlefieldImpl(
             2,
-            [new CardPlacement(new HillCard(), new Position(0, 0))]
+            [new CardPlacement(new HillCard(1), new Position(0, 0))]
         );
         $this->sampleBattlefield = new BattlefieldImpl(
             2,
             [
-                new CardPlacement(new HillCard(), new Position(0, 0)),
-                new CardPlacement(new ParatroopersCard(1), new Position(0, 1)),
-                new CardPlacement(new InfantryCard(2), new Position(0, 2)),
-                new CardPlacement(new TankCard(1), new Position(0, 3))
+                new CardPlacement(new HillCard(1), new Position(0, 0)),
+                new CardPlacement(new ParatroopersCard(2, 1), new Position(0, 1)),
+                new CardPlacement(new InfantryCard(3, 2), new Position(0, 2)),
+                new CardPlacement(new TankCard(4, 1), new Position(0, 3))
             ]
         );
     }
@@ -48,8 +48,8 @@ class BattlefieldImplTest extends TestCase
         $this->expectException('InvalidArgumentException');
 
         new BattlefieldImpl(2, [
-            new CardPlacement(new InfantryCard(1), new Position(1, 0)),
-            new CardPlacement(new HeavyWeaponsCard(1), new Position(1, 0))
+            new CardPlacement(new InfantryCard(1, 1), new Position(1, 0)),
+            new CardPlacement(new HeavyWeaponsCard(2, 1), new Position(1, 0))
         ]);
     }
 
@@ -93,21 +93,21 @@ class BattlefieldImplTest extends TestCase
     public function testGetAllowedPositionsDoesntUseSupplyFromDisconnected()
     {
         $battlefield = new BattlefieldImpl(2, [
-            new CardPlacement(new HillCard(), new Position(0, 0)),
+            new CardPlacement(new HillCard(1), new Position(0, 0)),
             // Supplied
-            new CardPlacement(new InfantryCard(1), new Position(0, 1)),
-            new CardPlacement(new ArtilleryCard(1), new Position(1, 1)),
-            new CardPlacement(new ArtilleryCard(1), new Position(2, 1)),
+            new CardPlacement(new InfantryCard(2, 1), new Position(0, 1)),
+            new CardPlacement(new ArtilleryCard(3, 1), new Position(1, 1)),
+            new CardPlacement(new ArtilleryCard(4, 1), new Position(2, 1)),
 
             // Single cut off from base
-            new CardPlacement(new ParatroopersCard(1), new Position(5, 5)),
+            new CardPlacement(new ParatroopersCard(5, 1), new Position(5, 5)),
 
             // Supply each other, but cut off from base
-            new CardPlacement(new InfantryCard(1), new Position(-2, 1)),
-            new CardPlacement(new HeavyWeaponsCard(1), new Position(-3, 1)),
+            new CardPlacement(new InfantryCard(6, 1), new Position(-2, 1)),
+            new CardPlacement(new HeavyWeaponsCard(7, 1), new Position(-3, 1)),
 
             // Opponent player (but would be supplied if same
-            new CardPlacement(new ArtilleryCard(2), new Position(-1, 1))
+            new CardPlacement(new ArtilleryCard(8, 2), new Position(-1, 1))
         ]);
 
         $positions = $battlefield->getSuppliedPlaceablePositions(1, [new SupplyOffset(0, -1)]);
@@ -120,10 +120,10 @@ class BattlefieldImplTest extends TestCase
 
     public function testGetAttackablePlacementsSingleFound()
     {
-        $opponentInfantry = new CardPlacement(new InfantryCard(2), new Position(0, -1));
-        $tank = new CardPlacement(new TankCard(1), new Position(1, -1));
+        $opponentInfantry = new CardPlacement(new InfantryCard(1, 2), new Position(0, -1));
+        $tank = new CardPlacement(new TankCard(2, 1), new Position(1, -1));
         $battlefield = new BattlefieldImpl(2, [
-            new CardPlacement(new HillCard(), new Position(0, 0)),
+            new CardPlacement(new HillCard(1), new Position(0, 0)),
             $opponentInfantry,
             $tank
         ]);
@@ -133,10 +133,10 @@ class BattlefieldImplTest extends TestCase
 
     public function testGetAttackablePlacementsSingleFoundButNoSupport()
     {
-        $opponentInfantry = new CardPlacement(new InfantryCard(2), new Position(0, -1));
-        $infantry = new CardPlacement(new InfantryCard(1), new Position(1, -1));
+        $opponentInfantry = new CardPlacement(new InfantryCard(1, 2), new Position(0, -1));
+        $infantry = new CardPlacement(new InfantryCard(2, 1), new Position(1, -1));
         $battlefield = new BattlefieldImpl(2, [
-            new CardPlacement(new HillCard(), new Position(0, 0)),
+            new CardPlacement(new HillCard(1), new Position(0, 0)),
             $opponentInfantry,
             $infantry
         ]);
@@ -146,10 +146,10 @@ class BattlefieldImplTest extends TestCase
 
     public function testGetAttackablePlacementsCantAttack()
     {
-        $tank = new CardPlacement(new TankCard(1), new Position(1, -1));
+        $tank = new CardPlacement(new TankCard(2, 1), new Position(1, -1));
         $battlefield = new BattlefieldImpl(2, [
-            new CardPlacement(new HillCard(), new Position(0, 0)),
-            new CardPlacement(new InfantryCard(2), new Position(10, 10)),
+            new CardPlacement(new HillCard(1), new Position(0, 0)),
+            new CardPlacement(new InfantryCard(3, 2), new Position(10, 10)),
             $tank
         ]);
 
@@ -158,15 +158,15 @@ class BattlefieldImplTest extends TestCase
 
     public function testGetAttackablePlacementsWithSupport()
     {
-        $opponent1 = new CardPlacement(new InfantryCard(2), new Position(-1, -2));
-        $opponent2 = new CardPlacement(new InfantryCard(2), new Position(0, -1));
-        $opponentMissing = new CardPlacement(new InfantryCard(2), new Position(-2, -1));
+        $opponent1 = new CardPlacement(new InfantryCard(2, 2), new Position(-1, -2));
+        $opponent2 = new CardPlacement(new InfantryCard(3, 2), new Position(0, -1));
+        $opponentMissing = new CardPlacement(new InfantryCard(4, 2), new Position(-2, -1));
 
-        $supporter = new CardPlacement(new HeavyWeaponsCard(1), new Position(-1, -1));
-        $attacker = new CardPlacement(new InfantryCard(1), new Position(0, -2));
+        $supporter = new CardPlacement(new HeavyWeaponsCard(5, 1), new Position(-1, -1));
+        $attacker = new CardPlacement(new InfantryCard(6, 1), new Position(0, -2));
 
         $battlefield = new BattlefieldImpl(2, [
-            new CardPlacement(new HillCard(), new Position(0, 0)),
+            new CardPlacement(new HillCard(1), new Position(0, 0)),
             $opponent1,
             $opponent2,
             $opponentMissing,
@@ -185,8 +185,8 @@ class BattlefieldImplTest extends TestCase
         $this->expectException('InvalidArgumentException');
 
         $battlefield = new BattlefieldImpl(2, [
-            new CardPlacement(new HillCard(), new Position(0, 0)),
-            new CardPlacement(new InfantryCard(2), new Position(0, -1))
+            new CardPlacement(new HillCard(1), new Position(0, 0)),
+            new CardPlacement(new InfantryCard(2, 2), new Position(0, -1))
         ]);
 
         $battlefield->getAttackablePlacements(new Position(1, -1));
@@ -194,10 +194,10 @@ class BattlefieldImplTest extends TestCase
 
     public function testFlipsAttackPatternForAttackingDownwards()
     {
-        $opponent = new CardPlacement(new InfantryCard(1), new Position(0, -1));
-        $attackArtillery = new CardPlacement(new ArtilleryCard(2), new Position(0, 1));
+        $opponent = new CardPlacement(new InfantryCard(2, 1), new Position(0, -1));
+        $attackArtillery = new CardPlacement(new ArtilleryCard(3, 2), new Position(0, 1));
         $battlefield = new BattlefieldImpl(1, [
-            new CardPlacement(new HillCard(), new Position(0, 0)),
+            new CardPlacement(new HillCard(1), new Position(0, 0)),
             // Opponent
             $opponent,
             $attackArtillery
@@ -208,11 +208,11 @@ class BattlefieldImplTest extends TestCase
 
     public function testGetAttackablePlacementsWithUnsuppliedSupport()
     {
-        $opponentInfantry = new CardPlacement(new InfantryCard(2), new Position(-1, 0));
-        $infantry = new CardPlacement(new InfantryCard(1), new Position(-1, -1));
-        $paratroopers = new CardPlacement(new InfantryCard(1), new Position(-2, 0));
+        $opponentInfantry = new CardPlacement(new InfantryCard(2, 2), new Position(-1, 0));
+        $infantry = new CardPlacement(new InfantryCard(3, 1), new Position(-1, -1));
+        $paratroopers = new CardPlacement(new InfantryCard(4, 1), new Position(-2, 0));
         $battlefield = new BattlefieldImpl(1, [
-            new CardPlacement(new HillCard(), new Position(0, 0)),
+            new CardPlacement(new HillCard(1), new Position(0, 0)),
             $opponentInfantry,
             $infantry,
             $paratroopers

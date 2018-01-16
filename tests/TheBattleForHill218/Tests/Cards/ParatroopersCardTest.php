@@ -17,12 +17,12 @@ class ParatroopersCardTest extends TestCase
         $battlefield = new BattlefieldImpl(
             2,
             [
-                new CardPlacement(new HillCard(), new Position(0, 0)),
-                new CardPlacement(new InfantryCard(2), new Position(0, -2)),
-                new CardPlacement(new InfantryCard(1), new Position(0, 1))
+                new CardPlacement(new HillCard(1), new Position(0, 0)),
+                new CardPlacement(new InfantryCard(2, 2), new Position(0, -2)),
+                new CardPlacement(new InfantryCard(3, 1), new Position(0, 1))
             ]
         );
-        $card = new ParatroopersCard(1);
+        $card = new ParatroopersCard(4, 1);
 
         assertThat(
             $card->getPossiblePlacementPositions($battlefield),
@@ -81,14 +81,14 @@ class ParatroopersCardTest extends TestCase
         $battlefield = new BattlefieldImpl(
             2,
             [
-                new CardPlacement(new HillCard(), new Position(0, 0)),
-                new CardPlacement(new InfantryCard(2), new Position(0, -1)),
-                new CardPlacement(new InfantryCard(2), new Position(-1, -1)),
-                new CardPlacement(new InfantryCard(2), new Position(-1, 0)),
-                new CardPlacement(new InfantryCard(2), new Position(-1, 1))
+                new CardPlacement(new HillCard(1), new Position(0, 0)),
+                new CardPlacement(new InfantryCard(2, 2), new Position(0, -1)),
+                new CardPlacement(new InfantryCard(3, 2), new Position(-1, -1)),
+                new CardPlacement(new InfantryCard(4, 2), new Position(-1, 0)),
+                new CardPlacement(new InfantryCard(5, 2), new Position(-1, 1))
             ]
         );
-        $card = new ParatroopersCard(2);
+        $card = new ParatroopersCard(6, 2);
 
         assertThat(
             $card->getPossiblePlacementPositions($battlefield),

@@ -10,3 +10,4 @@ BGAWorkbench\Test\StubProductionEnvironment::stub();
 require_once(__DIR__ . '/../battleforhill.game.php');
 
 require_once($vendorDir . '/hamcrest/hamcrest-php/hamcrest/Hamcrest.php');
+require_once(__DIR__ . '/TheBattleForHill218/Tests/TestUtils.php');

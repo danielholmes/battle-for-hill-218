@@ -17,11 +17,12 @@ class Hill218Setup
 
     /**
      * @param int $playerId
+     * @param int $idStart
      * @return PlayerCard[][]
      */
-    public static function getPlayerStartingCards(int $playerId) : array
+    public static function getPlayerStartingCards(int $playerId, int $idStart) : array
     {
-        $all = self::createAllStartingCards($playerId);
+        $all = self::createAllStartingCards($playerId, $idStart);
         shuffle($all);
         list($required, $remaining) = HF\partition_to_lists(
             $all,
@@ -46,9 +47,10 @@ class Hill218Setup
 
     /**
      * @param int $playerId
+     * @param int $idStart
      * @return PlayerCard[]
      */
-    private static function createAllStartingCards(int $playerId) : array
+    private static function createAllStartingCards(int $playerId, int $idStart) : array
     {
         return F\map(
             array_merge(
@@ -60,8 +62,8 @@ class Hill218Setup
                 array_fill(0, 3, 'paratroopers'),
                 array_fill(0, 2, 'air-strike')
             ),
-            function ($typeKey) use ($playerId) {
-                return CardFactory::createFromTypeKey($typeKey, $playerId);
+            function ($typeKey, $i) use ($playerId, $idStart) {
+                return CardFactory::createFromTypeKey($idStart + $i, $typeKey, $playerId);
             }
         );
     }
@@ -79,7 +81,7 @@ class Hill218Setup
      */
     public static function getNumberOfStartingCardsPerPlayer() : int
     {
-        return count(self::createAllStartingCards(0));
+        return count(self::createAllStartingCards(0, 0));
     }
 
     /**

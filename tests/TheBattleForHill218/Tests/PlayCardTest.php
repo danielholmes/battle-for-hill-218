@@ -121,6 +121,7 @@ class PlayCardTest extends TestCase
                         ['player_id' => 66, 'type' => 'special-forces', 'x' => 1, 'y' => 0]
                     ]
                 ));
+                $db->executeUpdate('UPDATE player SET player_score_aux = 2 WHERE player_id = 66');
             })
             ->createActionInstanceForCurrentPlayer(66);
 

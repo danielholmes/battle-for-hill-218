@@ -62,8 +62,10 @@ class BattleForHill extends Table
         $this->setupPlayers($players);
         $this->setupStats();
         $this->setupBattlefield();
+        $idCounter = 1;
         foreach (array_keys($players) as $playerId) {
-            $this->setupPlayerCards($playerId);
+            $numCards = $this->setupPlayerCards($playerId, $idCounter);
+            $idCounter += $numCards;
         }
         $this->activeNextPlayer();
         $this->gamestate->setAllPlayersMultiactive();
@@ -119,12 +121,15 @@ class BattleForHill extends Table
 
     /**
      * @param int $playerId
+     * @param int $idStart
+     * @return int
      */
-    private function setupPlayerCards($playerId)
+    private function setupPlayerCards($playerId, $idStart)
     {
-        list($hand, $deck) = Hill218Setup::getPlayerStartingCards($playerId);
+        list($hand, $deck) = Hill218Setup::getPlayerStartingCards($playerId, $idStart);
         $this->saveCards('playable_card', $hand);
         $this->saveCards('deck_card', $deck);
+        return count($hand) + count($deck);
     }
 
     /**
@@ -140,6 +145,7 @@ class BattleForHill extends Table
                     $cards,
                     function (PlayerCard $card, $i) {
                         return [
+                            'id' => $card->getId(),
                             'player_id' => $card->getPlayerId(),
                             'type' => $card->getTypeKey(),
                             'order' => $i
@@ -185,22 +191,7 @@ class BattleForHill extends Table
         );
 
         // Units in play
-        $allUnitsInPlay = F\map(
-            F\map(
-                HF\group_to_lists(
-                    self::getObjectListFromDB('SELECT COUNT(id) as size, player_id FROM battlefield_card GROUP BY player_id'),
-                    function (array $count) {
-                        return (int) $count['player_id'];
-                    }
-                ),
-                function (array $counts) {
-                    return F\head($counts);
-                }
-            ),
-            function (array $count) {
-                return (int) $count['size'];
-            }
-        );
+        $allUnitsInPlay = self::getCollectionFromDB('SELECT player_id, player_score_aux FROM player', true);
 
         // Default values
         $players = F\map(
@@ -383,12 +374,22 @@ class BattleForHill extends Table
     }
 
     /**
+     * @param int $playerId
+     * @return PlayerCard[]
+     */
+    private function loadPlayableCards($playerId)
+    {
+        $playableCards = self::getObjectListFromDB("SELECT * from playable_card WHERE player_id = {$playerId}");
+        return F\map($playableCards, ['BattleForHill', 'parsePlayableCard']);
+    }
+
+    /**
      * @param array $raw
      * @return PlayerCard
      */
     public static function parsePlayableCard(array $raw)
     {
-        return CardFactory::createFromTypeKey($raw['type'], (int) $raw['player_id']);
+        return CardFactory::createFromTypeKey((int) $raw['id'], $raw['type'], (int) $raw['player_id']);
     }
 
     /**
@@ -415,10 +416,10 @@ class BattleForHill extends Table
         $position = new Position((int) $raw['x'], (int) $raw['y']);
         switch ($raw['type']) {
             case 'hill':
-                return new CardPlacement(new HillCard(), $position);
+                return new CardPlacement(new HillCard($raw['id']), $position);
             default:
                 return new CardPlacement(
-                    CardFactory::createBattlefieldFromTypeKey($raw['type'], (int) $raw['player_id']),
+                    CardFactory::createBattlefieldFromTypeKey($raw['id'], $raw['type'], (int) $raw['player_id']),
                     $position
                 );
         }
@@ -467,7 +468,8 @@ class BattleForHill extends Table
      */
     private function getNumUnitsInPlay($playerId)
     {
-        return self::getIntUniqueValueFromDB("SELECT COUNT(id) FROM battlefield_card WHERE player_id = {$playerId}");
+        // Quicker than counting number of battlefield cards and also should ensure number is synced to score aux
+        return self::getIntUniqueValueFromDB("SELECT player_score_aux FROM player WHERE player_id = {$playerId}");
     }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -810,14 +812,14 @@ class BattleForHill extends Table
     public function argPlayCard()
     {
         $playerId = (int) $this->getActivePlayerId();
-        $playableCards = self::getObjectListFromDB("SELECT * from playable_card WHERE player_id = {$playerId}");
+        $playableCards = $this->loadPlayableCards($playerId);
         $battlefield = $this->loadBattlefield();
         return [
             '_private' => [
                 'active' => array_combine(
-                    F\pluck($playableCards, 'id'),
+                    F\map($playableCards, function (PlayerCard $card) { return $card->getId(); }),
                     F\map(
-                        F\map($playableCards, ['BattleForHill', 'parsePlayableCard']),
+                        $playableCards,
                         function (PlayerCard $card) use ($battlefield) {
                             return F\map(
                                 $card->getPossiblePlacementPositions($battlefield),
@@ -984,23 +986,25 @@ class BattleForHill extends Table
         self::DbQuery(
             "UPDATE player SET turn_plays_remaining = turn_plays_remaining - 1 WHERE player_id = {$playerId}"
         );
-        $remaining = self::getIntUniqueValueFromDB(
+        $turnsRemaining = self::getIntUniqueValueFromDB(
             "SELECT turn_plays_remaining FROM player WHERE player_id = {$playerId}"
         );
-        if ($remaining <= 0 || !$activePlayerHasCards) {
-            $opponentPlayerId = F\first(
-                array_keys(self::loadPlayersBasicInfos()),
-                function ($checkId) use ($playerId) {
-                    return $checkId !== $playerId;
-                }
-            );
-            self::DbQuery("UPDATE player SET turn_plays_remaining = 2 WHERE player_id = {$opponentPlayerId}");
-            $this->gamestate->changeActivePlayer($opponentPlayerId);
-            $this->gamestate->nextState('nextPlayer');
+        $battlefield = $this->loadBattlefield();
+        $playableCards = $this->loadPlayableCards($playerId);
+        if ($turnsRemaining > 0 && $activePlayerHasCards) {
+            $this->gamestate->nextState('playAgain');
             return;
         }
 
-        $this->gamestate->nextState('playAgain');
+        $opponentPlayerId = F\first(
+            array_keys(self::loadPlayersBasicInfos()),
+            function ($checkId) use ($playerId) {
+                return $checkId !== $playerId;
+            }
+        );
+        self::DbQuery("UPDATE player SET turn_plays_remaining = 2 WHERE player_id = {$opponentPlayerId}");
+        $this->gamestate->changeActivePlayer($opponentPlayerId);
+        $this->gamestate->nextState('nextPlayer');
     }
 
 //////////////////////////////////////////////////////////////////////////////

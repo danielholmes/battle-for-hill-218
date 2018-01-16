@@ -32,8 +32,9 @@ class DrawCardsTest extends TestCase
             ->setupNewGame()
             ->createGameInstanceWithNoBoundedPlayer();
 
-        $game->stubCurrentPlayerId(66)->returnToDeck([3, 4]);
-        $game->stubCurrentPlayerId(77)->returnToDeck([10, 11]);
+        $db = $this->table->getDbConnection();
+        TestUtils::return2RandomCards($game, $db, 66);
+        TestUtils::return2RandomCards($game, $db, 77);
         $game->resetNotifications();
 
         $game->stubActivePlayerId(66)->stDrawCards();
@@ -80,8 +81,9 @@ class DrawCardsTest extends TestCase
             ->setupNewGame()
             ->createGameInstanceWithNoBoundedPlayer();
 
-        $game->stubCurrentPlayerId(66)->returnToDeck([3, 4]);
-        $game->stubCurrentPlayerId(77)->returnToDeck([10, 11]);
+        $db = $this->table->getDbConnection();
+        TestUtils::return2RandomCards($game, $db, 66);
+        TestUtils::return2RandomCards($game, $db, 77);
         $game->resetNotifications();
 
         $game->stubActivePlayerId(77)->stDrawCards();
@@ -142,8 +144,9 @@ class DrawCardsTest extends TestCase
         $game = $this->table
             ->setupNewGame()
             ->createGameInstanceWithNoBoundedPlayer();
-        $game->stubCurrentPlayerId(66)->returnToDeck([3, 4]);
-        $game->stubCurrentPlayerId(77)->returnToDeck([10, 11]);
+        $db = $this->table->getDbConnection();
+        TestUtils::return2RandomCards($game, $db, 66);
+        TestUtils::return2RandomCards($game, $db, 77);
         $game->resetNotifications();
         $this->table->withDbConnection(function (Connection $db) {
             $oneOf77sCardIds = $db->executeQuery('SELECT id FROM deck_card WHERE player_id = 77 LIMIT 1')

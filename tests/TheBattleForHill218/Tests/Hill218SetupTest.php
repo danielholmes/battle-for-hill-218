@@ -12,7 +12,7 @@ class Hill218SetupTest extends TestCase
 {
     public function testStartingCards()
     {
-        list($hand, $deck) = Hill218Setup::getPlayerStartingCards(123);
+        list($hand, $deck) = Hill218Setup::getPlayerStartingCards(123, 1);
         assertThat($hand, arrayWithSize(7));
         assertThat(array_keys($hand), equalTo(range(0, 6)));
         assertThat($deck, arrayWithSize(19));

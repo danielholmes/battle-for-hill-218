@@ -75,6 +75,7 @@ class GetAllDatasTest extends TestCase
                 $db->exec('DELETE FROM deck_card');
                 $db->exec('DELETE FROM playable_card');
                 $db->exec('INSERT INTO battlefield_card (player_id, type, x, y) VALUES (66, "tank", 0, 2)');
+                $db->executeUpdate('UPDATE player SET player_score_aux = 1 WHERE player_id = 66');
             })
             ->createGameInstanceForCurrentPlayer(66);
 

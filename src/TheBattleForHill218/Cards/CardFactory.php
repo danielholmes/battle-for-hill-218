@@ -5,40 +5,42 @@ namespace TheBattleForHill218\Cards;
 class CardFactory
 {
     /**
+     * @param int $id
      * @param string $key
      * @param int $playerId
      * @return PlayerCard
      */
-    public static function createFromTypeKey(string $key, int $playerId) : PlayerCard
+    public static function createFromTypeKey(int $id, string $key, int $playerId) : PlayerCard
     {
         switch ($key) {
             case 'air-strike':
-                return new AirStrikeCard($playerId);
+                return new AirStrikeCard($id, $playerId);
             default:
-                return self::createBattlefieldFromTypeKey($key, $playerId);
+                return self::createBattlefieldFromTypeKey($id, $key, $playerId);
         }
     }
 
     /**
+     * @param int $id
      * @param string $key
      * @param int $playerId
      * @return BattlefieldCard
      */
-    public static function createBattlefieldFromTypeKey(string $key, int $playerId) : BattlefieldCard
+    public static function createBattlefieldFromTypeKey(int $id, string $key, int $playerId) : BattlefieldCard
     {
         switch ($key) {
             case 'infantry':
-                return new InfantryCard($playerId);
+                return new InfantryCard($id, $playerId);
             case 'paratroopers':
-                return new ParatroopersCard($playerId);
+                return new ParatroopersCard($id, $playerId);
             case 'heavy-weapons':
-                return new HeavyWeaponsCard($playerId);
+                return new HeavyWeaponsCard($id, $playerId);
             case 'special-forces':
-                return new SpecialForcesCard($playerId);
+                return new SpecialForcesCard($id, $playerId);
             case 'tank':
-                return new TankCard($playerId);
+                return new TankCard($id, $playerId);
             case 'artillery':
-                return new ArtilleryCard($playerId);
+                return new ArtilleryCard($id, $playerId);
             default:
                 throw new \InvalidArgumentException("Unknown type key {$key}");
         }
