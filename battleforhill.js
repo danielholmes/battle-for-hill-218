@@ -183,7 +183,7 @@ define(
         array.forEach(
           possiblePlacements,
           lang.hitch(this, function(possiblePlacement) {
-            this.activatePossiblePlacementPosition(possiblePlacement, 'Attack this card');
+            this.activatePossiblePlacementPosition(possiblePlacement, _('Attack this card'));
           })
         );
 
@@ -629,7 +629,7 @@ define(
       activatePossiblePlacementPosition: function(position, tooltip) {
         var buttonNode = this.getOrCreatePlacementButton(position.x, position.y);
         query(buttonNode).addClass('clickable');
-        this.addTooltip(buttonNode.id, '', _(tooltip));
+        this.addTooltip(buttonNode.id, '', tooltip);
       },
 
       getOrCreatePlacementButton: function(x, y) {
@@ -715,7 +715,7 @@ define(
         array.forEach(
           possiblePlacements,
           lang.hitch(this, function(possiblePlacement) {
-            this.activatePossiblePlacementPosition(possiblePlacement, 'Place card here');
+            this.activatePossiblePlacementPosition(possiblePlacement, _('Place card here'));
           })
         );
       },
