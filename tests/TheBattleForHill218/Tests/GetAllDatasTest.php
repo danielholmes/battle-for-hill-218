@@ -37,6 +37,7 @@ class GetAllDatasTest extends TestCase
                         'numDefeatedCards' => 0,
                         'numCards' => 7,
                         'deckSize' => 19,
+                        'numUnitsInPlay' => 0,
                         'scoreAux' => 0,
                         'number' => anyOf(1, 2)
                     ]),
@@ -46,6 +47,7 @@ class GetAllDatasTest extends TestCase
                             'numDefeatedCards' => 0,
                             'numCards' => 7,
                             'deckSize' => 19,
+                            'numUnitsInPlay' => 0,
                             'scoreAux' => 0,
                             'number' => anyOf(1, 2)
                         ]),
@@ -72,6 +74,7 @@ class GetAllDatasTest extends TestCase
             ->withDbConnection(function (Connection $db) {
                 $db->exec('DELETE FROM deck_card');
                 $db->exec('DELETE FROM playable_card');
+                $db->exec('INSERT INTO battlefield_card (player_id, type, x, y) VALUES (66, "tank", 0, 2)');
             })
             ->createGameInstanceForCurrentPlayer(66);
 
@@ -87,6 +90,7 @@ class GetAllDatasTest extends TestCase
                         'numDefeatedCards' => 0,
                         'numCards' => 0,
                         'deckSize' => 0,
+                        'numUnitsInPlay' => 1,
                         'number' => anyOf(1, 2)
                     ]),
                     allOf(
@@ -95,18 +99,26 @@ class GetAllDatasTest extends TestCase
                             'numDefeatedCards' => 0,
                             'numCards' => 0,
                             'deckSize' => 0,
+                            'numUnitsInPlay' => 0,
                             'number' => anyOf(1, 2)
                         ]),
                         not(hasKey('cards'))
                     )
                 ),
-                'battlefield' => contains(
+                'battlefield' => containsInAnyOrder(
                     M\hasEntries([
                         'playerId' => null,
                         'playerColor' => null,
                         'type' => 'hill',
                         'x' => 0,
                         'y' => 0
+                    ]),
+                    M\hasEntries([
+                        'playerId' => 66,
+                        'playerColor' => nonEmptyString(),
+                        'type' => 'tank',
+                        'x' => 0,
+                        'y' => 2
                     ])
                 )
             ])

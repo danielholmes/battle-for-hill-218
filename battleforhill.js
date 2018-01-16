@@ -79,6 +79,7 @@ define(
             this.updateHandCount(id, player.handSize);
             this.updateUnitsDestroyedCount(id, player.scoreAux);
             this.updateAirStrikeCount(id, player.numAirStrikes);
+            this.updateUnitsInPlayCount(id, player.numUnitsInPlay);
             if (id.toString() === this.player_id.toString()) {
               this.setupCurrentPlayerCards(player);
             }
@@ -819,6 +820,7 @@ define(
         dojo.subscribe('iPlayedAirStrike', lang.hitch(this, this.onNotifIPlayedAirStrike));
         dojo.subscribe('playedAirStrike', lang.hitch(this, this.onNotifPlayedAirStrike));
         dojo.subscribe('cardAttacked', lang.hitch(this, this.onNotifCardAttacked));
+        dojo.subscribe('newScores', lang.hitch(this, this.onNotifNewScores));
         dojo.subscribe('endOfGame', this, function() {
           // placeholder to allow delay below
         });
@@ -829,13 +831,17 @@ define(
       onNotifCardAttacked: function(notification) {
         var x = notification.args.x;
         var y = notification.args.y;
+        var opponentPlayerId = notification.args.opponentPlayerId;
+        var opponentUnitsInPlay = notification.args.opponentUnitsInPlay;
         var position = this.getOrCreatePlacementPosition(x, y);
         this.explodeCard(position);
+        this.updateUnitsInPlayCount(opponentPlayerId, opponentUnitsInPlay);
       },
 
       onNotifPlacedCard: function(notification) {
         var playerId = notification.args.playerId;
         this.updateHandCount(playerId, notification.args.handCount);
+        this.updateUnitsInPlayCount(playerId, notification.args.unitsInPlay);
         if (playerId === this.player_id) {
           return;
         }
@@ -872,7 +878,11 @@ define(
 
       onNotifPlayedAirStrike: function(notification) {
         var playerId = notification.args.playerId;
+        var opponentPlayerId = notification.args.opponentPlayerId;
+        var opponentUnitsInPlay = notification.args.opponentUnitsInPlay;
+
         this.updateAirStrikeCount(playerId, notification.args.numAirStrikes);
+        this.updateUnitsInPlayCount(opponentPlayerId, opponentUnitsInPlay);
         if (playerId === this.player_id) {
           return;
         }
@@ -954,18 +964,16 @@ define(
         var playerId = notification.args.playerId;
         this.updateHandCount(playerId, notification.args.handCount);
         this.updateDeckCount(playerId, notification.args.deckCount);
-      }
+      },
 
-      /* onNotifNewScores: function(notification) {
-        for (var playerId in notification.args) {
-          if (notification.args.hasOwnProperty(playerId)) {
-            var score = notification.args[playerId].score;
-            var scoreAux = notification.args[playerId].scoreAux;
-            this.scoreCtrl[playerId].toValue(score);
-            this.updateUnitsDestroyedCount(playerId, scoreAux);
+      onNotifNewScores: function(notification) {
+        var scores = notification.args.scores;
+        for (var playerId in scores) {
+          if (scores.hasOwnProperty(playerId)) {
+            this.scoreCtrl[playerId].toValue(scores[playerId]);
           }
         }
-      } */
+      }
     });
   }
 );

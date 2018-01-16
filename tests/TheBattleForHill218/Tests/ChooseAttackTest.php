@@ -133,6 +133,8 @@ class ChooseAttackTest extends TestCase
                         'playerId' => 66,
                         'numDefeatedCards' => 1,
                         'playerName' => nonEmptyString(),
+                        'opponentPlayerId' => 77,
+                        'opponentUnitsInPlay' => 0,
                         'type' => 'Artillery',
                         'destroyedType' => 'Infantry',
                         'x' => 0,

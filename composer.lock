@@ -4,20 +4,20 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "fd2c7ea8943e7c5de0d927af01370251",
+    "content-hash": "55ad975ba0003616fdcc0bed0f2ba86f",
     "packages": [
         {
             "name": "lstrojny/functional-php",
-            "version": "1.6.0",
+            "version": "1.7.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/lstrojny/functional-php.git",
-                "reference": "c0c15f048355d0a7ab17914022ec1f901fe5144a"
+                "reference": "7c2091ddea572e012aa980e5d19d242d3a06ad5b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/lstrojny/functional-php/zipball/c0c15f048355d0a7ab17914022ec1f901fe5144a",
-                "reference": "c0c15f048355d0a7ab17914022ec1f901fe5144a",
+                "url": "https://api.github.com/repos/lstrojny/functional-php/zipball/7c2091ddea572e012aa980e5d19d242d3a06ad5b",
+                "reference": "7c2091ddea572e012aa980e5d19d242d3a06ad5b",
                 "shasum": ""
             },
             "require": {
@@ -104,6 +104,7 @@
                     "src/Functional/Reject.php",
                     "src/Functional/Retry.php",
                     "src/Functional/Select.php",
+                    "src/Functional/SelectKeys.php",
                     "src/Functional/SequenceConstant.php",
                     "src/Functional/SequenceExponential.php",
                     "src/Functional/SequenceLinear.php",
@@ -111,6 +112,7 @@
                     "src/Functional/Sort.php",
                     "src/Functional/Sum.php",
                     "src/Functional/SuppressError.php",
+                    "src/Functional/Tap.php",
                     "src/Functional/Tail.php",
                     "src/Functional/TailRecursion.php",
                     "src/Functional/True.php",
@@ -140,7 +142,7 @@
             "keywords": [
                 "functional"
             ],
-            "time": "2017-05-08T10:17:44+00:00"
+            "time": "2018-01-03T10:08:50+00:00"
         },
         {
             "name": "phpoption/phpoption",
@@ -250,16 +252,16 @@
         },
         {
             "name": "dholmes/bga-workbench",
-            "version": "0.0.11",
+            "version": "0.0.12",
             "source": {
                 "type": "git",
                 "url": "https://github.com/danielholmes/bga-workbench.git",
-                "reference": "5896a874449610de1364392c90fe034e4fa5a701"
+                "reference": "b834ca7d632d1e9b39c07417608aa2b03b4d93bf"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/danielholmes/bga-workbench/zipball/5896a874449610de1364392c90fe034e4fa5a701",
-                "reference": "5896a874449610de1364392c90fe034e4fa5a701",
+                "url": "https://api.github.com/repos/danielholmes/bga-workbench/zipball/b834ca7d632d1e9b39c07417608aa2b03b4d93bf",
+                "reference": "b834ca7d632d1e9b39c07417608aa2b03b4d93bf",
                 "shasum": ""
             },
             "require": {
@@ -269,7 +271,7 @@
                 "fzaninotto/faker": "^1.7.1",
                 "hamcrest/hamcrest-php": "^2.0.0",
                 "jasonlewis/resource-watcher": "1.2.0",
-                "lstrojny/functional-php": "1.6.0",
+                "lstrojny/functional-php": ">=1.6.0 <1.8.0",
                 "nette/reflection": "^2.4.2",
                 "php": ">=7.0.8",
                 "phpoption/phpoption": "^1.5.0",
@@ -308,7 +310,7 @@
                 }
             ],
             "description": "BoardGameArena Workbench",
-            "time": "2018-01-12T01:57:43+00:00"
+            "time": "2018-01-15T11:08:22+00:00"
         },
         {
             "name": "doctrine/annotations",
@@ -2769,16 +2771,16 @@
         },
         {
             "name": "sebastian/comparator",
-            "version": "2.1.1",
+            "version": "2.1.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/comparator.git",
-                "reference": "b11c729f95109b56a0fe9650c6a63a0fcd8c439f"
+                "reference": "11c07feade1d65453e06df3b3b90171d6d982087"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/comparator/zipball/b11c729f95109b56a0fe9650c6a63a0fcd8c439f",
-                "reference": "b11c729f95109b56a0fe9650c6a63a0fcd8c439f",
+                "url": "https://api.github.com/repos/sebastianbergmann/comparator/zipball/11c07feade1d65453e06df3b3b90171d6d982087",
+                "reference": "11c07feade1d65453e06df3b3b90171d6d982087",
                 "shasum": ""
             },
             "require": {
@@ -2829,7 +2831,7 @@
                 "compare",
                 "equality"
             ],
-            "time": "2017-12-22T14:50:35+00:00"
+            "time": "2018-01-12T06:34:42+00:00"
         },
         {
             "name": "sebastian/diff",

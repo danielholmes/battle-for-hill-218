@@ -210,17 +210,17 @@
     background-image: url(img/cards.png);
     background-repeat: no-repeat;
 }
-.counter-cell.units-in-play .counter-icon {
+.counter-cell.units-destroyed .counter-icon {
     width: 30px;
     height: 28px;
     background-position: -117px -460px;
     background-image: url(img/cards.png);
     background-repeat: no-repeat;
 }
-.counter-cell.units-destroyed .counter-icon {
-    width: 30px;
-    height: 28px;
-    background-position: -117px -460px;
+.counter-cell.units-in-play .counter-icon {
+    width: 24px;
+    height: 26px;
+    background-position: -147px -460px;
     background-image: url(img/cards.png);
     background-repeat: no-repeat;
 }

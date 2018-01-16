@@ -184,6 +184,24 @@ class BattleForHill extends Table
             }
         );
 
+        // Units in play
+        $allUnitsInPlay = F\map(
+            F\map(
+                HF\group_to_lists(
+                    self::getObjectListFromDB('SELECT COUNT(id) as size, player_id FROM battlefield_card GROUP BY player_id'),
+                    function (array $count) {
+                        return (int) $count['player_id'];
+                    }
+                ),
+                function (array $counts) {
+                    return F\head($counts);
+                }
+            ),
+            function (array $count) {
+                return (int) $count['size'];
+            }
+        );
+
         // Default values
         $players = F\map(
             $this->getCollectionFromDb('SELECT player_id id, player_no number, player_score score, player_score_aux scoreAux, player_color color FROM player'),
@@ -207,26 +225,30 @@ class BattleForHill extends Table
             if (!isset($allDeckSizes[$playerId])) {
                 $allDeckSizes[$playerId] = 0;
             }
+            if (!isset($allUnitsInPlay[$playerId])) {
+                $allUnitsInPlay[$playerId] = 0;
+            }
         }
 
         // Players
         $currentPlayerId = (int) self::getCurrentPlayerId();
         $players = F\map(
             $players,
-            function (array $player) use ($allHandCards, $allDeckSizes, $currentPlayerId) {
+            function (array $player) use ($allHandCards, $allDeckSizes, $allUnitsInPlay, $currentPlayerId) {
                 $handCards = $allHandCards[$player['id']];
                 $deckSize = $allDeckSizes[$player['id']];
+                $unitsInPlay = $allUnitsInPlay[$player['id']];
 
                 if ($player['id'] === $currentPlayerId) {
                     return array_merge(
                         $player,
-                        $this->getMyPlayerData($player['id'], $player['color'], $deckSize, $handCards)
+                        $this->getMyPlayerData($player['id'], $player['color'], $deckSize, $unitsInPlay, $handCards)
                     );
                 }
 
                 return array_merge(
                     $player,
-                    $this->getPublicPlayerData($player['id'], $player['color'], $deckSize, $handCards)
+                    $this->getPublicPlayerData($player['id'], $player['color'], $deckSize, $unitsInPlay, $handCards)
                 );
             }
         );
@@ -241,13 +263,14 @@ class BattleForHill extends Table
      * @param int $playerId
      * @param string $colour
      * @param int $deckSize
+     * @param int $unitsInPlay
      * @param array $cards
      * @return array
      */
-    public function getMyPlayerData($playerId, $colour, $deckSize, array $cards)
+    public function getMyPlayerData($playerId, $colour, $deckSize, $unitsInPlay, array $cards)
     {
         return array_merge(
-            $this->getPublicPlayerData($playerId, $colour, $deckSize, $cards),
+            $this->getPublicPlayerData($playerId, $colour, $deckSize, $unitsInPlay, $cards),
             [
                 'cards' => F\map(
                     $cards,
@@ -263,10 +286,11 @@ class BattleForHill extends Table
      * @param int $playerId
      * @param string $colour
      * @param int $deckSize
+     * @param int $unitsInPlay
      * @param array $cards
      * @return array
      */
-    public function getPublicPlayerData($playerId, $colour, $deckSize, array $cards)
+    public function getPublicPlayerData($playerId, $colour, $deckSize, $unitsInPlay, array $cards)
     {
         $numAirStrikes = count(
             F\filter(
@@ -279,6 +303,7 @@ class BattleForHill extends Table
         $numCards = count($cards);
         return [
             'isDownwardPlayer' => self::DOWNWARD_PLAYER_COLOR === $colour,
+            'numUnitsInPlay' => $unitsInPlay,
             'numDefeatedCards' => $this->getStat('num_defeated_cards', $playerId),
             'numAirStrikes' => $numAirStrikes,
             'numCards' => $numCards,
@@ -436,6 +461,15 @@ class BattleForHill extends Table
         return self::getIntUniqueValueFromDB("SELECT COUNT(id) FROM deck_card WHERE player_id = {$playerId}");
     }
 
+    /**
+     * @param int $playerId
+     * @return int
+     */
+    private function getNumUnitsInPlay($playerId)
+    {
+        return self::getIntUniqueValueFromDB("SELECT COUNT(id) FROM battlefield_card WHERE player_id = {$playerId}");
+    }
+
 //////////////////////////////////////////////////////////////////////////////
 //////////// Player actions
 ////////////
@@ -585,6 +619,8 @@ class BattleForHill extends Table
                 'playerId' => $card->getPlayerId(),
                 'playerName' => $player['player_name'],
                 'playerColor' => $player['player_color'],
+                'opponentPlayerId' => $cardInPosition->getPlayerId()->get(),
+                'opponentUnitsInPlay' => $this->getNumUnitsInPlay($cardInPosition->getPlayerId()->get()),
                 'typeName' => AirStrikeCard::typeName(),
                 'destroyedType' => $cardInPosition->getCard()->getTypeName(),
                 'numDefeatedCards' => $this->getStat('num_defeated_cards', $card->getPlayerId()),
@@ -658,6 +694,7 @@ class BattleForHill extends Table
                 'handCount' => $this->getHandCountByPlayerId($card->getPlayerId()),
                 'typeName' => $card->getTypeName(),
                 'typeKey' => $card->getTypeKey(),
+                'unitsInPlay' => $this->getNumUnitsInPlay($card->getPlayerId()),
                 'x' => $position->getX(),
                 'y' => $position->getY()
             ]
@@ -677,6 +714,11 @@ class BattleForHill extends Table
         $opponentBasePosition = $battlefield->getOpponentBasePosition($card->getPlayerId());
         if ($opponentBasePosition == $position) {
             self::DbQuery("UPDATE player SET player_score = 1 WHERE player_id = {$card->getPlayerId()}");
+            $this->notifyAllPlayers(
+                'newScores',
+                '',
+                ['scores' => self::getCollectionFromDB('SELECT player_id, player_score FROM player', true)]
+            );
             $this->notifyAllPlayers('endOfGame', '', []);
             $this->gamestate->nextState('occupyEnemyBase');
             return;
@@ -695,6 +737,7 @@ class BattleForHill extends Table
      * @param int $x
      * @param int $y
      * @throws BgaUserException
+     * @throws BgaSystemException
      */
     public function chooseAttack($x, $y)
     {
@@ -746,6 +789,8 @@ class BattleForHill extends Table
                 'playerName' => self::getUniqueValueFromDB("SELECT player_name FROM player WHERE player_id = {$playerId}"),
                 'type' => $from->getCard()->getTypeName(),
                 'destroyedType' => $attack->getCard()->getTypeName(),
+                'opponentPlayerId' => $attack->getCard()->getPlayerId(),
+                'opponentUnitsInPlay' => $this->getNumUnitsInPlay($attack->getCard()->getPlayerId()),
                 'x' => $attack->getX(),
                 'y' => $attack->getY(),
                 'fromX' => $from->getX(),

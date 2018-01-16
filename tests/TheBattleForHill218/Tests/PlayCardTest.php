@@ -85,6 +85,7 @@ class PlayCardTest extends TestCase
                         'typeName' => nonEmptyString(),
                         'typeKey' => nonEmptyString(),
                         'handCount' => 4,
+                        'unitsInPlay' => 1,
                         'x' => 0,
                         'y' => 1
                     ])
@@ -159,6 +160,7 @@ class PlayCardTest extends TestCase
                         'typeName' => nonEmptyString(),
                         'typeKey' => nonEmptyString(),
                         'handCount' => 5,
+                        'unitsInPlay' => 3,
                         'x' => 0,
                         'y' => -1
                     ])
@@ -177,6 +179,14 @@ class PlayCardTest extends TestCase
                     'playerId' => 'all',
                     'type' => 'endOfGame',
                     'log' => ''
+                ]),
+                M\hasEntries([
+                    'playerId' => 'all',
+                    'type' => 'newScores',
+                    'log' => '',
+                    'args' => M\hasEntries([
+                        'scores' => [66 => 1, 77 => 0]
+                    ])
                 ])
             )
         );
@@ -271,6 +281,8 @@ class PlayCardTest extends TestCase
                     'log' => $expectedLog,
                     'args' => M\hasEntries([
                         'playerId' => 66,
+                        'opponentPlayerId' => 77,
+                        'opponentUnitsInPlay' => 0,
                         'numDefeatedCards' => 1,
                         'destroyedType' => 'Infantry',
                         'typeName' => 'Air Strike',
