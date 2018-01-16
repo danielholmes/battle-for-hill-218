@@ -34,7 +34,7 @@ class NextPlayTest extends TestCase
 
         $db = $this->table->getDbConnection();
         TestUtils::return2RandomCards($game, $db, 66);
-        TestUtils::return2RandomCards($game, $db,77);
+        TestUtils::return2RandomCards($game, $db, 77);
         $game->stubActivePlayerId(77)->stDrawCards();
         call_user_func($callable, $db);
         return $game;
@@ -69,7 +69,7 @@ class NextPlayTest extends TestCase
         assertThat(
             $this->table->fetchDbRows('player'),
             containsInAnyOrder([
-                M\hasEntries(['player_id' => 66, 'turn_plays_remaining' => 1]),
+                M\hasEntries(['player_id' => 66, 'turn_plays_remaining' => 0]),
                 M\hasEntries(['player_id' => 77, 'turn_plays_remaining' => 2])
             ])
         );
@@ -114,10 +114,8 @@ class NextPlayTest extends TestCase
         );
     }
 
-    public function testNextPlayNoValidMovesSoSwitch()
+    public function testNextPlayNoValidMovesForOnePlayer()
     {
-        $this->markTestSkipped('TODO');
-
         $this->createGameReadyForNext(function (Connection $db) {
             $db->exec('UPDATE player SET turn_plays_remaining = 2 WHERE player_id = 66');
             $db->exec('UPDATE player SET turn_plays_remaining = 0 WHERE player_id = 77');
@@ -133,6 +131,32 @@ class NextPlayTest extends TestCase
                 M\hasEntries(['player_id' => 66, 'turn_plays_remaining' => 0]),
                 M\hasEntries(['player_id' => 77, 'turn_plays_remaining' => 2])
             ])
+        );
+    }
+
+    public function testNextPlayNoValidMovesForAny()
+    {
+        $game = $this->createGameReadyForNext(function (Connection $db) {
+            $db->exec('DELETE FROM playable_card WHERE player_id = 66');
+            $db->exec('DELETE FROM playable_card WHERE player_id = 77');
+            $db->exec('INSERT INTO playable_card (player_id, type, `order`) VALUES (66, "air-strike", 0)');
+            $db->exec('INSERT INTO playable_card (player_id, type, `order`) VALUES (66, "air-strike", 1)');
+            $db->exec('INSERT INTO playable_card (player_id, type, `order`) VALUES (77, "air-strike", 0)');
+            $db->exec('INSERT INTO playable_card (player_id, type, `order`) VALUES (77, "air-strike", 1)');
+        })->stubActivePlayerId(66);
+        $game->resetNotifications();
+
+        $game->stNextPlay();
+
+        assertThat(
+            $game->getNotifications(),
+            containsInAnyOrder(
+                M\hasEntries([
+                    'playerId' => 'all',
+                    'type' => 'endOfGame',
+                    'log' => ''
+                ])
+            )
         );
     }
 }

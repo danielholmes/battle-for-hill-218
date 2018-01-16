@@ -384,6 +384,45 @@ class BattleForHill extends Table
     }
 
     /**
+     * @param int $playerId
+     * @return boolean
+     */
+    private function doesPlayerHaveAnyPossibleMoves($playerId)
+    {
+        return F\some(
+            $this->loadPossiblePlacementsByCardId($playerId),
+            function (array $moves) {
+                return !empty($moves);
+            }
+        );
+    }
+
+    /**
+     * @param int $playerId
+     * @return array
+     */
+    private function loadPossiblePlacementsByCardId($playerId)
+    {
+        $playableCards = $this->loadPlayableCards($playerId);
+        $battlefield = $this->loadBattlefield();
+
+        return array_combine(
+            F\map($playableCards, function (PlayerCard $card) { return $card->getId(); }),
+            F\map(
+                $playableCards,
+                function (PlayerCard $card) use ($battlefield) {
+                    return F\map(
+                        $card->getPossiblePlacementPositions($battlefield),
+                        function (Position $position) {
+                            return ['x' => $position->getX(), 'y' => $position->getY()];
+                        }
+                    );
+                }
+            )
+        );
+    }
+
+    /**
      * @param array $raw
      * @return PlayerCard
      */
@@ -812,24 +851,9 @@ class BattleForHill extends Table
     public function argPlayCard()
     {
         $playerId = (int) $this->getActivePlayerId();
-        $playableCards = $this->loadPlayableCards($playerId);
-        $battlefield = $this->loadBattlefield();
         return [
             '_private' => [
-                'active' => array_combine(
-                    F\map($playableCards, function (PlayerCard $card) { return $card->getId(); }),
-                    F\map(
-                        $playableCards,
-                        function (PlayerCard $card) use ($battlefield) {
-                            return F\map(
-                                $card->getPossiblePlacementPositions($battlefield),
-                                function (Position $position) {
-                                    return ['x' => $position->getX(), 'y' => $position->getY()];
-                                }
-                            );
-                        }
-                    )
-                )
+                'active' => $this->loadPossiblePlacementsByCardId($playerId)
             ]
         ];
     }
@@ -971,27 +995,14 @@ class BattleForHill extends Table
     public function stNextPlay()
     {
         $playerId = (int) $this->getActivePlayerId();
-
-        $haveDeckCards = (boolean) self::getUniqueValueFromDB('SELECT COUNT(id) FROM deck_card LIMIT 1');
-        $havePlayableCards = (boolean) self::getUniqueValueFromDB('SELECT COUNT(id) FROM playable_card LIMIT 1');
-        if (!$haveDeckCards && !$havePlayableCards) {
-            $this->notifyAllPlayers('endOfGame', '', []);
-            $this->gamestate->nextState('noCardsLeft');
-            return;
-        }
-
-        $activePlayerHasCards = (boolean) self::getUniqueValueFromDB(
-            "SELECT COUNT(id) FROM playable_card WHERE player_id = {$playerId} LIMIT 1"
-        );
         self::DbQuery(
             "UPDATE player SET turn_plays_remaining = turn_plays_remaining - 1 WHERE player_id = {$playerId}"
         );
         $turnsRemaining = self::getIntUniqueValueFromDB(
             "SELECT turn_plays_remaining FROM player WHERE player_id = {$playerId}"
         );
-        $battlefield = $this->loadBattlefield();
-        $playableCards = $this->loadPlayableCards($playerId);
-        if ($turnsRemaining > 0 && $activePlayerHasCards) {
+        $activePlayerHasMoves = $this->doesPlayerHaveAnyPossibleMoves($playerId);
+        if ($turnsRemaining > 0 && $activePlayerHasMoves) {
             $this->gamestate->nextState('playAgain');
             return;
         }
@@ -1002,7 +1013,14 @@ class BattleForHill extends Table
                 return $checkId !== $playerId;
             }
         );
+        if (!$activePlayerHasMoves && !$this->doesPlayerHaveAnyPossibleMoves($opponentPlayerId)) {
+            $this->notifyAllPlayers('endOfGame', '', []);
+            $this->gamestate->nextState('noMovesLeft');
+            return;
+        }
+
         self::DbQuery("UPDATE player SET turn_plays_remaining = 2 WHERE player_id = {$opponentPlayerId}");
+        self::DbQuery("UPDATE player SET turn_plays_remaining = 0 WHERE player_id = {$playerId}");
         $this->gamestate->changeActivePlayer($opponentPlayerId);
         $this->gamestate->nextState('nextPlayer');
     }

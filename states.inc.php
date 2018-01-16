@@ -102,11 +102,11 @@ $machinestates = array(
         "name" => "nextPlay",
         "description" => "",
         "type" => "game",
-        "action" => "stNextPlay",
-        "transitions" => array("playAgain" => 30, "nextPlayer" => 20, "noCardsLeft" => 99),
+        "action" => 'stNextPlay',
+        "transitions" => array('playAgain' => 30, 'nextPlayer' => 20, 'noMovesLeft' => 99),
         "updateGameProgression" => true
     ),
-   
+
     // Final state.
     // Please do not modify.
     99 => array(
