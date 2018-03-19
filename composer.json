@@ -31,7 +31,7 @@
   "require-dev": {
     "php": ">=7.0.8",
     "ext-imagick": "*",
-    "dholmes/bga-workbench": "^0.0.12",
+    "dholmes/bga-workbench": "^0.1.1",
     "phpunit/phpunit": "^6.3.0",
     "squizlabs/php_codesniffer": "^3.0.0",
     "intervention/image": "^2.4.0",
