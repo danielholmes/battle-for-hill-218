@@ -819,6 +819,7 @@ class BattleForHill extends Table
         self::DbQuery(
             "UPDATE player SET player_score_aux = player_score_aux - 1 WHERE player_id = {$attack->getCard()->getPlayerId()}"
         );
+
         $this->playerDestroyCard($playerId);
 
         $this->notifyAllPlayers(
