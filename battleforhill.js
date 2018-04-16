@@ -352,7 +352,7 @@ define(
 
       createBaseIndicator: function(name) {
         var nameOwnership = name;
-        if (nameOwnership.lastIndexOf('s') === namePlural.length - 1) {
+        if (nameOwnership.lastIndexOf('s') === nameOwnership.length - 1) {
           nameOwnership += '\'';
         } else {
           nameOwnership += '\'s';
