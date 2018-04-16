@@ -3,7 +3,7 @@
 <div id="game-container" class="{GAME_CONTAINER_CLASS}">
     <!-- BEGIN player_cards -->
     <div id="players-panel" class="whiteblock">
-        <h3>Your hand</h3>
+        <h3>{YOUR_HAND}</h3>
         <div class="player-cards">
             <div class="air-strike-cards"></div>
             <div class="hand-cards"></div>
@@ -48,7 +48,7 @@
     var jstpl_battlefield_position = '<div id="position-${x}-${y}" class="battlefield-position" style="left: ${left}px;top: ${top}px" data-x="${x}" data-y="${y}"></div>';
     var jstpl_battlefield_card = '<div class="battlefield-card"><div class="card ${type} color-${color}"></div></div>';
     var jstpl_base_indicator = '<div class="battlefield-card">\
-        <div class="card base-indicator">${namePlural} base</div>\
+        <div class="card base-indicator">${baseName}</div>\
     </div>';
     var jstpl_battlefield_button = '<div id="battlefield-button-${x}-${y}" class="battlefield-button" style="left: ${left}px;top: ${top}px" data-x="${x}" data-y="${y}">\
         <div class="coordinates">${x},${y}</div>\

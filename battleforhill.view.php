@@ -20,6 +20,8 @@ class view_battleforhill_battleforhill extends game_view
         $currentPlayerId = (int) $g_user->get_id();
         $players = $this->game->loadPlayersBasicInfos();
 
+        $this->tpl['YOUR_HAND'] = self::_('Your hand');
+
         // Spectator
         if (!isset($players[$currentPlayerId])) {
             $this->tpl['GAME_CONTAINER_CLASS'] = '';

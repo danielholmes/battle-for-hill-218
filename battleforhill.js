@@ -161,7 +161,7 @@ define(
       },
 
       onEnterReturnToDeck: function() {
-        this.enableHandCardsClick(this.onHandCardReturnClick, 'Return this card', 'Don\'t return this card');
+        this.enableHandCardsClick(this.onHandCardReturnClick, _('Return this card'), _('Don\'t return this card'));
       },
 
       onEnterPlayCard: function(possiblePlacementsByCardId) {
@@ -351,13 +351,20 @@ define(
       },
 
       createBaseIndicator: function(name) {
-        var namePlural = name;
-        if (namePlural.lastIndexOf('s') === namePlural.length - 1) {
-          namePlural += '\'';
+        var nameOwnership = name;
+        if (nameOwnership.lastIndexOf('s') === namePlural.length - 1) {
+          nameOwnership += '\'';
         } else {
-          namePlural += '\'s';
+          nameOwnership += '\'s';
         }
-        return domConstruct.toDom(this.format_block('jstpl_base_indicator', {namePlural: namePlural}));
+        return domConstruct.toDom(
+          this.format_block(
+            'jstpl_base_indicator',
+            {
+              baseName: dojo.string.substitute(_('${nameOwnership} base'), {nameOwnership: nameOwnership})
+            }
+          )
+        );
       },
 
       placeBattlefieldCard: function(card) {
@@ -434,8 +441,8 @@ define(
       enablePlayCards: function() {
         this.enableCardsClick(
           this.onCardPlayClick,
-          'Play this card on the battlefield',
-          'Deselect this card'
+          _('Play this card on the battlefield'),
+          _('Deselect this card')
         );
       },
 
