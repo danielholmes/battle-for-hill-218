@@ -24,6 +24,7 @@
     "dot-notation": ["error", {"allowPattern": "_private"}],
     "no-underscore-dangle": 0,
     "consistent-this": 0,
+    "no-template-curly-in-string": 0,
     "default-case": 0,
     "max-params": ["error", 10],
     "new-cap": 0,
