@@ -2,7 +2,7 @@
 
 # Settings
 PROJECT_NAME=$1
-HOME_DIR=/home/ubuntu
+HOME_DIR=/home/vagrant
 PROJECT_DIR=$HOME_DIR/$PROJECT_NAME
 
 # Make sure start in project directory
@@ -34,10 +34,10 @@ apt-get install -y ./nodejs.deb yarn
 rm nodejs.deb
 
 # Deps
-mkdir -p /home/ubuntu/node_modules
-chown ubuntu:ubuntu /home/ubuntu/node_modules
+mkdir -p "$HOME_DIR/node_modules"
+chown vagrant:vagrant "$HOME_DIR/node_modules"
 rm -rf "$PROJECT_DIR/node_modules"
-ln -s /home/ubuntu/node_modules "$PROJECT_DIR/node_modules"
+ln -s "$HOME_DIR/node_modules" "$PROJECT_DIR/node_modules"
 cd "$PROJECT_DIR" && yarn install
 
 # Composer
