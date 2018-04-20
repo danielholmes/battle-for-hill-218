@@ -161,7 +161,7 @@ define(
       },
 
       onEnterReturnToDeck: function() {
-        this.enableHandCardsClick(this.onHandCardReturnClick, _('Return this card'), _('Don\'t return this card'));
+        this.enableHandCardsClick(this.onHandCardReturnClick, _('Return this card'), _('Do not return this card'));
       },
 
       onEnterPlayCard: function(possiblePlacementsByCardId) {
@@ -361,7 +361,7 @@ define(
           this.format_block(
             'jstpl_base_indicator',
             {
-              baseName: dojo.string.substitute(_('${nameOwnership} base'), {nameOwnership: nameOwnership})
+              baseName: dojo.string.substitute(_('${nameOwnership} Base'), {nameOwnership: nameOwnership})
             }
           )
         );
