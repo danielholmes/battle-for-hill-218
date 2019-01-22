@@ -3,7 +3,7 @@
 # Settings
 PROJECT_NAME=$1
 HOME_DIR=/home/vagrant
-PROJECT_DIR=$HOME_DIR/$PROJECT_NAME
+PROJECT_DIR="$HOME_DIR/$PROJECT_NAME"
 
 # Make sure start in project directory
 echo "cd $PROJECT_DIR" >> "$HOME_DIR/.bashrc"
@@ -11,11 +11,17 @@ echo "PATH=\$PATH:$PROJECT_DIR/vendor/bin" >> "$HOME_DIR/.bashrc"
 # Not needed once separate out bga workbench project
 echo "PATH=\$PATH:$PROJECT_DIR/bin" >> "$HOME_DIR/.bashrc"
 
-# Install essential packages from Apt
+# Repos for Apt
+curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -
+echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
+curl -s -o nodejs.deb https://deb.nodesource.com/node_8.x/pool/main/n/nodejs/nodejs_8.4.0-1nodesource1~xenial1_amd64.deb
 apt-get update -y
 
 # Image optimisation
-apt-get install pngquant
+apt-get install -y pngquant
+
+# Unzip (for composer)
+apt-get install -y pngquant
 
 # PHP and packages
 apt-get install -y php7.0-cli php7.0-mbstring php7.0-dom php7.0-zip php7.0-mysql php-imagick
@@ -26,10 +32,6 @@ debconf-set-selections <<< 'mysql-server mysql-server/root_password_again passwo
 apt-get install -y mysql-server
 
 # Node
-curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -
-echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
-curl -s -o nodejs.deb https://deb.nodesource.com/node_8.x/pool/main/n/nodejs/nodejs_8.4.0-1nodesource1~xenial1_amd64.deb
-apt-get update -y
 apt-get install -y ./nodejs.deb yarn
 rm nodejs.deb
 

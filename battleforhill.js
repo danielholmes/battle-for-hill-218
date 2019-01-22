@@ -74,6 +74,8 @@ define(
             this.addTooltip('deck-count-' + id, _('Number of cards left in deck'), '');
             this.addTooltip('hand-count-' + id, _('Number of battlefield cards in hand'), '');
             this.addTooltip('air-strike-count-' + id, _('Number of air strike cards in hand'), '');
+            this.addTooltip('units-destroyed-count-' + id, _('Number of units destroyed'), '');
+            this.addTooltip('units-in-play-count-' + id, _('Number of units in play'), '');
             this.updatePlayerNumber(id, player.number);
             this.updateDeckCount(id, player.deckSize);
             this.updateHandCount(id, player.handSize);

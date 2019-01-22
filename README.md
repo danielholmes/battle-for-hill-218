@@ -14,8 +14,14 @@
 
 ## Setting up Developer Machine
 
+Set up vagrant machine and fill in a bgaproject config with your BGA studio details. You should have gotten these 
+details in your BGA welcome email.
+
 ```
 vagrant up
+vagrant ssh
+cp bgaproject.yml.dist bgaproject.yml
+vi bgaproject.yml
 ```
 
 
@@ -42,6 +48,9 @@ composer compile-images
 
 
 ## Deploying to Studio
+
+This deploys to BGA studio only and allows you to test on there. Deployment to live BGA is then done manually through 
+the studio interface.
 
 ```
 vagrant ssh
