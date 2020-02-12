@@ -13,8 +13,8 @@
 
 $gameinfos = array(
 
-// Name of the game in English (will serve as the basis for translation) 
-'game_name' => "The Battle for Hill 218",
+// Name of the game in English (will serve as the basis for translation)
+'game_name' => totranslate("The Battle for Hill 218"),
 
 // Game designer (or game designers, separated by commas)
 'designer' => 'Darwin Kastle',
@@ -37,6 +37,16 @@ $gameinfos = array(
 // Board game geek ID of the game
 'bgg_id' => 32484,
 
+// Game presentation
+// Short game presentation text that will appear on the game description page, structured as an array of paragraphs.
+// Each paragraph must be wrapped with totranslate() for translation and should not contain html (plain text without formatting).
+// A good length for this text is between 100 and 150 words (about 6 to 9 lines on a standard display)
+// Example:
+'presentation' => array(
+    totranslate("The Battle for Hill 218 is a fast paced tactical game for two players. Deploy your units, maintain your supply lines, and attack the enemy as you struggle for control of Hill 218."),
+    totranslate("Whether blasting the enemy’s forces with artillery, keeping the enemy suppressed with heavy weapons or moving special forces into the enemy’s rear, the goal is simple - occupy the enemy base and you win."),
+    totranslate("2008 Golden Geek Nominee for Best Card Game and Best 2-Player Board Game")
+),
 
 // Players configuration that can be played (ex: 2 to 4 players)
 'players' => array( 2 ),
