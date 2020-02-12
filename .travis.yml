@@ -15,7 +15,6 @@ before_script:
   - printf "\n" | pecl install imagick
   - sudo apt-get install -y pngquant
   - composer install
-  - echo "USE mysql;\nUPDATE user SET password=PASSWORD('battle218pw') WHERE user='root';\nFLUSH PRIVILEGES;\n" | mysql -u root
 
   # Yarn
   - sudo apt-key adv --fetch-keys http://dl.yarnpkg.com/debian/pubkey.gpg
@@ -25,8 +24,8 @@ before_script:
   - yarn install
 
 script:
-  - yarn lint
-  - cp bgaproject.yml.dist bgaproject.yml
+  - yarn lint:check
+  - cp bgaproject.yml.travis.dist bgaproject.yml
   - composer compile-images > /dev/null
   - composer clean
   - composer build
