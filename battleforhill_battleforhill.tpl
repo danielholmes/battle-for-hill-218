@@ -71,15 +71,15 @@
             <span class="counter-icon"></span>\
             <span class="counter-text"></span>\
         </div>\
-        <div id="units-destroyed-count-${playerId}" class="counter-cell units-destroyed">\
-            <span class="counter-icon"></span>\
-            <span class="counter-text"></span>\
-        </div>\
         <div id="units-in-play-count-${playerId}" class="counter-cell units-in-play">\
             <span class="counter-icon"></span>\
             <span class="counter-text"></span>\
         </div>\
-    </div>';
+        <div id="units-destroyed-count-${playerId}" class="counter-cell units-destroyed">\
+            <span class="counter-icon"></span>\
+            <span class="counter-text"></span>\
+        </div>\
+      </div>';
 </script>
 
 {OVERALL_GAME_FOOTER}

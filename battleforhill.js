@@ -74,12 +74,12 @@ define(
             this.addTooltip('deck-count-' + id, _('Number of cards left in deck'), '');
             this.addTooltip('hand-count-' + id, _('Number of battlefield cards in hand'), '');
             this.addTooltip('air-strike-count-' + id, _('Number of air strike cards in hand'), '');
-            this.addTooltip('units-destroyed-count-' + id, _('Number of units destroyed'), '');
             this.addTooltip('units-in-play-count-' + id, _('Number of units in play'), '');
+            this.addTooltip('units-destroyed-count-' + id, _('Number of units destroyed'), '');
             this.updatePlayerNumber(id, player.number);
             this.updateDeckCount(id, player.deckSize);
             this.updateHandCount(id, player.handSize);
-            this.updateUnitsDestroyedCount(id, player.scoreAux);
+            this.updateUnitsDestroyedCount(id, player.numDefeatedCards);
             this.updateAirStrikeCount(id, player.numAirStrikes);
             this.updateUnitsInPlayCount(id, player.numUnitsInPlay);
             if (id.toString() === this.player_id.toString()) {
@@ -842,9 +842,12 @@ define(
         var y = notification.args.y;
         var opponentPlayerId = notification.args.opponentPlayerId;
         var opponentUnitsInPlay = notification.args.opponentUnitsInPlay;
+        var playerId = notification.args.playerId;
+        var numDefeatedCards = notification.args.numDefeatedCards;
         var position = this.getOrCreatePlacementPosition(x, y);
         this.explodeCard(position);
         this.updateUnitsInPlayCount(opponentPlayerId, opponentUnitsInPlay);
+        this.updateUnitsDestroyedCount(playerId, numDefeatedCards);
       },
 
       onNotifPlacedCard: function(notification) {
@@ -889,8 +892,10 @@ define(
         var playerId = notification.args.playerId;
         var opponentPlayerId = notification.args.opponentPlayerId;
         var opponentUnitsInPlay = notification.args.opponentUnitsInPlay;
+        var numDefeatedCards = notification.args.numDefeatedCards;
 
         this.updateAirStrikeCount(playerId, notification.args.numAirStrikes);
+        this.updateUnitsDestroyedCount(playerId, numDefeatedCards);
         this.updateUnitsInPlayCount(opponentPlayerId, opponentUnitsInPlay);
         if (playerId === this.player_id) {
           return;
