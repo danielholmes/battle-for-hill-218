@@ -25,9 +25,10 @@ jobs:
           echo "deb http://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
           sudo apt-get update -qq
       - name: "Install mysql"
-        run: sudo apt install -y mysql-server mysql-client
-      - name: "Configure MySQL"
-        run: sudo mysqladmin -u root password github
+        uses: mirromutth/mysql-action@v1.1
+        with:
+          mysql version: '5.7'
+          mysql root password: github
       - uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php_version }}
