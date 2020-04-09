@@ -27,7 +27,7 @@ jobs:
       - name: "Install mysql"
         run: sudo apt install -y mysql-server
       - name: "Configure MySQL"
-        run: sudo mysqladmin -u root github
+        run: sudo mysqladmin -u root password github
       - uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php_version }}
