@@ -45,6 +45,7 @@ jobs:
         run: yarn lint:check
       - name: Run tests
         run: |
+          mysql --version
           composer compile-images > /dev/null
           composer clean
           composer build
