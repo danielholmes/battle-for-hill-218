@@ -6,7 +6,7 @@ extraSrc:
 testDb:
   namePrefix: battleforhill_test_
   user: root
-  pass: ""
+  pass: github
 
 sftp:
   host: ""
