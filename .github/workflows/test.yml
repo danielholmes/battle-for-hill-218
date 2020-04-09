@@ -1,0 +1,50 @@
+name: Test
+
+on:
+  push:
+    branches: master
+
+jobs:
+  deploy:
+    name: Test on PHP ${{ matrix.php_version }}
+    strategy:
+      matrix:
+        php_version:
+          - 7.1
+          - 7.2
+          - 7.3
+          - 7.4
+
+    runs-on: ubuntu-18.04
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php_version }}
+      - name: "PHP deps"
+        run: |
+          printf "\n" | pecl install imagick
+          sudo apt-get install -y pngquant
+          composer install
+      - name: "Install Yarn"
+        run: |
+          sudo apt-key adv --fetch-keys http://dl.yarnpkg.com/debian/pubkey.gpg
+          echo "deb http://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq yarn
+          yarn install
+      - name: "Setup MySQL"
+        run: sudo apt install mysql
+      - name: "Setup BGA Project"
+        run: cp bgaproject.yml.travis.dist bgaproject.yml
+      - name: Check JS
+        run: yarn lint:check
+      - name: Run tests
+        run: |
+          composer compile-images > /dev/null
+          composer clean
+          composer build
+          composer bga-validate
+          composer check-styles
+          composer test
