@@ -12,8 +12,8 @@ jobs:
         php_version:
           - 7.1
           - 7.2
-          - 7.3
-          - 7.4
+#          - 7.3  PHP tools not compatible (phpcs)
+#          - 7.4  PHP tools not compatible (phpcs)
 
     runs-on: ubuntu-18.04
 
