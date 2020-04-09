@@ -1,6 +1,7 @@
 # The Battle for Hill 218
 
 [![Build Status](https://travis-ci.org/danielholmes/battle-for-hill-218.svg?branch=master)](https://travis-ci.org/danielholmes/battle-for-hill-218)
+[![Test](https://github.com/danielholmes/battle-for-hill-218/workflows/Test/badge.svg)](https://github.com/danielholmes/battle-for-hill-218/actions)
 
 [BoardGameArena](https://boardgamearena.com/) implementation of the card game 
 [The Battle for Hill 218](https://boardgamegeek.com/boardgame/32484/battle-hill-218). Uses the
